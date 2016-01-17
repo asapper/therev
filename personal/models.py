@@ -31,10 +31,10 @@ class Person(models.Model):
 
 class Executive(models.Model):
     # Person reference
-    person_id = models.ForeignKey(Person)
+    person = models.OneToOneField(Person)
     # percentage of commission
-    executive_comssn = models.DecimalField()
+    executive_comssn = models.DecimalField(max_digits=4, decimal_places=2)
 
     def __str__(self):
         """Return a string representation of this Executive instance."""
-        return "{}".format(self.person_id)
+        return "{}".format(self.person)
