@@ -1,0 +1,9 @@
+{% if latest_client_list %}
+    <ul>
+        {% for client in latest_client_list %}
+            <li>{{ client }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No clients are available.</p>
+{% endif %}
