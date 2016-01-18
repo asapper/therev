@@ -6,8 +6,6 @@ class Finishing(models.Model):
     finishing_name = models.CharField(max_length=100)
     # price
     finishing_price = models.DecimalField(max_digits=6, decimal_places=2)
-    # quote reference
-    # quote = models.ForeignKey(Quote, on_delete=models.CASCADE)
 
     def __str__(self):
         """Return a string representation of this Finishing."""
@@ -19,8 +17,6 @@ class Material(models.Model):
     material_name = models.CharField(max_length=100)
     # price
     material_price = models.DecimalField(max_digits=6, decimal_places=2)
-    # quote reference
-    # quote = models.ForeignKey(Quote, on_delete=models.CASCADE)
 
     def __str__(self):
         """Return a string representation of this Material."""
@@ -36,8 +32,6 @@ class Paper(models.Model):
     paper_length = models.DecimalField(max_digits=4, decimal_places=2)
     # paper price
     paper_price = models.DecimalField(max_digits=5, decimal_places=2)
-    # quote reference
-    # quote = models.OneToOneField(Quote, on_delete=models.CASCADE)
 
     def __str__(self):
         """Return a string representation of this Paper."""

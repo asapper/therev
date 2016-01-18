@@ -1,6 +1,9 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from recursos.models import Finishing, Material, Paper
+from personal.models import Client, Executive
+
 
 class Quote(models.Model):
     # quote name
@@ -35,16 +38,26 @@ class Quote(models.Model):
     # is authorized
     quote_is_authorized = models.BooleanField(default=False)
     # is approved
-    quote_is_approved = models.BooleanField(default=True)
+    quote_is_approved = models.BooleanField(default=False)
     # total price (set once is approved)
     quote_total_price = models.DecimalField(
         max_digits=20, decimal_places=2, default=0)
     # imposing per sheet (set once is approved)
     quote_imposing_per_sheet = models.PositiveSmallIntegerField(default=0)
+    # client reference
+    client = models.ForeignKey(Client)
+    # executive reference
+    executive = models.ForeignKey(Executive)
+    # finishings reference
+    finishings = models.ManyToManyField(Finishing, through='Quote_Finishing')
+    # materials reference
+    materials = models.ManyToManyField(Material)
+    # paper reference
+    paper = models.ForeignKey(Paper)
 
     def __str__(self):
         """Return a string representation of this Quote."""
-        return ("Id: {}; Name: {}; Product: {}; Dimentions: {}\" x {}\"\n"
+        return ("Id: {}; Name: {}; Product: {}; Dimentions: {}\" x {}\"; "
                 "Due: {}; Copies: {}; Printing sides: {}.").format(
                     self.id,
                     self.quote_name,
@@ -62,3 +75,14 @@ class Quote(models.Model):
     def get_due_date(self):
         """Return this Quote's due date."""
         return self.quote_due_date
+
+
+class Quote_Finishing(models.Model):
+    # quote reference
+    quote = models.ForeignKey(Quote)
+    # finishing reference
+    finishing = models.ForeignKey(Finishing)
+    # datetime started
+    date_started = models.DateTimeField(null=True)
+    # datetime finished
+    date_finished = models.DateTimeField(null=True)
