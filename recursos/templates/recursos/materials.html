@@ -1,0 +1,9 @@
+{% if latest_material_list %}
+    <ul>
+        {% for material in latest_material_list %}
+            <li>{{ material }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No materials are available.</p>
+{% endif %}
