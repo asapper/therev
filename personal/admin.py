@@ -14,6 +14,11 @@ class PersonAdmin(admin.ModelAdmin):
     search_fields = ['person_name', 'person_lastname',]
 
 
+class ExecutiveAdmin(admin.ModelAdmin):
+    list_display = ('id', 'person', 'executive_comssn')
+    search_fields = ['person']
+
+
 admin.site.register(Client, ClientAdmin)
-admin.site.register(Executive)
+admin.site.register(Executive, ExecutiveAdmin)
 admin.site.register(Person, PersonAdmin)
