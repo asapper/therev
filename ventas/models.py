@@ -76,6 +76,12 @@ class Quote(models.Model):
         """Return this Quote's due date."""
         return self.quote_due_date
 
+    quote_product_name.short_description = 'Product'
+    quote_last_modified.short_description = 'Last Modified'
+    quote_is_authorized.short_description = 'Authorized?'
+    quote_is_approved.short_description = 'Approved?'
+    quote_total_price.short_description = 'Total Price'
+
 
 class Quote_Finishing(models.Model):
     # quote reference
