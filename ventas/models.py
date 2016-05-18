@@ -86,3 +86,18 @@ class Quote_Finishing(models.Model):
     date_started = models.DateTimeField(null=True)
     # datetime finished
     date_finished = models.DateTimeField(null=True)
+
+
+class AuthorizedQuote(models.Model):
+    # quote reference
+    quote = models.OneToOneField(Quote)
+    # date authorized
+    date_authorized = models.DateTimeField(auto_now_add=True)
+
+    def get_quote_id(self):
+        """Return the quote id associated with this AuthorizedQuote."""
+        return self.id.get_quote_id()
+
+    def get_quote_due_date(self):
+        """Return the quote due date associated with this AuthorizedQuote."""
+        return self.id.get_due_date()
