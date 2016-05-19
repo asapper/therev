@@ -1,11 +1,30 @@
-from django.http import HttpResponse
+from django.core.urlresolvers import reverse
+from django.shortcuts import render, redirect
 from django.views import generic
 
+from .forms import QuoteForm
 from .models import Quote
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the Ventas index.")
+def new_quote(request):
+    if request.method == "POST":
+        form = QuoteForm(request.POST)
+        if form.is_valid():
+            quote = form.save(commit=False)
+            quote.executive_id = 1
+            quote.save()
+            print("Quote saved!")
+            return redirect(reverse(
+                'ventas:quote_detail', kwargs={'pk': quote.id}))
+        else:
+            print("Quote invalid!")
+    else:
+        form = QuoteForm()
+    return render(request, 'ventas/new_quote.html', {'form': form})
+
+
+class VentasView(generic.base.TemplateView):
+    template_name = 'ventas/index.html'
 
 
 class QuotesView(generic.ListView):

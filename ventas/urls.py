@@ -5,9 +5,11 @@ from . import views
 app_name = 'ventas'
 urlpatterns = [
     # ex: /ventas/
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.VentasView.as_view(), name='index'),
     # ex: /ventas/quotes/
     url(r'^quotes/$', views.QuotesView.as_view(), name='quotes'),
+    # ex: /ventas/quotes/new
+    url(r'^quotes/new$', views.new_quote, name='new_quote'),
     # ex: /ventas/quotes/5/
     url(r'^quotes/(?P<pk>[0-9]+)/$', views.QuoteDetailView.as_view(),
         name='quote_detail'),
