@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'ventas.apps.VentasConfig',
     'recursos.apps.RecursosConfig',
     'personal.apps.PersonalConfig',
-    'polls.apps.PollsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
