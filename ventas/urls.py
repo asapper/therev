@@ -13,4 +13,6 @@ urlpatterns = [
     # ex: /ventas/quotes/5/
     url(r'^quotes/(?P<pk>[0-9]+)/$', views.QuoteDetailView.as_view(),
         name='quote_detail'),
+    # ex: /ventas/quotes/5/edit/
+    url(r'^quotes/(?P<pk>[0-9]+)/edit$', views.edit_quote, name='edit_quote'),
 ]

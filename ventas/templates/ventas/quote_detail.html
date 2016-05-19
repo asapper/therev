@@ -3,3 +3,8 @@
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 {{ quote }}
+
+<br>
+<a href="{% url 'ventas:quotes' %}">View all quotes</a>
+<br>
+<a href="{% url 'ventas:edit_quote' pk=quote.id %}">Edit Quote</a>
