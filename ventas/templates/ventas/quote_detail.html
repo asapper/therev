@@ -1,10 +1,45 @@
 <h1>{{ quote.quote_name }}</h1>
+<h3>By {{ quote.executive }}</h3>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-{{ quote }}
+<p><strong>Date created: </strong>{{ quote.quote_date_created }}</p>
+<p><strong>Last Modified:</strong>{{ quote.quote_last_modified }}</p>
+<p><strong>Due Date:     </strong>{{ quote.quote_due_date }}</p>
+<p><strong>Client:       </strong>{{ quote.client }}</p>
+<p><strong>Price:        </strong>Q. {{ quote.quote_total_price }}</p>
+<br>
+
+<p><strong>Copies:       </strong>{{ quote.quote_copies }}</p>
+<p><Strong>Dimentions:   </strong>
+    {{ quote.quote_dimention_width }}" x {{ quote.quote_dimention_length }}"
+</p>
+<p><strong>Paper:        </strong>{{ quote.paper }}</p>
+<p><strong>Imposing:     </strong>{{ quote.quote_imposing_per_sheet }}</p>
+<br>
+
+<p><strong>Finishings:   </strong>
+    <ul>
+        {% for finishing in quote.finishings.all %}
+            <li>{{ finishing }}</li>
+        {% endfor %}
+    </ul>
+</p>
+<p><strong>Materials:    </strong>
+    <ul>
+        {% for material in quote.materials.all %}
+            <li>{{ material }}</li>
+        {% endfor %}
+    </ul>
+</p>
+<p><strong>Authorized?   </strong>{{ quote.quote_is_authorized }}</p>
+<p><strong>Approved?     </strong>{{ quote.quote_is_approved }}</p>
 
 <br>
 <a href="{% url 'ventas:quotes' %}">View all quotes</a>
 <br>
 <a href="{% url 'ventas:edit_quote' pk=quote.id %}">Edit Quote</a>
+<br>
+<a href="#">Authorize Quote</a>
+<br>
+<a href="#">Approve Quote</a>
