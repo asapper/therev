@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.views import generic
 
+from . import utility
 from .forms import QuoteForm
 from .models import Quote
 from .models import Quote_Finishing
@@ -18,6 +19,8 @@ class QuoteCreateView(generic.edit.CreateView):
         quote = form.save(commit=False)
         # assign executive that made this quote
         quote.executive_id = 1  # FIX THIS!
+        # store imposing
+        quote.quote_imposing_per_sheet = utility.get_imposing(quote)
         quote.save()  # save quote
         # store materials
         quote.materials.set(form['materials'].value())
@@ -37,11 +40,13 @@ class QuoteEditView(generic.edit.UpdateView):
     form_class = QuoteForm
     template_name = 'ventas/quote_edit.html'
 
-    def form_valid(slef, form):
+    def form_valid(self, form):
         """Save an edited Quote."""
         quote = form.save(commit=False)
         # assign executive that made this quote
         quote.executive_id = 1  # FIX THIS!
+        # store imposing
+        quote.quote_imposing_per_sheet = utility.get_imposing(quote)
         # clear old, keep only new list of materials
         quote.materials.set(form['materials'].value())
         # store finishings
@@ -73,3 +78,6 @@ class QuotesView(generic.ListView):
 class QuoteDetailView(generic.DetailView):
     model = Quote
     template_name = 'ventas/quote_detail.html'
+
+    def get_total_price(self):
+        return "hi"
