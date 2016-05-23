@@ -44,6 +44,8 @@ class Quote(models.Model):
         max_digits=20, decimal_places=2, default=0)
     # imposing per sheet (set once is approved)
     quote_imposing_per_sheet = models.PositiveSmallIntegerField(default=0)
+    # total sheets required for job
+    quote_total_sheets = models.PositiveIntegerField(default=0)
     # client reference
     client = models.ForeignKey(Client)
     # executive reference
