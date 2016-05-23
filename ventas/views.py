@@ -20,7 +20,9 @@ class QuoteCreateView(generic.edit.CreateView):
         # assign executive that made this quote
         quote.executive_id = 1  # FIX THIS!
         # store imposing
-        quote.quote_imposing_per_sheet = utility.get_imposing(quote)
+        imposing, sheets = utility.get_imposing(quote)
+        quote.quote_imposing_per_sheet = imposing
+        quote.quote_total_sheets = sheets
         quote.save()  # save quote
         # store materials
         quote.materials.set(form['materials'].value())
@@ -31,6 +33,9 @@ class QuoteCreateView(generic.edit.CreateView):
             Quote_Finishing.objects.create(
                 quote=quote,
                 finishing=finishing)
+        # store total price
+        quote.quote_total_price = utility.get_total_price(quote)
+        quote.save()  # save quote
         return redirect(reverse(
             'ventas:quote_detail', kwargs={'pk': quote.id}))
 
@@ -46,7 +51,9 @@ class QuoteEditView(generic.edit.UpdateView):
         # assign executive that made this quote
         quote.executive_id = 1  # FIX THIS!
         # store imposing
-        quote.quote_imposing_per_sheet = utility.get_imposing(quote)
+        imposing, sheets = utility.get_imposing(quote)
+        quote.quote_imposing_per_sheet = imposing
+        quote.quote_total_sheets = sheets
         # clear old, keep only new list of materials
         quote.materials.set(form['materials'].value())
         # store finishings
@@ -56,8 +63,9 @@ class QuoteEditView(generic.edit.UpdateView):
             Quote_Finishing.objects.create(
                 quote=quote,
                 finishing=finishing)
-        # save quote
-        quote.save()
+        # store total price
+        quote.quote_total_price = utility.get_total_price(quote)
+        quote.save()  # save quote
         return redirect(reverse(
             'ventas:quote_detail', kwargs={'pk': quote.id}))
 

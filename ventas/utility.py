@@ -1,5 +1,26 @@
 import math
 
+
+def get_total_price(quote):
+    """Return the total price for all processes in a Quote."""
+
+    total_materials_price = 0
+    for material in quote.materials.all():
+        total_materials_price += material.material_price
+
+    total_finishings_price = 0
+    for finishing in quote.finishings.all():
+        total_finishings_price = finishing.finishing_price
+
+    paper_price = quote.paper.paper_price
+    # calculate total price
+    sheets = quote.quote_total_sheets
+    total_price = sheets * total_materials_price
+    total_price += sheets * total_finishings_price
+    total_price += sheets * paper_price
+    return total_price
+
+
 def get_imposing(quote):
     """Return the number of jobs that can fit in the chosen paper."""
     paper_width = quote.paper.paper_width
@@ -11,19 +32,15 @@ def get_imposing(quote):
 
     results = []
     results = calculate_impose(paper_width, paper_length, job_width,
-            job_length, job_bleed)
+                               job_length, job_bleed)
     results.sort(reverse=True)
     best_result = results[0]
-    # display results
-    for imposing in results:
-        sheets = math.ceil(num_copies / imposing)
-        print(">>> Fit: {}; Sheets: {}".format(imposing, sheets))
-
-    return best_result
+    best_sheets = math.ceil(num_copies / best_result)
+    return best_result, best_sheets
 
 
 def calculate_impose(paper_width, paper_length, job_width, job_length,
-        job_bleed):
+                     job_bleed):
     """
     Calculate ways to impose job in the given paper and call
     helper function to do the imposing.
@@ -46,19 +63,19 @@ def calculate_impose(paper_width, paper_length, job_width, job_length,
 
     # call method 1
     total_method_1 = do_impose(
-            paper_min,
-            paper_max,
-            job_width,
-            job_length,
-            job_bleed,
-            job_total_min,
-            job_total_max,
-            max_side,
-            min_side,
-            max_final,
-            min_final,
-            max_leftover,
-            min_leftover)
+        paper_min,
+        paper_max,
+        job_width,
+        job_length,
+        job_bleed,
+        job_total_min,
+        job_total_max,
+        max_side,
+        min_side,
+        max_final,
+        min_final,
+        max_leftover,
+        min_leftover)
 
     # append to results
     results.append(total_method_1)
@@ -72,19 +89,19 @@ def calculate_impose(paper_width, paper_length, job_width, job_length,
 
     # call method 2
     total_method_2 = do_impose(
-            paper_min,
-            paper_max,
-            job_width,
-            job_length,
-            job_bleed,
-            job_total_min,
-            job_total_max,
-            max_side,
-            min_side,
-            max_final,
-            min_final,
-            max_leftover,
-            min_leftover)
+        paper_min,
+        paper_max,
+        job_width,
+        job_length,
+        job_bleed,
+        job_total_min,
+        job_total_max,
+        max_side,
+        min_side,
+        max_final,
+        min_final,
+        max_leftover,
+        min_leftover)
 
     # append to results
     results.append(total_method_2)
@@ -92,8 +109,8 @@ def calculate_impose(paper_width, paper_length, job_width, job_length,
 
 
 def do_impose(paper_min, paper_max, job_width, job_length, job_bleed,
-        job_total_min, job_total_max, max_side, min_side, max_final,
-        min_final, max_leftover, min_leftover):
+              job_total_min, job_total_max, max_side, min_side, max_final,
+              min_final, max_leftover, min_leftover):
     """Do the imposing of the given job in the given paper."""
 
     # store imposing so far
@@ -109,11 +126,11 @@ def do_impose(paper_min, paper_max, job_width, job_length, job_bleed,
             leftover_imp = []
             # impose on leftover area
             leftover_imp = calculate_impose(
-                    paper_min,  # paper width
-                    max_leftover,  # paper length
-                    job_width,
-                    job_length,
-                    job_bleed)
+                paper_min,  # paper width
+                max_leftover,  # paper length
+                job_width,
+                job_length,
+                job_bleed)
 
             # loop over leftover results
             for imp in leftover_imp:
@@ -127,11 +144,11 @@ def do_impose(paper_min, paper_max, job_width, job_length, job_bleed,
             leftover_imp = []
             # impose on leftover area
             leftover_imp = calculate_impose(
-                    paper_max,  # paper width
-                    min_leftover,  # paper length
-                    job_width,
-                    job_length,
-                    job_bleed)
+                paper_max,  # paper width
+                min_leftover,  # paper length
+                job_width,
+                job_length,
+                job_bleed)
 
             # loop over leftover results
             for imp in leftover_imp:
