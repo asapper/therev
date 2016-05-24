@@ -4,6 +4,9 @@
         <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     </head>
     <body>
+        <nav class="navbar navbar-inverse">
+            <a class="navbar-brand" href="{% url 'index' %}">Quotes Project</a>
+        </nav>
         {% block content %}
         {% endblock %}
     </body>

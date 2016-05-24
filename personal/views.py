@@ -1,11 +1,10 @@
-from django.http import HttpResponse
 from django.views import generic
 
 from .models import Client, Executive, Person
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the 'Personal' app index.")
+class PersonalIndexView(generic.base.TemplateView):
+    template_name = 'personal/index.html'
 
 
 class ClientsView(generic.ListView):

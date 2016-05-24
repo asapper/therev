@@ -19,7 +19,7 @@ from django.contrib import admin
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.MainSiteIndexView.as_view(), name='index'),
     url(r'^ventas/', include('ventas.urls')),
     url(r'^recursos/', include('recursos.urls')),
     url(r'^personal/', include('personal.urls')),

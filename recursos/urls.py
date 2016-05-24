@@ -5,7 +5,7 @@ from . import views
 app_name = "recursos"
 urlpatterns = [
     # ex: /recursos/
-    url(r'^$', views.index, name="index"),
+    url(r'^$', views.RecursosIndexView.as_view(), name="index"),
     # ex: /recursos/finishings/
     url(r'^finishings/$', views.FinishingsView.as_view(), name='finishings'),
     # ex: /recursos/materials/

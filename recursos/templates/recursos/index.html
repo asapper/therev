@@ -1,0 +1,8 @@
+{% extends 'base_site.html' %}
+
+{% block content %}
+    <h3>Recursos index page</h3>
+    <a class="btn btn-default" href="{% url 'recursos:finishings' %}">Finishings page</a>
+    <a class="btn btn-default" href="{% url 'recursos:materials' %}">Materials page</a>
+    <a class="btn btn-default" href="{% url 'recursos:papers' %}">Papers page</a>
+{% endblock %}

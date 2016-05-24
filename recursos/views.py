@@ -1,11 +1,10 @@
-from django.http import HttpResponse
 from django.views import generic
 
 from .models import Finishing, Material, Paper
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the Recursos index.")
+class RecursosIndexView(generic.base.TemplateView):
+    template_name = 'recursos/index.html'
 
 
 class FinishingsView(generic.ListView):

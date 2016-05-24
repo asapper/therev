@@ -48,9 +48,7 @@ class QuoteEditView(generic.edit.UpdateView):
     def form_valid(self, form):
         """Save an edited Quote."""
         quote = form.save(commit=False)
-        # assign executive that made this quote
-        quote.executive_id = 1  # FIX THIS!
-        # store imposing
+        # store imposing if dimentions changed
         imposing, sheets = utility.get_imposing(quote)
         quote.quote_imposing_per_sheet = imposing
         quote.quote_total_sheets = sheets
@@ -86,6 +84,3 @@ class QuotesView(generic.ListView):
 class QuoteDetailView(generic.DetailView):
     model = Quote
     template_name = 'ventas/quote_detail.html'
-
-    def get_total_price(self):
-        return "hi"

@@ -5,7 +5,7 @@ from . import views
 app_name = 'personal'
 urlpatterns = [
     # ex: /personal/
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.PersonalIndexView.as_view(), name='index'),
     # ex: /personal/clients/
     url(r'^clients/$', views.ClientsView.as_view(), name='clients'),
     # ex: /personal/executives/
