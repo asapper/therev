@@ -15,7 +15,9 @@ class Quote(models.Model):
     # due date
     quote_due_date = models.DateField()
     # number of copies
-    quote_copies = models.IntegerField()
+    quote_copies = models.PositiveIntegerField()
+    # number of quires
+    quires = models.PositiveSmallIntegerField(default=1)
     # product name
     quote_product_name = models.CharField(max_length=100)
     # dimentions (x, y)
