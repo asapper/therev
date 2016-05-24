@@ -10,7 +10,7 @@ def get_total_price(quote):
 
     total_finishings_price = 0
     for finishing in quote.finishings.all():
-        total_finishings_price = finishing.finishing_price
+        total_finishings_price += finishing.finishing_price
 
     paper_price = quote.paper.paper_price
     # calculate total price
@@ -28,7 +28,7 @@ def get_imposing(quote):
     job_width = quote.quote_dimention_width
     job_length = quote.quote_dimention_length
     job_bleed = quote.quote_printing_bleed
-    num_copies = quote.quote_copies
+    num_copies = quote.quote_copies * quote.quires
 
     results = []
     results = calculate_impose(paper_width, paper_length, job_width,
