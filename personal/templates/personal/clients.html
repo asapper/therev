@@ -1,9 +1,14 @@
-{% if latest_client_list %}
-    <ul>
-        {% for client in latest_client_list %}
-            <li>{{ client }}</li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No clients are available.</p>
-{% endif %}
+{% extends 'base_site.html' %}
+
+{% block content %}
+    <h3>Clients</h3>
+    {% if latest_client_list %}
+        <ul>
+            {% for client in latest_client_list %}
+                <li>{{ client }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No clients are available.</p>
+    {% endif %}
+{% endblock %}

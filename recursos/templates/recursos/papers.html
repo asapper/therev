@@ -1,9 +1,14 @@
-{% if latest_paper_list %}
-    <ul>
-        {% for paper in latest_paper_list %}
-            <li>{{ paper }}</li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No papers are available.</p>
-{% endif %}
+{% extends 'base_site.html' %}
+
+{% block content %}
+    <h3>Papers</h3>
+    {% if latest_paper_list %}
+        <ul>
+            {% for paper in latest_paper_list %}
+                <li>{{ paper }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No papers are available.</p>
+    {% endif %}
+{% endblock %}

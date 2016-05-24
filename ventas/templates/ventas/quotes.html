@@ -1,12 +1,16 @@
-{% if latest_quote_list %}
-    <ul>
-        {% for quote in latest_quote_list %}
-            <li><a href="{% url 'ventas:quote_detail' quote.id %}">{{ quote }}</a></li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No quotes are available.</p>
-{% endif %}
+{% extends 'base_site.html' %}
 
-<p><a href="{% url 'ventas:index' %}">Ventas Index Page</a></p>
-<p><a href="{% url 'ventas:quote_create' %}">Create new quote</a></p>
+{% block content %}
+    {% if latest_quote_list %}
+        <ul>
+            {% for quote in latest_quote_list %}
+                <li><a href="{% url 'ventas:quote_detail' quote.id %}">{{ quote }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No quotes are available.</p>
+    {% endif %}
+
+    <p><a class="btn btn-default" href="{% url 'ventas:index' %}">Ventas Index Page</a></p>
+    <p><a class="btn btn-default" href="{% url 'ventas:quote_create' %}">Create new quote</a></p>
+{% endblock %}

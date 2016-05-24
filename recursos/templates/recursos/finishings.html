@@ -1,9 +1,14 @@
-{% if latest_finishing_list %}
-    <ul>
-        {% for finishing in latest_finishing_list %}
-            <li>{{ finishing }}</li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No finishings are available.</p>
-{% endif %}
+{% extends 'base_site.html' %}
+
+{% block content %}
+    <h3>Finishings</h3>
+    {% if latest_finishing_list %}
+        <ul>
+            {% for finishing in latest_finishing_list %}
+                <li>{{ finishing }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No finishings are available.</p>
+    {% endif %}
+{% endblock %}
