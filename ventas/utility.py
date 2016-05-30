@@ -33,9 +33,13 @@ def get_imposing(quote):
     results = []
     results = calculate_impose(paper_width, paper_length, job_width,
                                job_length, job_bleed)
+
     results.sort(reverse=True)
     best_result = results[0]
-    best_sheets = math.ceil(num_copies / best_result)
+    if best_result == 0:
+        best_sheets = 0
+    else:
+        best_sheets = math.ceil(num_copies / best_result)
     return best_result, best_sheets
 
 

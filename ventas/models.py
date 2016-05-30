@@ -1,6 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from . import validators
 from recursos.models import Finishing, Material, Paper
 from personal.models import Client, Executive
 
@@ -13,7 +14,8 @@ class Quote(models.Model):
     # date last modified (set it now when modified)
     quote_last_modified = models.DateTimeField(auto_now=True)
     # due date
-    quote_due_date = models.DateField()
+    quote_due_date = models.DateField(
+        validators=[validators.validate_due_date])
     # number of copies
     quote_copies = models.PositiveIntegerField()
     # number of quires
@@ -22,21 +24,23 @@ class Quote(models.Model):
     quote_product_name = models.CharField(max_length=100)
     # dimentions (x, y)
     quote_dimention_width = models.DecimalField(
-        max_digits=5, decimal_places=2)
+        max_digits=5, decimal_places=2,
+        validators=[validators.validate_dimentions])
     quote_dimention_length = models.DecimalField(
-        max_digits=5, decimal_places=2)
+        max_digits=5, decimal_places=2,
+        validators=[validators.validate_dimentions])
     # bleed
     quote_printing_bleed = models.DecimalField(
         max_digits=4, decimal_places=2,
         validators=[MinValueValidator(0)])
     # printing sides (1 or 2 sides)
     quote_printing_sides = models.PositiveSmallIntegerField(
-        validators=[MaxValueValidator(2)])
+        validators=[MaxValueValidator(2), MinValueValidator(0)])
     # num colors (fron and back)
     quote_printing_colors_front = models.PositiveSmallIntegerField(
-        validators=[MaxValueValidator(4)])
+        validators=[MaxValueValidator(4), MinValueValidator(0)])
     quote_printing_colors_back = models.PositiveSmallIntegerField(
-        validators=[MaxValueValidator(4)])
+        validators=[MaxValueValidator(4), MinValueValidator(0)])
     # is authorized
     quote_is_authorized = models.BooleanField(default=False)
     # is approved
