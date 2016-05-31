@@ -1,13 +1,11 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError
 from django.shortcuts import redirect
 from django.views import generic
 from django.views.decorators.http import require_http_methods
 
 from . import utility
 from .forms import QuoteForm
-from .models import AuthorizedQuote
 from .models import Quote
 from .models import Quote_Finishing
 from recursos.models import Finishing
@@ -22,14 +20,7 @@ def authorize_quote(request, pk):
     except ObjectDoesNotExist:
         error = True
     if error is False:
-        if quote.quote_is_authorized is False:
-            try:  # authorize quote
-                AuthorizedQuote.objects.create(quote=quote)
-            except IntegrityError:
-                error = True
-            if error is False:
-                quote.quote_is_authorized = True  # update quote
-                quote.save()
+        quote.authorize_quote()
     return redirect(reverse(
         'ventas:quote_detail', kwargs={'pk': pk}))
 

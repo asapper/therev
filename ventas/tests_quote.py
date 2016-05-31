@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from . import utility
 from .forms import QuoteForm
+from .models import AuthorizedQuote
 from .models import Quote
 from .models import Quote_Finishing
 from personal.models import Client
@@ -62,7 +63,7 @@ class QuoteSetUpClass(TestCase):
             quote_name=name,
             quote_due_date=due_date,
             quote_copies=copies,
-            quires=quires,
+            quote_quires=quires,
             quote_product_name=product_name,
             quote_dimention_width=width,
             quote_dimention_length=length,
@@ -249,37 +250,73 @@ class QuoteMethodTests(QuoteSetUpClass, TestCase):
     def test_get_quote_id(self):
         """Create a quote, and get its id."""
         # create quote with id: 1
-        quote = self.create_quote(name="Quote1",
-                                  due_date=self.due_today, copies=10,
-                                  product_name="Prueba", width=10, length=18,
-                                  bleed=0.1, sides=2, colors_front=4,
-                                  colors_back=4, materials=[self.m_print],
-                                  finishings=[self.f_trim])
+        quote = self.create_quote(
+            name="Quote1", due_date=self.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
         # check method: get_quote_id()
         self.assertEqual(quote.get_quote_id(), 1)
 
     def test_get_due_date(self):
-        """Create a quote, and get its id."""
+        """Create a quote, and get its due date."""
         # create quote with due date: today
-        quote_today = self.create_quote(name="Quote1", due_date=self.due_today,
-                                        copies=10, product_name="Prueba",
-                                        width=10, length=18, bleed=0.1,
-                                        sides=2, colors_front=4, colors_back=4,
-                                        materials=[self.m_print],
-                                        finishings=[self.f_trim])
+        quote_today = self.create_quote(
+            name="Quote1", due_date=self.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
         # create quote with due date: today
         in_seven_days = self.due_today + datetime.timedelta(days=7)
-        quote_future = self.create_quote(name="Quote2", due_date=in_seven_days,
-                                         copies=20, product_name="Prueba2",
-                                         width=10, length=18, bleed=0.1,
-                                         sides=1, colors_front=4,
-                                         colors_back=4,
-                                         materials=[self.m_print],
-                                         finishings=[self.f_trim])
+        quote_future = self.create_quote(
+            name="Quote2", due_date=in_seven_days, copies=20,
+            product_name="Prueba2", width=10, length=18, bleed=0.1, sides=1,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
 
         # check method: get_quote_due_date()
         self.assertEqual(quote_today.get_due_date(), self.due_today)
         self.assertEqual(quote_future.get_due_date(), in_seven_days)
+
+
+class AuthorizedQuoteMethodTests(QuoteSetUpClass, TestCase):
+    def test_get_quote_id(self):
+        """Create and authorize a Quote, and get its id."""
+        quote = self.create_quote(
+            name="Quote1", due_date=self.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
+        quote.authorize_quote()
+        auth_quote = AuthorizedQuote.objects.get(quote_id=quote.id)
+        self.assertEquals(auth_quote.get_quote_id(), 1)
+
+    def test_get_due_date(self):
+        """Create and authorize a Quote, and get its due date."""
+        # create quote with due date: today
+        quote_today = self.create_quote(
+            name="Quote1", due_date=self.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
+        # create quote with due date: today
+        in_seven_days = self.due_today + datetime.timedelta(days=7)
+        quote_future = self.create_quote(
+            name="Quote2", due_date=in_seven_days, copies=20,
+            product_name="Prueba2", width=10, length=18, bleed=0.1, sides=1,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
+        # authorize quotes and retrieve authorized quotes
+        quote_today.authorize_quote()
+        quote_future.authorize_quote()
+        auth_quote_today = AuthorizedQuote.objects.get(
+            quote_id=quote_today.id)
+        auth_quote_future = AuthorizedQuote.objects.get(
+            quote_id=quote_future.id)
+
+        # check method: get_quote_due_date()
+        self.assertEqual(auth_quote_today.get_due_date(), self.due_today)
+        self.assertEqual(auth_quote_future.get_due_date(), in_seven_days)
 
 
 class QuoteCreateFormTests(TestCase):
@@ -316,7 +353,7 @@ class QuoteCreateFormTests(TestCase):
             'quote_name': 'TestQuote1',
             'quote_due_date': datetime.date.today(),
             'quote_copies':  100,
-            'quires': FIRST_INDEX,
+            'quote_quires': 1,
             'quote_product_name': 'Test product',
             'quote_dimention_width': 2,
             'quote_dimention_length': 3.5,
@@ -399,15 +436,15 @@ class QuoteCreateFormTests(TestCase):
     def test_negative_quires(self):
         """Test a form with a negative number of quires. Expect an error."""
         temp_data = self.quote_data.copy()
-        temp_data['quires'] = -1
+        temp_data['quote_quires'] = -1
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(form.errors['quires'], [self.MIN_VAL_0_MSG])
+        self.assertEquals(form.errors['quote_quires'], [self.MIN_VAL_0_MSG])
 
     def test_zero_quires(self):
         """Test a form with zero quires. Expect no error."""
         temp_data = self.quote_data.copy()
-        temp_data['quires'] = 0
+        temp_data['quote_quires'] = 0
         form = QuoteForm(data=temp_data)
         self.assertTrue(form.is_valid())
 
