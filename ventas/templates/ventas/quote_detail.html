@@ -43,7 +43,11 @@
     <br>
     <a class="btn btn-default" href="{% url 'ventas:quotes' %}">View all quotes</a>
     <br>
-    <a class="btn btn-default" href="{% url 'ventas:quote_edit' pk=quote.id %}">Edit Quote</a>
+    {% if not quote.quote_is_authorized and not quote.quote_is_approved %}
+        <a class="btn btn-default" href="{% url 'ventas:quote_edit' pk=quote.id %}">Edit Quote</a>
+    {% else %}
+        <a class="btn btn-default disabled">Edit Quote</a>
+    {% endif %}
     <br>
     <button class="btn btn-default" type="button" data-toggle="modal" data-target="#auth-modal">Authorize Quote</button>
     <br>
