@@ -256,7 +256,7 @@ class QuoteMethodTests(QuoteSetUpClass, TestCase):
             colors_front=4, colors_back=4, materials=[self.m_print],
             finishings=[self.f_trim])
         # check method: get_quote_id()
-        self.assertEqual(quote.get_quote_id(), 1)
+        self.assertEqual(quote.get_quote_id(), quote.id)
 
     def test_get_due_date(self):
         """Create a quote, and get its due date."""
@@ -277,46 +277,6 @@ class QuoteMethodTests(QuoteSetUpClass, TestCase):
         # check method: get_quote_due_date()
         self.assertEqual(quote_today.get_due_date(), self.due_today)
         self.assertEqual(quote_future.get_due_date(), in_seven_days)
-
-
-class AuthorizedQuoteMethodTests(QuoteSetUpClass, TestCase):
-    def test_get_quote_id(self):
-        """Create and authorize a Quote, and get its id."""
-        quote = self.create_quote(
-            name="Quote1", due_date=self.due_today, copies=10,
-            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
-        quote.authorize_quote()
-        auth_quote = AuthorizedQuote.objects.get(quote_id=quote.id)
-        self.assertEquals(auth_quote.get_quote_id(), 1)
-
-    def test_get_due_date(self):
-        """Create and authorize a Quote, and get its due date."""
-        # create quote with due date: today
-        quote_today = self.create_quote(
-            name="Quote1", due_date=self.due_today, copies=10,
-            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
-        # create quote with due date: today
-        in_seven_days = self.due_today + datetime.timedelta(days=7)
-        quote_future = self.create_quote(
-            name="Quote2", due_date=in_seven_days, copies=20,
-            product_name="Prueba2", width=10, length=18, bleed=0.1, sides=1,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
-        # authorize quotes and retrieve authorized quotes
-        quote_today.authorize_quote()
-        quote_future.authorize_quote()
-        auth_quote_today = AuthorizedQuote.objects.get(
-            quote_id=quote_today.id)
-        auth_quote_future = AuthorizedQuote.objects.get(
-            quote_id=quote_future.id)
-
-        # check method: get_quote_due_date()
-        self.assertEqual(auth_quote_today.get_due_date(), self.due_today)
-        self.assertEqual(auth_quote_future.get_due_date(), in_seven_days)
 
 
 class QuoteCreateFormTests(TestCase):
@@ -611,3 +571,117 @@ class QuoteCreateFormTests(TestCase):
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
         self.assertEquals(form.errors['paper'], [self.REQ_MSG])
+
+
+class AuthorizedQuoteMethodTests(QuoteSetUpClass, TestCase):
+    def test_get_quote_id(self):
+        """Create and authorize a Quote, and get its id."""
+        quote = self.create_quote(
+            name="Quote1", due_date=self.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
+        quote.authorize_quote()
+        auth_quote = AuthorizedQuote.objects.get(quote_id=quote.id)
+        self.assertTrue(quote.quote_is_authorized)
+        self.assertEquals(auth_quote.get_quote_id(), quote.id)
+
+    def test_get_due_date(self):
+        """Create and authorize a Quote, and get its due date."""
+        # create quote with due date: today
+        quote_today = self.create_quote(
+            name="Quote1", due_date=self.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
+        # create quote with due date: today
+        in_seven_days = self.due_today + datetime.timedelta(days=7)
+        quote_future = self.create_quote(
+            name="Quote2", due_date=in_seven_days, copies=20,
+            product_name="Prueba2", width=10, length=18, bleed=0.1, sides=1,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
+        # authorize quotes and retrieve authorized quotes
+        auth_quote_today = quote_today.authorize_quote()
+        auth_quote_future = quote_future.authorize_quote()
+
+        # check method: get_quote_due_date()
+        self.assertTrue(quote_today.quote_is_authorized)
+        self.assertEqual(auth_quote_today.get_due_date(), self.due_today)
+        self.assertTrue(quote_future.quote_is_authorized)
+        self.assertEqual(auth_quote_future.get_due_date(), in_seven_days)
+
+    def test_create_order(self):
+        """
+        Create and authorize a Quote, as well as an Order based on that Quote.
+        """
+        quote = self.create_quote(
+            name="Quote1", due_date=self.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
+        pack_inst = "None"
+        delivery_addr = "123 ave"
+        notes = "Due soon!"
+        quote.authorize_quote()
+        auth_quote = AuthorizedQuote.objects.get(quote_id=quote.id)
+        auth_quote.create_order(pack_inst, delivery_addr, notes)
+        quote = Quote.objects.get(pk=quote.id)  # refresh instance
+        self.assertTrue(quote.quote_is_authorized)
+        self.assertTrue(quote.quote_is_approved)
+
+
+class OrderMethodTests(QuoteSetUpClass, TestCase):
+    def test_get_quote_id(self):
+        """
+        Create a Quote, authorize it, create a Quote from it,
+        and get its quote id.
+        """
+        pack_inst = "None."
+        delivery_addr = "123 ave"
+        notes = "Due soon!"
+
+        quote = self.create_quote(
+            name="Quote1", due_date=self.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
+        quote.authorize_quote()
+        auth_quote = AuthorizedQuote.objects.get(quote_id=quote.id)
+        order = auth_quote.create_order(pack_inst, delivery_addr, notes)
+        self.assertEquals(order.get_quote_id(), quote.id)
+
+    def test_get_due_date(self):
+        """
+        Create and authorize a Quote, create an Order based on
+        that Quote, and get its due date.
+        """
+        pack_inst = "None."
+        delivery_addr = "123 ave"
+        notes = "Due soon!"
+
+        # create quote with due date: today
+        quote_today = self.create_quote(
+            name="Quote1", due_date=self.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
+        # create quote with due date: today
+        in_seven_days = self.due_today + datetime.timedelta(days=7)
+        quote_future = self.create_quote(
+            name="Quote2", due_date=in_seven_days, copies=20,
+            product_name="Prueba2", width=10, length=18, bleed=0.1, sides=1,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=[self.f_trim])
+        # authorize quotes and retrieve authorized quotes
+        auth_quote_today = quote_today.authorize_quote()
+        auth_quote_future = quote_future.authorize_quote()
+        # create orders
+        order_today = auth_quote_today.create_order(
+            pack_inst, delivery_addr, notes)
+        order_future = auth_quote_future.create_order(
+            pack_inst, delivery_addr, notes)
+
+        # check method: get_quote_due_date()
+        self.assertEqual(order_today.get_due_date(), self.due_today)
+        self.assertEqual(order_future.get_due_date(), in_seven_days)

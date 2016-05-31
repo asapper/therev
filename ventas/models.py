@@ -89,12 +89,13 @@ class Quote(models.Model):
         if self.quote_is_authorized is False:
             error = False
             try:  # auhtorize quote
-                AuthorizedQuote.objects.create(quote=self)
+                auth_quote = AuthorizedQuote.objects.create(quote=self)
             except IntegrityError:
                 error = True
             if error is False:
                 self.quote_is_authorized = True  # update quote
                 self.save()
+                return auth_quote
 
 
 class Quote_Finishing(models.Model):
@@ -122,6 +123,27 @@ class AuthorizedQuote(models.Model):
         """Return the quote due date associated with this AuthorizedQuote."""
         return self.quote.get_due_date()
 
+    def create_order(self, pack_inst, delivery_addr, notes):
+        """
+        Approves the associated quote and creates an order based on that quote.
+        """
+        quote = Quote.objects.get(pk=self.get_quote_id())
+        if (quote.quote_is_authorized is True and
+                quote.quote_is_approved is False):
+                error = False
+                try:
+                    order = Order.objects.create(
+                        authorized_quote=self,
+                        order_packaging_instructions=pack_inst,
+                        order_delivery_address=delivery_addr,
+                        order_notes=notes)
+                except IntegrityError as e:
+                    error = True
+                if error is False:
+                    quote.quote_is_approved = True  # update quote
+                    quote.save()
+                    return order
+
 
 class Order(models.Model):
     # auhtorized quote reference
@@ -142,3 +164,11 @@ class Order(models.Model):
     order_is_finished = models.BooleanField(default=False)
     # datetime finished
     order_datetime_finished = models.DateTimeField(null=True)
+
+    def get_quote_id(self):
+        """Return the quote id associated with this Order."""
+        return self.authorized_quote.get_quote_id()
+
+    def get_due_date(self):
+        """Return the quote due date associated with this Order."""
+        return self.authorized_quote.get_due_date()
