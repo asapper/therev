@@ -17,4 +17,7 @@ urlpatterns = [
     # ex: /ventas/quotes/5/edit/
     url(r'^quotes/(?P<pk>[0-9]+)/edit$', views.QuoteEditView.as_view(),
         name='quote_edit'),
+    # ex: /ventas/quotes/5/authorize/
+    url(r'^quotes/(?P<pk>[0-9]+)/authorize$', views.authorize_quote,
+        name='quote_authorize'),
 ]

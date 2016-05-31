@@ -45,7 +45,32 @@
     <br>
     <a class="btn btn-default" href="{% url 'ventas:quote_edit' pk=quote.id %}">Edit Quote</a>
     <br>
-    <a class="btn btn-default" href="#">Authorize Quote</a>
+    <button class="btn btn-default" type="button" data-toggle="modal" data-target="#auth-modal">Authorize Quote</button>
     <br>
     <a class="btn btn-default" href="#">Approve Quote</a>
+
+    <div class="modal fade" id="auth-modal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Authorize Quote</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure want to authorize this quote?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    {% if not quote.quote_is_authorized %}
+                        <form method="POST" action="{% url 'ventas:quote_authorize' pk=quote.id %}" class="inline">{% csrf_token %}
+                            <button class="btn btn-primary" type="submit">Authorize Quote</button>
+                        </form>
+                    {% else %}
+                        <button type="button" class="btn btn-primary disabled">Authorize Quote</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
