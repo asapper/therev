@@ -121,3 +121,24 @@ class AuthorizedQuote(models.Model):
     def get_due_date(self):
         """Return the quote due date associated with this AuthorizedQuote."""
         return self.quote.get_due_date()
+
+
+class Order(models.Model):
+    # auhtorized quote reference
+    authorized_quote = models.OneToOneField(AuthorizedQuote)
+    # date created / quote approved
+    order_date_created = models.DateTimeField(auto_now_add=True)
+    # packaging instructions
+    order_packaging_instructions = models.TextField(null=True)
+    # delivery address
+    order_delivery_address = models.CharField(max_length=255)
+    # notes
+    order_notes = models.TextField(null=True)
+    # is started?
+    order_is_started = models.BooleanField(default=False)
+    # datetime started
+    order_datetime_started = models.DateTimeField(null=True)
+    # is finished?
+    order_is_finished = models.BooleanField(default=False)
+    # datetime finished
+    order_datetime_finished = models.DateTimeField(null=True)
