@@ -1,5 +1,5 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import IntegrityError, models
 
 from . import validators
 from recursos.models import Finishing, Material, Paper
@@ -19,7 +19,7 @@ class Quote(models.Model):
     # number of copies
     quote_copies = models.PositiveIntegerField()
     # number of quires
-    quires = models.PositiveSmallIntegerField(default=1)
+    quote_quires = models.PositiveSmallIntegerField(default=1)
     # product name
     quote_product_name = models.CharField(max_length=100)
     # dimentions (x, y)
@@ -84,6 +84,18 @@ class Quote(models.Model):
         """Return this Quote's due date."""
         return self.quote_due_date
 
+    def authorize_quote(self):
+        """Authorizes this Quote."""
+        if self.quote_is_authorized is False:
+            error = False
+            try:  # auhtorize quote
+                AuthorizedQuote.objects.create(quote=self)
+            except IntegrityError:
+                error = True
+            if error is False:
+                self.quote_is_authorized = True  # update quote
+                self.save()
+
 
 class Quote_Finishing(models.Model):
     # quote reference
@@ -104,8 +116,8 @@ class AuthorizedQuote(models.Model):
 
     def get_quote_id(self):
         """Return the quote id associated with this AuthorizedQuote."""
-        return self.id.get_quote_id()
+        return self.quote.get_quote_id()
 
-    def get_quote_due_date(self):
+    def get_due_date(self):
         """Return the quote due date associated with this AuthorizedQuote."""
-        return self.id.get_due_date()
+        return self.quote.get_due_date()

@@ -28,7 +28,7 @@ def get_imposing(quote):
     job_width = quote.quote_dimention_width
     job_length = quote.quote_dimention_length
     job_bleed = quote.quote_printing_bleed
-    num_copies = quote.quote_copies * quote.quires
+    num_copies = quote.quote_copies * quote.quote_quires
 
     results = []
     results = calculate_impose(paper_width, paper_length, job_width,
