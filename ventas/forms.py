@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Quote
+from .models import Order, Quote
 
 
 class QuoteForm(forms.ModelForm):
@@ -10,3 +10,10 @@ class QuoteForm(forms.ModelForm):
                    'quote_is_authorized', 'quote_is_approved',
                    'quote_total_price', 'quote_imposing_per_sheet',
                    'quote_total_sheets', 'executive',]
+
+
+class OrderForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['order_packaging_instructions', 'order_delivery_address',
+                  'order_notes',]

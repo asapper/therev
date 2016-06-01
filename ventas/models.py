@@ -167,9 +167,8 @@ class AuthorizedQuote(models.Model):
         """
         Approves the associated quote and creates an order based on that quote.
         """
-        quote = Quote.objects.get(pk=self.get_quote_id())
-        if (quote.quote_is_authorized is True and
-                quote.quote_is_approved is False):
+        if (self.quote.quote_is_authorized is True and
+                self.quote.quote_is_approved is False):
                 error = False
                 try:
                     order = Order.objects.create(
@@ -180,8 +179,8 @@ class AuthorizedQuote(models.Model):
                 except IntegrityError:
                     error = True
                 if error is False:
-                    quote.quote_is_approved = True  # update quote
-                    quote.save()
+                    self.quote.quote_is_approved = True  # update quote
+                    self.quote.save()
                     return order
 
 

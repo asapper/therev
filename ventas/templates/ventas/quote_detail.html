@@ -45,14 +45,21 @@
     <br>
     {% if not quote.quote_is_authorized and not quote.quote_is_approved %}
         <a class="btn btn-default" href="{% url 'ventas:quote_edit' pk=quote.id %}">Edit Quote</a>
+        <br>
+        <button class="btn btn-default" type="button" data-toggle="modal" data-target="#auth-modal">Authorize Quote</button>
     {% else %}
         <a class="btn btn-default disabled">Edit Quote</a>
+        <br>
+        <button class="btn btn-default disabled">Authorize Quote</button>
     {% endif %}
     <br>
-    <button class="btn btn-default" type="button" data-toggle="modal" data-target="#auth-modal">Authorize Quote</button>
-    <br>
-    <a class="btn btn-default" href="#">Approve Quote</a>
+    {% if quote.quote_is_authorized and not quote.quote_is_approved %}
+        <a class="btn btn-default" href="{% url 'ventas:quote_approve' pk=quote.id %}">Create Order</a>
+    {% else %}
+        <a class="btn btn-default disabled">Create Order</a>
+    {% endif %}
 
+    <!-- modals -->
     <div class="modal fade" id="auth-modal">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
@@ -61,7 +68,7 @@
                     <h4 class="modal-title">Authorize Quote</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure want to authorize this quote?</p>
+                    <p>Are you sure you want to authorize this quote?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>

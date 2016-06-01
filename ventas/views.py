@@ -1,13 +1,15 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.shortcuts import redirect
-from django.views import generic
+from django.views.generic import DetailView, ListView
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.decorators.http import require_http_methods
 
 from . import utility
-from .forms import QuoteForm
-from .models import Quote
-from .models import Quote_Finishing
+from .forms import OrderForm, QuoteForm
+from .models import AuthorizedQuote, Order, Quote, Quote_Finishing
 from recursos.models import Finishing
 
 
@@ -25,7 +27,42 @@ def authorize_quote(request, pk):
         'ventas:quote_detail', kwargs={'pk': pk}))
 
 
-class QuoteCreateView(generic.edit.CreateView):
+class OrderCreateView(CreateView):
+    model = Order
+    form_class = OrderForm
+    template_name = 'ventas/order_edit.html'
+
+    def get(self, *args, **kwargs):
+        """Determine whether or not page should be accessible."""
+        pk = self.kwargs['pk']
+        try:
+            AuthorizedQuote.objects.get(quote_id=pk)
+        except ObjectDoesNotExist:
+            raise Http404("Quote does not exist.")
+        return super(OrderCreateView, self).get(self.request)
+
+    def form_valid(self, form):
+        """Process a valid form."""
+        pk = self.kwargs['pk']
+        # retrieve auth quote
+        error = False
+        try:
+            auth_quote = AuthorizedQuote.objects.get(quote_id=pk)
+        except ObjectDoesNotExist:
+            error = True
+        if error is False:
+            pack_inst = form['order_packaging_instructions'].value()
+            delivery_addr = form['order_delivery_address'].value()
+            notes = form['order_notes'].value()
+            # call auth quote function to create order
+            auth_quote.create_order(pack_inst, delivery_addr, notes)
+            return redirect(reverse(
+                'ventas:quote_detail', kwargs={'pk': pk}))
+        else:
+            raise Http404("Quote does not exist.")
+
+
+class QuoteCreateView(CreateView):
     model = Quote
     form_class = QuoteForm
     template_name = 'ventas/quote_edit.html'
@@ -56,7 +93,7 @@ class QuoteCreateView(generic.edit.CreateView):
             'ventas:quote_detail', kwargs={'pk': quote.id}))
 
 
-class QuoteEditView(generic.edit.UpdateView):
+class QuoteEditView(UpdateView):
     model = Quote
     form_class = QuoteForm
     template_name = 'ventas/quote_edit.html'
@@ -84,11 +121,11 @@ class QuoteEditView(generic.edit.UpdateView):
             'ventas:quote_detail', kwargs={'pk': quote.id}))
 
 
-class VentasView(generic.base.TemplateView):
+class VentasView(TemplateView):
     template_name = 'ventas/index.html'
 
 
-class QuotesView(generic.ListView):
+class QuotesView(ListView):
     template_name = 'ventas/quotes.html'
     context_object_name = 'latest_quote_list'
 
@@ -97,6 +134,6 @@ class QuotesView(generic.ListView):
         return Quote.objects.all()
 
 
-class QuoteDetailView(generic.DetailView):
+class QuoteDetailView(DetailView):
     model = Quote
     template_name = 'ventas/quote_detail.html'
