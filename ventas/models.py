@@ -84,6 +84,26 @@ class Quote(models.Model):
         """Return this Quote's due date."""
         return self.quote_due_date
 
+    def get_client(self):
+        """Return this Quote's client."""
+        return self.client
+
+    def get_executive(self):
+        """Return this Quote's executive."""
+        return self.executive
+
+    def get_finishings(self):
+        """Return this Quote's finishings."""
+        return self.finishings.all()
+
+    def get_materials(self):
+        """Return this Quote's materials."""
+        return self.materials.all()
+
+    def get_paper(self):
+        """Return this Quote's paper."""
+        return self.paper
+
     def authorize_quote(self):
         """Authorizes this Quote."""
         if self.quote_is_authorized is False:
@@ -123,6 +143,26 @@ class AuthorizedQuote(models.Model):
         """Return the quote due date associated with this AuthorizedQuote."""
         return self.quote.get_due_date()
 
+    def get_client(self):
+        """Return the client of associated quote."""
+        return self.quote.get_client()
+
+    def get_executive(self):
+        """Return the executive of associated quote."""
+        return self.quote.get_executive()
+
+    def get_finishings(self):
+        """Return the finishings of associated quote."""
+        return self.quote.get_finishings()
+
+    def get_materials(self):
+        """Return the materials of associated quote."""
+        return self.quote.get_materials()
+
+    def get_paper(self):
+        """Return the paper of associated quote."""
+        return self.quote.get_paper()
+
     def create_order(self, pack_inst, delivery_addr, notes):
         """
         Approves the associated quote and creates an order based on that quote.
@@ -137,7 +177,7 @@ class AuthorizedQuote(models.Model):
                         order_packaging_instructions=pack_inst,
                         order_delivery_address=delivery_addr,
                         order_notes=notes)
-                except IntegrityError as e:
+                except IntegrityError:
                     error = True
                 if error is False:
                     quote.quote_is_approved = True  # update quote
@@ -172,3 +212,23 @@ class Order(models.Model):
     def get_due_date(self):
         """Return the quote due date associated with this Order."""
         return self.authorized_quote.get_due_date()
+
+    def get_client(self):
+        """Return the client of associated quote."""
+        return self.authorized_quote.get_client()
+
+    def get_executive(self):
+        """Return the executive of associated quote."""
+        return self.authorized_quote.get_executive()
+
+    def get_finishings(self):
+        """Return the finishings of associated quote."""
+        return self.authorized_quote.get_finishings()
+
+    def get_materials(self):
+        """Return the materials of associated quote."""
+        return self.authorized_quote.get_materials()
+
+    def get_paper(self):
+        """Return the paper of associated quote."""
+        return self.authorized_quote.get_paper()

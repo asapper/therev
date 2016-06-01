@@ -5,7 +5,6 @@ from django.test import TestCase
 
 from . import utility
 from .forms import QuoteForm
-from .models import AuthorizedQuote
 from .models import Quote
 from .models import Quote_Finishing
 from personal.models import Client
@@ -54,8 +53,14 @@ class QuoteSetUpClass(TestCase):
             paper_width=10,
             paper_length=10,
             paper_price=5)
+        cls.quote_instance = cls.create_quote(
+            name="TestQuote", due_date=cls.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=[cls.m_print],
+            finishings=[cls.f_trim])
 
-    def create_quote(self, name, due_date, copies, product_name,
+    @classmethod
+    def create_quote(cls, name, due_date, copies, product_name,
                      width, length, bleed, sides, colors_front, colors_back,
                      materials, finishings, quires=1):
         """Create a Quote with the given information."""
@@ -71,9 +76,9 @@ class QuoteSetUpClass(TestCase):
             quote_printing_sides=sides,
             quote_printing_colors_front=colors_front,
             quote_printing_colors_back=colors_back,
-            client=self.client_instance,
-            executive=self.executive_instance,
-            paper=self.paper_instance)
+            client=cls.client_instance,
+            executive=cls.executive_instance,
+            paper=cls.paper_instance)
         # store materials
         quote.materials.set(materials)
         # store finishigns
@@ -92,6 +97,8 @@ class QuoteSetUpClass(TestCase):
 class QuoteViewTests(QuoteSetUpClass, TestCase):
     def test_quote_view_with_no_quotes(self):
         """If no Quotes exist, an appropriate message should be displayed."""
+        # clear database for test
+        Quote.objects.get(pk=self.quote_instance.id).delete()
         response = self.client.get(reverse('ventas:quotes'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No quotes are available.")
@@ -99,27 +106,18 @@ class QuoteViewTests(QuoteSetUpClass, TestCase):
 
     def test_quote_view_with_a_quote(self):
         """If a Quote exists, it should be displayed."""
-        self.create_quote(name="Quote1", due_date=self.due_today,
-                          copies=10, product_name="Prueba", width=10,
-                          length=18, bleed=0.1, sides=2, colors_front=4,
-                          colors_back=4, materials=[self.m_print],
-                          finishings=[self.f_trim])
+        # a quote is already in db
         response = self.client.get(reverse('ventas:quotes'))
         self.assertQuerysetEqual(
             response.context['latest_quote_list'],
-            [("<Quote: Id: 1; Name: Quote1; Product: Prueba; "
+            [("<Quote: Id: 1; Name: TestQuote; Product: Prueba; "
                 "Dimentions: 10.00\" x 18.00\"; Due: {}; Copies: 10; "
                 "Printing sides: 2.>").format(datetime.date.today())]
         )
 
     def test_quote_view_with_two_quotes(self):
         """If two or more Quotes exist, they should be displayed."""
-        # create quote #1
-        self.create_quote(name="Quote1", due_date=self.due_today,
-                          copies=10, product_name="Prueba", width=10,
-                          length=18, bleed=0.1, sides=2, colors_front=4,
-                          colors_back=4, materials=[self.m_print],
-                          finishings=[self.f_trim])
+        # quote #1 (test quote) is already in db
         # create quote #2
         self.create_quote(name="Quote2", due_date=self.due_today,
                           copies=20, product_name="Prueba2", width=11,
@@ -130,7 +128,7 @@ class QuoteViewTests(QuoteSetUpClass, TestCase):
         response = self.client.get(reverse('ventas:quotes'))
         self.assertQuerysetEqual(
             response.context['latest_quote_list'].order_by('id'),
-            [("<Quote: Id: 1; Name: Quote1; Product: Prueba; "
+            [("<Quote: Id: 1; Name: TestQuote; Product: Prueba; "
                 "Dimentions: 10.00\" x 18.00\"; Due: {}; Copies: 10; "
                 "Printing sides: 2.>").format(
                     datetime.date.today()),
@@ -250,22 +248,14 @@ class QuoteMethodTests(QuoteSetUpClass, TestCase):
     def test_get_quote_id(self):
         """Create a quote, and get its id."""
         # create quote with id: 1
-        quote = self.create_quote(
-            name="Quote1", due_date=self.due_today, copies=10,
-            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
+        quote = self.quote_instance
         # check method: get_quote_id()
         self.assertEqual(quote.get_quote_id(), quote.id)
 
     def test_get_due_date(self):
-        """Create a quote, and get its due date."""
+        """Create a quote and get its due date."""
         # create quote with due date: today
-        quote_today = self.create_quote(
-            name="Quote1", due_date=self.due_today, copies=10,
-            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
+        quote_today = self.quote_instance
         # create quote with due date: today
         in_seven_days = self.due_today + datetime.timedelta(days=7)
         quote_future = self.create_quote(
@@ -273,10 +263,51 @@ class QuoteMethodTests(QuoteSetUpClass, TestCase):
             product_name="Prueba2", width=10, length=18, bleed=0.1, sides=1,
             colors_front=4, colors_back=4, materials=[self.m_print],
             finishings=[self.f_trim])
-
         # check method: get_quote_due_date()
         self.assertEqual(quote_today.get_due_date(), self.due_today)
         self.assertEqual(quote_future.get_due_date(), in_seven_days)
+
+    def test_get_client(self):
+        """Create a quote and get its client."""
+        # create quote with given client instance
+        quote = self.quote_instance
+        self.assertEquals(quote.get_client(), self.client_instance)
+
+    def test_get_executive(self):
+        """Create a quote and get its executive."""
+        # create quote with given executive instance
+        quote = self.quote_instance
+        self.assertEquals(quote.get_executive(), self.executive_instance)
+
+    def test_get_finishings(self):
+        """Create a quote and get its finishings."""
+        # list of finishings to use
+        finishings = [self.f_trim, self.f_fold, self.f_blunt]
+        # create quote with many finishings
+        quote = self.create_quote(
+            name="Quote1", due_date=self.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=[self.m_print],
+            finishings=finishings)
+        self.assertSequenceEqual(quote.get_finishings(), finishings)
+
+    def test_get_materials(self):
+        """Create a quote and get its materials."""
+        # list of materials to use
+        materials = [self.m_print, self.m_varnish, self.m_foil]
+        # create quote with many materials
+        quote = self.create_quote(
+            name="Quote1", due_date=self.due_today, copies=10,
+            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
+            colors_front=4, colors_back=4, materials=materials,
+            finishings=[self.f_trim])
+        self.assertSequenceEqual(quote.get_materials(), materials)
+
+    def test_get_paper(self):
+        """Create a quote and get its paper."""
+        # create quote with given paper instance
+        quote = self.quote_instance
+        self.assertEquals(quote.get_paper(), self.paper_instance)
 
 
 class QuoteCreateFormTests(TestCase):
@@ -284,7 +315,6 @@ class QuoteCreateFormTests(TestCase):
     def setUpTestData(cls):
         cls.REQ_MSG = "This field is required."
         cls.MIN_VAL_0_MSG = "Ensure this value is greater than or equal to 0."
-
         FIRST_INDEX = 1
         person = Person.objects.create(  # create a Person
             person_name='Andy',
@@ -308,7 +338,7 @@ class QuoteCreateFormTests(TestCase):
             paper_width=10,
             paper_length=10,
             paper_price=5)
-
+        # store data to be used in forms
         cls.quote_data = {
             'quote_name': 'TestQuote1',
             'quote_due_date': datetime.date.today(),
@@ -571,117 +601,3 @@ class QuoteCreateFormTests(TestCase):
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
         self.assertEquals(form.errors['paper'], [self.REQ_MSG])
-
-
-class AuthorizedQuoteMethodTests(QuoteSetUpClass, TestCase):
-    def test_get_quote_id(self):
-        """Create and authorize a Quote, and get its id."""
-        quote = self.create_quote(
-            name="Quote1", due_date=self.due_today, copies=10,
-            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
-        quote.authorize_quote()
-        auth_quote = AuthorizedQuote.objects.get(quote_id=quote.id)
-        self.assertTrue(quote.quote_is_authorized)
-        self.assertEquals(auth_quote.get_quote_id(), quote.id)
-
-    def test_get_due_date(self):
-        """Create and authorize a Quote, and get its due date."""
-        # create quote with due date: today
-        quote_today = self.create_quote(
-            name="Quote1", due_date=self.due_today, copies=10,
-            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
-        # create quote with due date: today
-        in_seven_days = self.due_today + datetime.timedelta(days=7)
-        quote_future = self.create_quote(
-            name="Quote2", due_date=in_seven_days, copies=20,
-            product_name="Prueba2", width=10, length=18, bleed=0.1, sides=1,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
-        # authorize quotes and retrieve authorized quotes
-        auth_quote_today = quote_today.authorize_quote()
-        auth_quote_future = quote_future.authorize_quote()
-
-        # check method: get_quote_due_date()
-        self.assertTrue(quote_today.quote_is_authorized)
-        self.assertEqual(auth_quote_today.get_due_date(), self.due_today)
-        self.assertTrue(quote_future.quote_is_authorized)
-        self.assertEqual(auth_quote_future.get_due_date(), in_seven_days)
-
-    def test_create_order(self):
-        """
-        Create and authorize a Quote, as well as an Order based on that Quote.
-        """
-        quote = self.create_quote(
-            name="Quote1", due_date=self.due_today, copies=10,
-            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
-        pack_inst = "None"
-        delivery_addr = "123 ave"
-        notes = "Due soon!"
-        quote.authorize_quote()
-        auth_quote = AuthorizedQuote.objects.get(quote_id=quote.id)
-        auth_quote.create_order(pack_inst, delivery_addr, notes)
-        quote = Quote.objects.get(pk=quote.id)  # refresh instance
-        self.assertTrue(quote.quote_is_authorized)
-        self.assertTrue(quote.quote_is_approved)
-
-
-class OrderMethodTests(QuoteSetUpClass, TestCase):
-    def test_get_quote_id(self):
-        """
-        Create a Quote, authorize it, create a Quote from it,
-        and get its quote id.
-        """
-        pack_inst = "None."
-        delivery_addr = "123 ave"
-        notes = "Due soon!"
-
-        quote = self.create_quote(
-            name="Quote1", due_date=self.due_today, copies=10,
-            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
-        quote.authorize_quote()
-        auth_quote = AuthorizedQuote.objects.get(quote_id=quote.id)
-        order = auth_quote.create_order(pack_inst, delivery_addr, notes)
-        self.assertEquals(order.get_quote_id(), quote.id)
-
-    def test_get_due_date(self):
-        """
-        Create and authorize a Quote, create an Order based on
-        that Quote, and get its due date.
-        """
-        pack_inst = "None."
-        delivery_addr = "123 ave"
-        notes = "Due soon!"
-
-        # create quote with due date: today
-        quote_today = self.create_quote(
-            name="Quote1", due_date=self.due_today, copies=10,
-            product_name="Prueba", width=10, length=18, bleed=0.1, sides=2,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
-        # create quote with due date: today
-        in_seven_days = self.due_today + datetime.timedelta(days=7)
-        quote_future = self.create_quote(
-            name="Quote2", due_date=in_seven_days, copies=20,
-            product_name="Prueba2", width=10, length=18, bleed=0.1, sides=1,
-            colors_front=4, colors_back=4, materials=[self.m_print],
-            finishings=[self.f_trim])
-        # authorize quotes and retrieve authorized quotes
-        auth_quote_today = quote_today.authorize_quote()
-        auth_quote_future = quote_future.authorize_quote()
-        # create orders
-        order_today = auth_quote_today.create_order(
-            pack_inst, delivery_addr, notes)
-        order_future = auth_quote_future.create_order(
-            pack_inst, delivery_addr, notes)
-
-        # check method: get_quote_due_date()
-        self.assertEqual(order_today.get_due_date(), self.due_today)
-        self.assertEqual(order_future.get_due_date(), in_seven_days)
