@@ -204,6 +204,11 @@ class Order(models.Model):
     # datetime finished
     order_datetime_finished = models.DateTimeField(null=True)
 
+    def __str__(self):
+        """Return a string representation of this Order."""
+        return "Id: {}; Started: {}; Finished: {}".format(
+            self.id, self.order_is_started, self.order_is_finished)
+
     def get_quote_id(self):
         """Return the quote id associated with this Order."""
         return self.authorized_quote.get_quote_id()

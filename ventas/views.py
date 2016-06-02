@@ -27,6 +27,19 @@ def authorize_quote(request, pk):
         'ventas:quote_detail', kwargs={'pk': pk}))
 
 
+class VentasView(TemplateView):
+    template_name = 'ventas/index.html'
+
+
+class OrdersView(ListView):
+    template_name = 'ventas/orders.html'
+    context_object_name = 'latest_order_list'
+
+    def get_queryset(self):
+        """Return all the Orders."""
+        return Order.objects.all()
+
+
 class OrderCreateView(CreateView):
     model = Order
     form_class = OrderForm
@@ -62,6 +75,20 @@ class OrderCreateView(CreateView):
             raise Http404("Quote does not exist.")
 
 
+class OrderDetailView(DetailView):
+    model = Order
+    template_name = 'ventas/order_detail.html'
+
+
+class QuotesView(ListView):
+    template_name = 'ventas/quotes.html'
+    context_object_name = 'latest_quote_list'
+
+    def get_queryset(self):
+        """Return all the Quotes."""
+        return Quote.objects.all()
+
+
 class QuoteCreateView(CreateView):
     model = Quote
     form_class = QuoteForm
@@ -93,6 +120,11 @@ class QuoteCreateView(CreateView):
             'ventas:quote_detail', kwargs={'pk': quote.id}))
 
 
+class QuoteDetailView(DetailView):
+    model = Quote
+    template_name = 'ventas/quote_detail.html'
+
+
 class QuoteEditView(UpdateView):
     model = Quote
     form_class = QuoteForm
@@ -119,21 +151,3 @@ class QuoteEditView(UpdateView):
         quote.save()  # save quote
         return redirect(reverse(
             'ventas:quote_detail', kwargs={'pk': quote.id}))
-
-
-class VentasView(TemplateView):
-    template_name = 'ventas/index.html'
-
-
-class QuotesView(ListView):
-    template_name = 'ventas/quotes.html'
-    context_object_name = 'latest_quote_list'
-
-    def get_queryset(self):
-        """Return all the Quotes."""
-        return Quote.objects.all()
-
-
-class QuoteDetailView(DetailView):
-    model = Quote
-    template_name = 'ventas/quote_detail.html'

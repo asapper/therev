@@ -3,6 +3,7 @@
 {% block content%}
     <h2>Hello, world. You're at the Ventas index page.</h2>
 
+    <p><a class="btn btn-default" href="{% url 'ventas:orders' %}">View all orders</a></p>
     <p><a class="btn btn-default" href="{% url 'ventas:quotes' %}">View all quotes</a></p>
     <p><a class="btn btn-default" href="{% url 'ventas:quote_create' %}">Create new quote</a></p>
 {% endblock %}

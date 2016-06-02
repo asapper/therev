@@ -6,6 +6,11 @@ app_name = 'ventas'
 urlpatterns = [
     # ex: /ventas/
     url(r'^$', views.VentasView.as_view(), name='index'),
+    # ex: /ventas/orders/
+    url(r'^orders/$', views.OrdersView.as_view(), name='orders'),
+    # ex: /ventas/orders/5
+    url(r'^orders/(?P<pk>[0-9]+)/$', views.OrderDetailView.as_view(),
+        name='order_detail'),
     # ex: /ventas/quotes/
     url(r'^quotes/$', views.QuotesView.as_view(), name='quotes'),
     # ex: /ventas/quotes/new

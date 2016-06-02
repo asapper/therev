@@ -1,0 +1,11 @@
+{% extends 'base_site.html' %}
+
+{% block content %}
+    <h1>Order #{{ order.id }}</h1>
+    <p><strong>Packaging instructions: </strong>{{ order.order_packaging_instructions }}</p>
+    <p><strong>Delivery address:       </strong>{{ order.order_delivery_address }}</p>
+    <p><strong>Notes:                  </strong>{{ order.order_notes }}</p>
+
+    <br>
+    <p><a class="btn btn-default" href="{% url 'ventas:orders' %}">View all orders</a></p>
+{% endblock %}

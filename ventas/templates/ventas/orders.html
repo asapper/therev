@@ -1,0 +1,15 @@
+{% extends 'base_site.html' %}
+
+{% block content %}
+    {% if latest_order_list %}
+        <ul>
+            {% for order in latest_order_list %}
+                <li><a href="{% url 'ventas:order_detail' order.id %}">{{ order }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No orders are available.</p>
+    {% endif %}
+
+    <p><a class="btn btn-default" href="{% url 'ventas:index' %}">Ventas Index Page</a></p>
+{% endblock %}
