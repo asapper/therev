@@ -2,6 +2,7 @@ import datetime
 
 from django.test import TestCase
 
+from .forms import OrderForm
 from .models import Quote
 from .models import AuthorizedQuote
 from .tests_quote import QuoteSetUpClass
@@ -26,7 +27,7 @@ class OrderMethodTests(QuoteSetUpClass, TestCase):
         and get its quote id.
         """
         order = self.order_instance
-        self.assertEquals(order.get_quote_id(), self.quote_instance.id)
+        self.assertEqual(order.get_quote_id(), self.quote_instance.id)
 
     def test_get_due_date(self):
         """
@@ -56,7 +57,7 @@ class OrderMethodTests(QuoteSetUpClass, TestCase):
         that quote, and get its client.
         """
         order = self.order_instance
-        self.assertEquals(order.get_client(), self.client_instance)
+        self.assertEqual(order.get_client(), self.client_instance)
 
     def test_get_executive(self):
         """
@@ -64,7 +65,7 @@ class OrderMethodTests(QuoteSetUpClass, TestCase):
         that quote, and get its executive.
         """
         order = self.order_instance
-        self.assertEquals(order.get_executive(), self.executive_instance)
+        self.assertEqual(order.get_executive(), self.executive_instance)
 
     def test_get_finishings(self):
         """
@@ -112,4 +113,88 @@ class OrderMethodTests(QuoteSetUpClass, TestCase):
         that quote, and get its paper.
         """
         order = self.order_instance
-        self.assertEquals(order.get_paper(), self.paper_instance)
+        self.assertEqual(order.get_paper(), self.paper_instance)
+
+
+class OrderCreateFormTests(QuoteSetUpClass, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super(OrderCreateFormTests, cls).setUpTestData()
+        cls.REQ_MSG = "This field is required."
+        # store data to be used in forms
+        cls.order_data = {
+            'order_packaging_instructions': 'Pack in groups of 50.',
+            'order_delivery_address': '987 ave.',
+            'order_notes': 'Due very soon!',
+        }
+
+    def test_blank_form(self):
+        """Test for a blank form. Expect an error."""
+        form = OrderForm(data={})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['order_packaging_instructions'], [self.REQ_MSG])
+        self.assertEqual(
+            form.errors['order_delivery_address'], [self.REQ_MSG])
+        self.assertEqual(form.errors['order_notes'], [self.REQ_MSG])
+
+    def test_valid_full_form(self):
+        """Test that a fully-filled form is valid."""
+        form = OrderForm(data=self.order_data)
+        self.assertTrue(form.is_valid())
+
+    def test_form_no_pack_inst(self):
+        """
+        Test a form with no text input for packaging instructions.
+        Expect an error.
+        """
+        temp_data = self.order_data.copy()
+        temp_data['order_packaging_instructions'] = ""  # blank
+        form = OrderForm(data=temp_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['order_packaging_instructions'], [self.REQ_MSG])
+        self.assertNotIn('order_delivery_address', form.errors)
+        self.assertNotIn('order_notes', form.errors)
+
+    def test_form_no_delivery_address(self):
+        """
+        Test a form with no text input for delivery address.
+        Expect an error.
+        """
+        temp_data = self.order_data.copy()
+        temp_data['order_delivery_address'] = ""  # blank address
+        form = OrderForm(data=temp_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['order_delivery_address'], [self.REQ_MSG])
+        self.assertNotIn('order_packaging_instructions', form.errors)
+        self.assertNotIn('order_notes', form.errors)
+
+    def test_form_no_notes(self):
+        """Test a form with no text input for notes. Expect an error."""
+        temp_data = self.order_data.copy()
+        temp_data['order_notes'] = ""  # blank notes
+        form = OrderForm(data=temp_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['order_notes'], [self.REQ_MSG])
+        self.assertNotIn('order_packaging_instructions', form.errors)
+        self.assertNotIn('order_delivery_address', form.errors)
+
+    def test_form_too_long_delivery_address(self):
+        """
+        Test a form with input text too long for delivery address.
+        Expect an error.
+        """
+        LIMIT_CHARS = 255
+        ERROR_MSG = (
+            "Ensure this value has at most {} characters "
+            "(it has {}).").format(LIMIT_CHARS, LIMIT_CHARS+1)
+        temp_data = self.order_data.copy()
+        temp_data['order_delivery_address'] = 'a' * (LIMIT_CHARS + 1)  # long
+        form = OrderForm(data=temp_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['order_delivery_address'], [ERROR_MSG])
+        self.assertNotIn('order_packaging_instructions', form.errors)
+        self.assertNotIn('order_notes', form.errors)

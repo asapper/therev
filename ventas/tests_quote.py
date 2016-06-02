@@ -271,13 +271,13 @@ class QuoteMethodTests(QuoteSetUpClass, TestCase):
         """Create a quote and get its client."""
         # create quote with given client instance
         quote = self.quote_instance
-        self.assertEquals(quote.get_client(), self.client_instance)
+        self.assertEqual(quote.get_client(), self.client_instance)
 
     def test_get_executive(self):
         """Create a quote and get its executive."""
         # create quote with given executive instance
         quote = self.quote_instance
-        self.assertEquals(quote.get_executive(), self.executive_instance)
+        self.assertEqual(quote.get_executive(), self.executive_instance)
 
     def test_get_finishings(self):
         """Create a quote and get its finishings."""
@@ -307,7 +307,7 @@ class QuoteMethodTests(QuoteSetUpClass, TestCase):
         """Create a quote and get its paper."""
         # create quote with given paper instance
         quote = self.quote_instance
-        self.assertEquals(quote.get_paper(), self.paper_instance)
+        self.assertEqual(quote.get_paper(), self.paper_instance)
 
 
 class QuoteCreateFormTests(TestCase):
@@ -365,23 +365,23 @@ class QuoteCreateFormTests(TestCase):
         """Test for a blank form. Expect an error."""
         form = QuoteForm(data={})
         self.assertFalse(form.is_valid())
-        self.assertEquals(form.errors['quote_name'], [self.REQ_MSG])
-        self.assertEquals(form.errors['quote_due_date'], [self.REQ_MSG])
-        self.assertEquals(form.errors['quote_copies'], [self.REQ_MSG])
-        self.assertEquals(form.errors['quote_product_name'], [self.REQ_MSG])
-        self.assertEquals(form.errors['quote_dimention_width'], [self.REQ_MSG])
-        self.assertEquals(
+        self.assertEqual(form.errors['quote_name'], [self.REQ_MSG])
+        self.assertEqual(form.errors['quote_due_date'], [self.REQ_MSG])
+        self.assertEqual(form.errors['quote_copies'], [self.REQ_MSG])
+        self.assertEqual(form.errors['quote_product_name'], [self.REQ_MSG])
+        self.assertEqual(form.errors['quote_dimention_width'], [self.REQ_MSG])
+        self.assertEqual(
             form.errors['quote_dimention_length'], [self.REQ_MSG])
-        self.assertEquals(form.errors['quote_printing_bleed'], [self.REQ_MSG])
-        self.assertEquals(form.errors['quote_printing_sides'], [self.REQ_MSG])
-        self.assertEquals(
+        self.assertEqual(form.errors['quote_printing_bleed'], [self.REQ_MSG])
+        self.assertEqual(form.errors['quote_printing_sides'], [self.REQ_MSG])
+        self.assertEqual(
             form.errors['quote_printing_colors_front'], [self.REQ_MSG])
-        self.assertEquals(
+        self.assertEqual(
             form.errors['quote_printing_colors_back'], [self.REQ_MSG])
-        self.assertEquals(form.errors['client'], [self.REQ_MSG])
-        self.assertEquals(form.errors['finishings'], [self.REQ_MSG])
-        self.assertEquals(form.errors['materials'], [self.REQ_MSG])
-        self.assertEquals(form.errors['paper'], [self.REQ_MSG])
+        self.assertEqual(form.errors['client'], [self.REQ_MSG])
+        self.assertEqual(form.errors['finishings'], [self.REQ_MSG])
+        self.assertEqual(form.errors['materials'], [self.REQ_MSG])
+        self.assertEqual(form.errors['paper'], [self.REQ_MSG])
 
     def test_valid_full_form(self):
         """Test that a fully-filled form is valid."""
@@ -395,7 +395,8 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_name'] = ""  # blank quote name
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(form.errors['quote_name'], [self.REQ_MSG])
+        self.assertEqual(form.errors['quote_name'], [self.REQ_MSG])
+        self.assertEqual(len(form.errors), 1)
 
     def test_due_date_in_past(self):
         """Test a form with an invalid due date. Expect an error."""
@@ -404,9 +405,10 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_due_date'] = yesterday
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.errors['quote_due_date'],
             ['Date must be greater than or equal to today.'])
+        self.assertEqual(len(form.errors), 1)
 
     def test_negative_copies(self):
         """Test a form with negative number of copies. Expect an error."""
@@ -414,7 +416,8 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_copies'] = -1
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(form.errors['quote_copies'], [self.MIN_VAL_0_MSG])
+        self.assertEqual(form.errors['quote_copies'], [self.MIN_VAL_0_MSG])
+        self.assertEqual(len(form.errors), 1)
 
     def test_zero_copies(self):
         """Test a form with zero copies. Expect no error."""
@@ -422,6 +425,7 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_copies'] = 0
         form = QuoteForm(data=temp_data)
         self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.errors), 0)
 
     def test_negative_quires(self):
         """Test a form with a negative number of quires. Expect an error."""
@@ -429,7 +433,8 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_quires'] = -1
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(form.errors['quote_quires'], [self.MIN_VAL_0_MSG])
+        self.assertEqual(form.errors['quote_quires'], [self.MIN_VAL_0_MSG])
+        self.assertEqual(len(form.errors), 1)
 
     def test_zero_quires(self):
         """Test a form with zero quires. Expect no error."""
@@ -437,6 +442,7 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_quires'] = 0
         form = QuoteForm(data=temp_data)
         self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.errors), 0)
 
     def test_blank_product_name(self):
         """Test a form missing product name. Expect an error."""
@@ -444,7 +450,8 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_product_name'] = ""  # blank product name
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(form.errors['quote_product_name'], [self.REQ_MSG])
+        self.assertEqual(form.errors['quote_product_name'], [self.REQ_MSG])
+        self.assertEqual(len(form.errors), 1)
 
     def test_negative_job_width(self):
         """
@@ -455,9 +462,10 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_dimention_width'] = -1
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.errors['quote_dimention_width'],
             ['This value must be greater than 0.'])
+        self.assertEqual(len(form.errors), 1)
 
     def test_zero_job_width(self):
         """Test a form with zero for job width. Expect an error."""
@@ -466,9 +474,10 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_dimention_width'] = 0
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.errors['quote_dimention_width'],
             ['This value must be greater than 0.'])
+        self.assertEqual(len(form.errors), 1)
 
     def test_negative_job_length(self):
         """
@@ -479,9 +488,10 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_dimention_length'] = -1
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.errors['quote_dimention_length'],
             ['This value must be greater than 0.'])
+        self.assertEqual(len(form.errors), 1)
 
     def test_zero_job_length(self):
         """Test a form with zero for job length. Expect an error."""
@@ -489,9 +499,10 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_dimention_length'] = 0
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.errors['quote_dimention_length'],
             ['This value must be greater than 0.'])
+        self.assertEqual(len(form.errors), 1)
 
     def test_negative_job_bleed(self):
         """
@@ -502,9 +513,10 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_printing_bleed'] = -1
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.errors['quote_printing_bleed'],
             [self.MIN_VAL_0_MSG])
+        self.assertEqual(len(form.errors), 1)
 
     def test_zero_job_bleed(self):
         """Test a form with zero for job bleed."""
@@ -512,6 +524,7 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_printing_bleed'] = 0
         form = QuoteForm(data=temp_data)
         self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.errors), 0)
 
     def test_negative_printing_sides(self):
         """Test a form with a negative number for printing sides.
@@ -521,16 +534,18 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_printing_sides'] = -1
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.errors['quote_printing_sides'],
             [self.MIN_VAL_0_MSG])
+        self.assertEqual(len(form.errors), 1)
 
     def test_zero_printing_sides(self):
-        """Test a form with zero for printing sides. Expect an error."""
+        """Test a form with zero for printing sides."""
         temp_data = self.quote_data.copy()
         temp_data['quote_printing_sides'] = 0
         form = QuoteForm(data=temp_data)
         self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.errors), 0)
 
     def test_too_many_printing_sides(self):
         """
@@ -540,9 +555,10 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_printing_sides'] = 3
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.errors['quote_printing_sides'],
             ['Ensure this value is less than or equal to 2.'])
+        self.assertEqual(len(form.errors), 1)
 
     def test_negative_colors_front(self):
         """
@@ -553,9 +569,10 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_printing_colors_front'] = -1
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.errors['quote_printing_colors_front'],
             [self.MIN_VAL_0_MSG])
+        self.assertEqual(len(form.errors), 1)
 
     def test_negative_colors_back(self):
         """
@@ -566,9 +583,10 @@ class QuoteCreateFormTests(TestCase):
         temp_data['quote_printing_colors_back'] = -1
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(
+        self.assertEqual(
             form.errors['quote_printing_colors_back'],
             [self.MIN_VAL_0_MSG])
+        self.assertEqual(len(form.errors), 1)
 
     def test_no_client_chosen(self):
         """Test a form with no client chosen. Expect an error."""
@@ -576,7 +594,8 @@ class QuoteCreateFormTests(TestCase):
         del temp_data['client']  # no client chosen
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(form.errors['client'], [self.REQ_MSG])
+        self.assertEqual(form.errors['client'], [self.REQ_MSG])
+        self.assertEqual(len(form.errors), 1)
 
     def test_no_finishings_chosen(self):
         """Test a form with no finishings chosen. Expect an error."""
@@ -584,7 +603,8 @@ class QuoteCreateFormTests(TestCase):
         del temp_data['finishings']  # no finishings chosen
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(form.errors['finishings'], [self.REQ_MSG])
+        self.assertEqual(form.errors['finishings'], [self.REQ_MSG])
+        self.assertEqual(len(form.errors), 1)
 
     def test_no_materials_chosen(self):
         """Test a form with no materials chosen. Expect an error."""
@@ -592,7 +612,8 @@ class QuoteCreateFormTests(TestCase):
         del temp_data['materials']  # no materials chosen
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(form.errors['materials'], [self.REQ_MSG])
+        self.assertEqual(form.errors['materials'], [self.REQ_MSG])
+        self.assertEqual(len(form.errors), 1)
 
     def test_no_paper_chosen(self):
         """Test a form with no paper chosen. Expect an error."""
@@ -600,4 +621,5 @@ class QuoteCreateFormTests(TestCase):
         del temp_data['paper']  # no paper chosen
         form = QuoteForm(data=temp_data)
         self.assertFalse(form.is_valid())
-        self.assertEquals(form.errors['paper'], [self.REQ_MSG])
+        self.assertEqual(form.errors['paper'], [self.REQ_MSG])
+        self.assertEqual(len(form.errors), 1)
