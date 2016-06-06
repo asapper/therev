@@ -139,6 +139,26 @@ class QuoteViewTests(QuoteSetUpClass, TestCase):
         )
 
 
+class QuoteDetailViewTests(QuoteSetUpClass, TestCase):
+    def test_quote_detail_view(self):
+        """Test that data is displayed correctly."""
+        # a quote is already in db
+        quote = self.quote_instance
+        response = self.client.get(
+            reverse('ventas:quote_detail', args=(quote.id,)))
+        self.assertContains(response, quote.quote_name, status_code=200)
+
+    def test_not_existent_quote_detail_view(self):
+        """
+        Test that a 404 is returned when accessing the detail page of a
+        quote that does not exist.
+        """
+        BAD_QUOTE_ID = 100
+        response = self.client.get(
+            reverse('ventas:quote_detail', args=(BAD_QUOTE_ID,)))
+        self.assertEqual(response.status_code, 404)
+
+
 class QuoteMethodTests(QuoteSetUpClass, TestCase):
     def test_get_quote_price(self):
         """Create a quote and verify its price is accurate."""

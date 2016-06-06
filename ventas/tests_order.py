@@ -1,5 +1,6 @@
 import datetime
 
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from .forms import OrderForm
@@ -198,3 +199,28 @@ class OrderCreateFormTests(QuoteSetUpClass, TestCase):
             form.errors['order_delivery_address'], [ERROR_MSG])
         self.assertNotIn('order_packaging_instructions', form.errors)
         self.assertNotIn('order_notes', form.errors)
+
+
+class OrderViewTests(QuoteSetUpClass, TestCase):
+    def test_order_view_with_no_orders(self):
+        """If no Orders exist, an appropriate message should be displayed."""
+        response = self.client.get(reverse('ventas:orders'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No orders are available.")
+        self.assertQuerysetEqual(response.context['latest_order_list'], [])
+
+    def test_order_view_with_an_order(self):
+        """If an Order exists, it should be displayed."""
+        # create an order
+        pack_inst = "None."
+        delivery_addr = "123 ave"
+        notes = "Due soon!"
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        quote.authorize_quote()
+        auth_quote = AuthorizedQuote.objects.get(quote_id=quote.id)
+        auth_quote.create_order(pack_inst, delivery_addr, notes)
+
+        response = self.client.get(reverse('ventas:orders'))
+        self.assertQuerysetEqual(
+            response.context['latest_order_list'],
+            [("<Order: Id: 1; Started: False; Finished: False>")])
