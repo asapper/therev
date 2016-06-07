@@ -3,7 +3,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from . import utility
+from .utility import OrderController, QuoteController
 from .forms import QuoteForm
 from .models import Quote
 from .models import Quote_Finishing
@@ -86,10 +86,10 @@ class QuoteSetUpClass(TestCase):
             Quote_Finishing.objects.create(
                 quote=quote,
                 finishing=finishing)
-        imposing, sheets = utility.get_imposing(quote)
+        imposing, sheets = QuoteController.get_imposing(quote)
         quote.quote_imposing_per_sheet = imposing
         quote.quote_total_sheets = sheets
-        quote.quote_total_price = utility.get_total_price(quote)
+        quote.quote_total_price = QuoteController.get_total_price(quote)
         quote.save()
         return quote
 
@@ -337,8 +337,8 @@ class QuoteMethodTests(QuoteSetUpClass, TestCase):
         notes = "Due soon!"
         # create order
         quote = self.quote_instance
-        quote.authorize_quote()  # authorize
-        quote.create_order(pack_inst, delivery_addr, notes)
+        QuoteController.authorize_quote(quote)  # authorize
+        OrderController.create_order(quote, pack_inst, delivery_addr, notes)
         self.assertTrue(quote.quote_is_authorized)
         self.assertTrue(quote.quote_is_approved)
 

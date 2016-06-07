@@ -7,7 +7,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.decorators.http import require_http_methods
 
-from . import utility
+from .utility import OrderController, QuoteController
 from .forms import OrderForm, QuoteForm
 from .models import Order, Quote, Quote_Finishing
 from recursos.models import Finishing
@@ -22,7 +22,7 @@ def authorize_quote(request, pk):
     except ObjectDoesNotExist:
         error = True
     if error is False:
-        quote.authorize_quote()
+        QuoteController.authorize_quote(quote)
     return redirect(reverse(
         'ventas:quote_detail', kwargs={'pk': pk}))
 
@@ -67,7 +67,8 @@ class OrderCreateView(CreateView):
             delivery_addr = form['order_delivery_address'].value()
             notes = form['order_notes'].value()
             # call function to create order
-            quote.create_order(pack_inst, delivery_addr, notes)
+            OrderController.create_order(
+                quote, pack_inst, delivery_addr, notes)
             return redirect(reverse(
                 'ventas:order_detail', kwargs={'pk': pk}))
         else:
@@ -99,7 +100,7 @@ class QuoteCreateView(CreateView):
         # assign executive that made this quote
         quote.executive_id = 1  # FIX THIS!
         # store imposing
-        imposing, sheets = utility.get_imposing(quote)
+        imposing, sheets = QuoteController.get_imposing(quote)
         quote.quote_imposing_per_sheet = imposing
         quote.quote_total_sheets = sheets
         quote.save()  # save quote
@@ -113,7 +114,7 @@ class QuoteCreateView(CreateView):
                 quote=quote,
                 finishing=finishing)
         # store total price
-        quote.quote_total_price = utility.get_total_price(quote)
+        quote.quote_total_price = QuoteController.get_total_price(quote)
         quote.save()  # save quote
         return redirect(reverse(
             'ventas:quote_detail', kwargs={'pk': quote.id}))
@@ -133,7 +134,7 @@ class QuoteEditView(UpdateView):
         """Save an edited Quote."""
         quote = form.save(commit=False)
         # store imposing if dimentions changed
-        imposing, sheets = utility.get_imposing(quote)
+        imposing, sheets = QuoteController.get_imposing(quote)
         quote.quote_imposing_per_sheet = imposing
         quote.quote_total_sheets = sheets
         # clear old, keep only new list of materials
@@ -146,7 +147,7 @@ class QuoteEditView(UpdateView):
                 quote=quote,
                 finishing=finishing)
         # store total price
-        quote.quote_total_price = utility.get_total_price(quote)
+        quote.quote_total_price = QuoteController.get_total_price(quote)
         quote.save()  # save quote
         return redirect(reverse(
             'ventas:quote_detail', kwargs={'pk': quote.id}))

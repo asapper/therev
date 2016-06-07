@@ -107,32 +107,16 @@ class Quote(models.Model):
         """Return this Quote's paper."""
         return self.paper
 
-    def authorize_quote(self):
-        """Authorizes this Quote."""
-        if self.quote_is_authorized is False:
-            self.quote_is_authorized = True  # authorize quote
-            self.quote_datetime_authorized = timezone.now()
-            self.save()
+    def set_authorized(self):
+        """Set quote_is_authorized to True."""
+        self.quote_is_authorized = True
+        self.quote_datetime_authorized = timezone.now()
+        self.save()
 
-    def create_order(self, pack_inst, delivery_addr, notes):
-        """
-        Approves the associated quote and creates an order based on that quote.
-        """
-        if (self.quote_is_authorized is True and
-                self.quote_is_approved is False):
-            error = False
-            try:
-                order = Order.objects.create(
-                    quote=self,
-                    order_packaging_instructions=pack_inst,
-                    order_delivery_address=delivery_addr,
-                    order_notes=notes)
-            except IntegrityError:
-                error = True
-            if error is False:
-                self.quote_is_approved = True  # update quote
-                self.save()
-                return order
+    def set_approved(self):
+        """Set quote_is_approved to True."""
+        self.quote_is_approved = True
+        self.save()
 
 
 class Quote_Finishing(models.Model):

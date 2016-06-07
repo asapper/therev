@@ -1,46 +1,77 @@
 import math
 
-
-def get_total_price(quote):
-    """Return the total price for all processes in a Quote."""
-
-    total_materials_price = 0
-    for material in quote.materials.all():
-        total_materials_price += material.material_price
-
-    total_finishings_price = 0
-    for finishing in quote.finishings.all():
-        total_finishings_price += finishing.finishing_price
-
-    paper_price = quote.paper.paper_price
-    # calculate total price
-    sheets = quote.quote_total_sheets
-    total_price = sheets * total_materials_price
-    total_price += sheets * total_finishings_price
-    total_price += sheets * paper_price
-    return total_price
+from .models import Order
 
 
-def get_imposing(quote):
-    """Return the number of jobs that can fit in the chosen paper."""
-    paper_width = quote.paper.paper_width
-    paper_length = quote.paper.paper_length
-    job_width = quote.quote_dimention_width
-    job_length = quote.quote_dimention_length
-    job_bleed = quote.quote_printing_bleed
-    num_copies = quote.quote_copies * quote.quote_quires
+class OrderController():
+    @classmethod
+    def create_order(cls, quote, pack_inst, delivery_addr, notes):
+        """Approve given Quote and create an Order based on that quote."""
+        if (quote.quote_is_authorized is True and
+                quote.quote_is_approved is False):
+            error = False
+            try:
+                order = Order.objects.create(
+                    quote=quote,
+                    order_packaging_instructions=pack_inst,
+                    order_delivery_address=delivery_addr,
+                    order_notes=notes)
+            except IntegrityError:
+                error = True
+            if error is False:
+                quote.set_approved()
+                return order
 
-    results = []
-    results = calculate_impose(paper_width, paper_length, job_width,
-                               job_length, job_bleed)
 
-    results.sort(reverse=True)
-    best_result = results[0]
-    if best_result == 0:
-        best_sheets = 0
-    else:
-        best_sheets = math.ceil(num_copies / best_result)
-    return best_result, best_sheets
+class QuoteController():
+    @classmethod
+    def authorize_quote(cls, quote):
+        """Authorize given Quote."""
+        if (quote.quote_is_authorized is False and
+                quote.quote_is_approved is False):
+            quote.set_authorized()
+
+    @classmethod
+    def get_total_price(cls, quote):
+        """Return the total price for all processes in a Quote."""
+
+        total_materials_price = 0
+        for material in quote.materials.all():
+            total_materials_price += material.material_price
+
+        total_finishings_price = 0
+        for finishing in quote.finishings.all():
+            total_finishings_price += finishing.finishing_price
+
+        paper_price = quote.paper.paper_price
+        # calculate total price
+        sheets = quote.quote_total_sheets
+        total_price = sheets * total_materials_price
+        total_price += sheets * total_finishings_price
+        total_price += sheets * paper_price
+        return total_price
+
+    @classmethod
+    def get_imposing(cls, quote):
+        """Return the number of jobs that can fit in the chosen paper."""
+        paper_width = quote.paper.paper_width
+        paper_length = quote.paper.paper_length
+        job_width = quote.quote_dimention_width
+        job_length = quote.quote_dimention_length
+        job_bleed = quote.quote_printing_bleed
+        num_copies = quote.quote_copies * quote.quote_quires
+
+        results = []
+        results = calculate_impose(paper_width, paper_length, job_width,
+                                   job_length, job_bleed)
+
+        results.sort(reverse=True)
+        best_result = results[0]
+        if best_result == 0:
+            best_sheets = 0
+        else:
+            best_sheets = math.ceil(num_copies / best_result)
+        return best_result, best_sheets
 
 
 def calculate_impose(paper_width, paper_length, job_width, job_length,

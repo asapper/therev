@@ -5,8 +5,9 @@ from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
-from .tests_quote import QuoteSetUpClass
 from .models import Quote
+from .tests_quote import QuoteSetUpClass
+from .utility import OrderController, QuoteController
 
 
 class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
@@ -118,7 +119,7 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         the buttons are correctly enabled/disabled.
         """
         quote = Quote.objects.get(pk=self.quote_instance.id)
-        quote.authorize_quote()
+        QuoteController.authorize_quote(quote)
         # access detail page of quote in db (through set up class)
         self.driver.get('{}{}'.format(
             self.live_server_url,
@@ -149,8 +150,8 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         notes = "Due in two days!"
         # authorize and approve quote (create order)
         quote = Quote.objects.get(pk=self.quote_instance.id)
-        quote.authorize_quote()
-        quote.create_order(pack_inst, delivery_addr, notes)
+        QuoteController.authorize_quote(quote)
+        OrderController.create_order(quote, pack_inst, delivery_addr, notes)
         # access detail page of quote in db (through set up class)
         self.driver.get('{}{}'.format(
             self.live_server_url,
@@ -296,7 +297,7 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         """
         # authorize quote
         quote = Quote.objects.get(pk=self.quote_instance.id)
-        quote.authorize_quote()
+        QuoteController.authorize_quote(quote)
         # store order data
         pack_inst = "Pack in groups of 100."
         delivery_addr = "123 ave"
