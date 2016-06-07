@@ -70,7 +70,7 @@ class OrderCreateView(CreateView):
             # call auth quote function to create order
             auth_quote.create_order(pack_inst, delivery_addr, notes)
             return redirect(reverse(
-                'ventas:quote_detail', kwargs={'pk': pk}))
+                'ventas:order_detail', kwargs={'pk': pk}))
         else:
             raise Http404("Quote does not exist.")
 

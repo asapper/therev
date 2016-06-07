@@ -224,3 +224,42 @@ class OrderViewTests(QuoteSetUpClass, TestCase):
         self.assertQuerysetEqual(
             response.context['latest_order_list'],
             [("<Order: Id: 1; Started: False; Finished: False>")])
+
+
+class OrderDetailViewTests(QuoteSetUpClass, TestCase):
+    def test_order_detail_view(self):
+        """Test that data is displayed correctly."""
+        # store data to use in creating order
+        pack_inst = "Pack in least packages possible."
+        delivery_addr = "S. 7th street"
+        notes = "Deliver ASAP!"
+        # authorize and approve quote in db
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        auth_quote = quote.authorize_quote()
+        auth_quote.create_order(pack_inst, delivery_addr, notes)
+        # access order detail page
+        response = self.client.get(
+            reverse('ventas:order_detail', kwargs={'pk': quote.id}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_not_existent_order_detail_page(self):
+        """
+        Test that a 404 is returned when accessing the detail page of an
+        order that does not exist.
+        """
+        BAD_QUOTE_ID = 100
+        response = self.client.get(
+            reverse('ventas:order_detail', kwargs={'pk': BAD_QUOTE_ID}))
+        self.assertEqual(response.status_code, 404)
+
+
+class OrderCreateViewTests(QuoteSetUpClass, TestCase):
+    def test_not_existent_order_create_page(self):
+        """
+        Test that a 404 is returned when accessing the create page
+        of an order that does not exist.
+        """
+        BAD_QUOTE_ID = 100
+        response = self.client.get(
+            reverse('ventas:quote_approve', kwargs={'pk': BAD_QUOTE_ID}))
+        self.assertEqual(response.status_code, 404)
