@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from .utility import OrderController, QuoteController
 from .forms import OrderForm, QuoteForm
 from .models import Order, Quote, Quote_Finishing
-from recursos.models import Finishing
+from recursos.models import Finishing, Material
 
 
 @require_http_methods(["POST"])
@@ -104,9 +104,23 @@ class QuoteCreateView(CreateView):
         quote.set_imposing(imposing)
         quote.set_total_sheets(sheets)
         # store materials
-        quote.set_materials(form['materials'].value())
+        materials = []
+        for id in form['materials'].value():
+            try:
+                material = Material.objects.get(pk=id)
+            except ObjectDoesNotExist:
+                continue
+            materials.append(material)
+        quote.set_materials(materials)
         # store finishings
-        quote.set_finishings(form['finishings'].value())
+        finishings = []
+        for id in form['finishings'].value():
+            try:
+                finishing = Finishing.objects.get(pk=id)
+            except ObjectDoesNotExist:
+                continue
+            finishings.append(finishing)
+        quote.set_finishings(finishings)
         # store total price
         quote.set_total_price(QuoteController.get_total_price(quote))
         return redirect(reverse(
@@ -125,14 +139,29 @@ class QuoteEditView(UpdateView):
 
     def form_valid(self, form):
         """Save an edited Quote."""
+        quote = form.save(commit=False)
         # store imposing if dimentions changed
         imposing, sheets = QuoteController.get_imposing(quote)
         quote.set_imposing(imposing)
         quote.set_total_sheets(sheets)
         # store materials
-        quote.set_materials(form['materials'].value())
+        materials = []
+        for id in form['materials'].value():
+            try:
+                material = Material.objects.get(pk=id)
+            except ObjectDoesNotExist:
+                continue
+            materials.append(material)
+        quote.set_materials(materials)
         # store finishings
-        quote.set_finishings(form['finishings'].value())
+        finishings = []
+        for id in form['finishings'].value():
+            try:
+                finishing = Finishing.objects.get(pk=id)
+            except ObjectDoesNotExist:
+                continue
+            finishings.append(finishing)
+        quote.set_finishings(finishings)
         # store total price
         quote.set_total_price(QuoteController.get_total_price(quote))
         return redirect(reverse(

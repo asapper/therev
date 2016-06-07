@@ -108,8 +108,7 @@ class Quote(models.Model):
         """Assign new finishings for this Quote. Clear old ones."""
         self.finishings.clear()  # clear old list of finishings
         # store new finishings
-        for finishing_id in finishings:
-            finishing = Finishing.objects.get(pk=finishing_id)
+        for finishing in finishings:
             Quote_Finishing.objects.create(
                 quote=self,
                 finishing=finishing)
