@@ -95,13 +95,32 @@ class Quote(models.Model):
         """Return this Quote's executive."""
         return self.executive
 
+    def set_executive(self, executive_id):
+        """Assign this Quote's executive."""
+        self.executive_id = executive_id
+        self.save()
+
     def get_finishings(self):
         """Return this Quote's finishings."""
         return self.finishings.all()
 
+    def set_finishings(self, finishings):
+        """Assign new finishings for this Quote. Clear old ones."""
+        self.finishings.clear()  # clear old list of finishings
+        # store new finishings
+        for finishing_id in finishings:
+            finishing = Finishing.objects.get(pk=finishing_id)
+            Quote_Finishing.objects.create(
+                quote=self,
+                finishing=finishing)
+
     def get_materials(self):
         """Return this Quote's materials."""
         return self.materials.all()
+
+    def set_materials(self, materials):
+        """Assign new materials for this Quote. Clear old ones."""
+        self.materials.set(materials)
 
     def get_paper(self):
         """Return this Quote's paper."""
@@ -116,6 +135,21 @@ class Quote(models.Model):
     def set_approved(self):
         """Set quote_is_approved to True."""
         self.quote_is_approved = True
+        self.save()
+
+    def set_imposing(self, imposing):
+        """Assign the number of imposing per sheet for this Quote."""
+        self.quote_imposing_per_sheet = imposing
+        self.save()
+
+    def set_total_sheets(self, sheets):
+        """Assign the number of sheets used for this Quote."""
+        self.quote_total_sheets = sheets
+        self.save()
+
+    def set_total_price(self, price):
+        """Assign the total price for this Quote."""
+        self.quote_total_price = price
         self.save()
 
 

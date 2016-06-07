@@ -80,17 +80,14 @@ class QuoteSetUpClass(TestCase):
             executive=cls.executive_instance,
             paper=cls.paper_instance)
         # store materials
-        quote.materials.set(materials)
+        quote.set_materials(materials)
         # store finishigns
-        for finishing in finishings:
-            Quote_Finishing.objects.create(
-                quote=quote,
-                finishing=finishing)
+        quote.set_finishings(finishings)
+        # store rest of data
         imposing, sheets = QuoteController.get_imposing(quote)
-        quote.quote_imposing_per_sheet = imposing
-        quote.quote_total_sheets = sheets
-        quote.quote_total_price = QuoteController.get_total_price(quote)
-        quote.save()
+        quote.set_imposing(imposing)
+        quote.set_total_sheets(sheets)
+        quote.set_total_price(QuoteController.get_total_price(quote))
         return quote
 
 

@@ -98,24 +98,17 @@ class QuoteCreateView(CreateView):
         """Process a valid form."""
         quote = form.save(commit=False)
         # assign executive that made this quote
-        quote.executive_id = 1  # FIX THIS!
+        quote.set_executive(1)  # FIX THIS!
         # store imposing
         imposing, sheets = QuoteController.get_imposing(quote)
-        quote.quote_imposing_per_sheet = imposing
-        quote.quote_total_sheets = sheets
-        quote.save()  # save quote
+        quote.set_imposing(imposing)
+        quote.set_total_sheets(sheets)
         # store materials
-        quote.materials.set(form['materials'].value())
+        quote.set_materials(form['materials'].value())
         # store finishings
-        quote.finishings.clear()
-        for finishing_id in form['finishings'].value():
-            finishing = Finishing.objects.get(pk=finishing_id)
-            Quote_Finishing.objects.create(
-                quote=quote,
-                finishing=finishing)
+        quote.set_finishings(form['finishings'].value())
         # store total price
-        quote.quote_total_price = QuoteController.get_total_price(quote)
-        quote.save()  # save quote
+        quote.set_total_price(QuoteController.get_total_price(quote))
         return redirect(reverse(
             'ventas:quote_detail', kwargs={'pk': quote.id}))
 
@@ -132,22 +125,15 @@ class QuoteEditView(UpdateView):
 
     def form_valid(self, form):
         """Save an edited Quote."""
-        quote = form.save(commit=False)
         # store imposing if dimentions changed
         imposing, sheets = QuoteController.get_imposing(quote)
-        quote.quote_imposing_per_sheet = imposing
-        quote.quote_total_sheets = sheets
-        # clear old, keep only new list of materials
-        quote.materials.set(form['materials'].value())
+        quote.set_imposing(imposing)
+        quote.set_total_sheets(sheets)
+        # store materials
+        quote.set_materials(form['materials'].value())
         # store finishings
-        quote.finishings.clear()
-        for finishing_id in form['finishings'].value():
-            finishing = Finishing.objects.get(pk=finishing_id)
-            Quote_Finishing.objects.create(
-                quote=quote,
-                finishing=finishing)
+        quote.set_finishings(form['finishings'].value())
         # store total price
-        quote.quote_total_price = QuoteController.get_total_price(quote)
-        quote.save()  # save quote
+        quote.set_total_price(QuoteController.get_total_price(quote))
         return redirect(reverse(
             'ventas:quote_detail', kwargs={'pk': quote.id}))
