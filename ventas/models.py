@@ -1,5 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import IntegrityError, models
+from django.utils import timezone
 
 from . import validators
 from recursos.models import Finishing, Material, Paper
@@ -43,6 +44,8 @@ class Quote(models.Model):
         validators=[MaxValueValidator(4), MinValueValidator(0)])
     # is authorized
     quote_is_authorized = models.BooleanField(default=False)
+    # datetime authorized
+    quote_datetime_authorized = models.DateTimeField(null=True)
     # is approved
     quote_is_approved = models.BooleanField(default=False)
     # total price (set once is approved)
@@ -107,15 +110,29 @@ class Quote(models.Model):
     def authorize_quote(self):
         """Authorizes this Quote."""
         if self.quote_is_authorized is False:
+            self.quote_is_authorized = True  # authorize quote
+            self.quote_datetime_authorized = timezone.now()
+            self.save()
+
+    def create_order(self, pack_inst, delivery_addr, notes):
+        """
+        Approves the associated quote and creates an order based on that quote.
+        """
+        if (self.quote_is_authorized is True and
+                self.quote_is_approved is False):
             error = False
-            try:  # auhtorize quote
-                auth_quote = AuthorizedQuote.objects.create(quote=self)
+            try:
+                order = Order.objects.create(
+                    quote=self,
+                    order_packaging_instructions=pack_inst,
+                    order_delivery_address=delivery_addr,
+                    order_notes=notes)
             except IntegrityError:
                 error = True
             if error is False:
-                self.quote_is_authorized = True  # update quote
+                self.quote_is_approved = True  # update quote
                 self.save()
-                return auth_quote
+                return order
 
 
 class Quote_Finishing(models.Model):
@@ -129,64 +146,9 @@ class Quote_Finishing(models.Model):
     date_finished = models.DateTimeField(null=True)
 
 
-class AuthorizedQuote(models.Model):
-    # quote reference
-    quote = models.OneToOneField(Quote)
-    # date authorized
-    date_authorized = models.DateTimeField(auto_now_add=True)
-
-    def get_quote_id(self):
-        """Return the quote id associated with this AuthorizedQuote."""
-        return self.quote.get_quote_id()
-
-    def get_due_date(self):
-        """Return the quote due date associated with this AuthorizedQuote."""
-        return self.quote.get_due_date()
-
-    def get_client(self):
-        """Return the client of associated quote."""
-        return self.quote.get_client()
-
-    def get_executive(self):
-        """Return the executive of associated quote."""
-        return self.quote.get_executive()
-
-    def get_finishings(self):
-        """Return the finishings of associated quote."""
-        return self.quote.get_finishings()
-
-    def get_materials(self):
-        """Return the materials of associated quote."""
-        return self.quote.get_materials()
-
-    def get_paper(self):
-        """Return the paper of associated quote."""
-        return self.quote.get_paper()
-
-    def create_order(self, pack_inst, delivery_addr, notes):
-        """
-        Approves the associated quote and creates an order based on that quote.
-        """
-        if (self.quote.quote_is_authorized is True and
-                self.quote.quote_is_approved is False):
-                error = False
-                try:
-                    order = Order.objects.create(
-                        authorized_quote=self,
-                        order_packaging_instructions=pack_inst,
-                        order_delivery_address=delivery_addr,
-                        order_notes=notes)
-                except IntegrityError:
-                    error = True
-                if error is False:
-                    self.quote.quote_is_approved = True  # update quote
-                    self.quote.save()
-                    return order
-
-
 class Order(models.Model):
     # auhtorized quote reference
-    authorized_quote = models.OneToOneField(AuthorizedQuote)
+    quote = models.OneToOneField(Quote)
     # date created / quote approved
     order_date_created = models.DateTimeField(auto_now_add=True)
     # packaging instructions
@@ -211,28 +173,28 @@ class Order(models.Model):
 
     def get_quote_id(self):
         """Return the quote id associated with this Order."""
-        return self.authorized_quote.get_quote_id()
+        return self.quote.get_quote_id()
 
     def get_due_date(self):
         """Return the quote due date associated with this Order."""
-        return self.authorized_quote.get_due_date()
+        return self.quote.get_due_date()
 
     def get_client(self):
         """Return the client of associated quote."""
-        return self.authorized_quote.get_client()
+        return self.quote.get_client()
 
     def get_executive(self):
         """Return the executive of associated quote."""
-        return self.authorized_quote.get_executive()
+        return self.quote.get_executive()
 
     def get_finishings(self):
         """Return the finishings of associated quote."""
-        return self.authorized_quote.get_finishings()
+        return self.quote.get_finishings()
 
     def get_materials(self):
         """Return the materials of associated quote."""
-        return self.authorized_quote.get_materials()
+        return self.quote.get_materials()
 
     def get_paper(self):
         """Return the paper of associated quote."""
-        return self.authorized_quote.get_paper()
+        return self.quote.get_paper()

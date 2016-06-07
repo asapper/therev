@@ -329,6 +329,19 @@ class QuoteMethodTests(QuoteSetUpClass, TestCase):
         quote = self.quote_instance
         self.assertEqual(quote.get_paper(), self.paper_instance)
 
+    def test_create_order(self):
+        """Create an order based on this Quote."""
+        # store data to be used to create an Order
+        pack_inst = "None"
+        delivery_addr = "123 ave"
+        notes = "Due soon!"
+        # create order
+        quote = self.quote_instance
+        quote.authorize_quote()  # authorize
+        quote.create_order(pack_inst, delivery_addr, notes)
+        self.assertTrue(quote.quote_is_authorized)
+        self.assertTrue(quote.quote_is_approved)
+
 
 class QuoteCreateFormTests(TestCase):
     @classmethod

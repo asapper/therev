@@ -6,7 +6,7 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
 from .tests_quote import QuoteSetUpClass
-from .models import AuthorizedQuote, Quote
+from .models import Quote
 
 
 class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
@@ -143,12 +143,14 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         Test accessing the detail page of an approved quote, and verify
         the buttons are correctly enabled/disabled.
         """
-        quote = Quote.objects.get(pk=self.quote_instance.id)
-        auth_quote = quote.authorize_quote()
+        # store data to create order
         pack_inst = "Pack in groups of 100."
         delivery_addr = "123 ave"
         notes = "Due in two days!"
-        auth_quote.create_order(pack_inst, delivery_addr, notes)
+        # authorize and approve quote (create order)
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        quote.authorize_quote()
+        quote.create_order(pack_inst, delivery_addr, notes)
         # access detail page of quote in db (through set up class)
         self.driver.get('{}{}'.format(
             self.live_server_url,
@@ -340,40 +342,3 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         self.assertEqual(self.driver.current_url, "{}{}".format(
             self.live_server_url,
             reverse('ventas:order_detail', kwargs={'pk': self.INDEX_ONE})))
-
-    def test_create_order_while_auth_quote_dynamiclly_deleted(self):
-        """
-        Test creating an order for an existing quote, while the authorized
-        quote instance is deleted during the Order form completion.
-        """
-        # authorize quote
-        quote = Quote.objects.get(pk=self.quote_instance.id)
-        auth_quote = quote.authorize_quote()
-        # store order data
-        pack_inst = "Pack in groups of 100."
-        delivery_addr = "123 ave"
-        notes = "Due in two days!"
-        # access create order page
-        self.driver.get('{}{}'.format(
-            self.live_server_url,
-            reverse('ventas:quote_approve', kwargs={'pk': self.INDEX_ONE})))
-        # wait for page to load
-        WebDriverWait(self.driver, self.TIMEOUT).until(
-            lambda driver: self.driver.find_element_by_tag_name('body'))
-        # fill in form
-        pack_inst_field = self.driver.find_element_by_name(
-            'order_packaging_instructions')
-        pack_inst_field.send_keys(pack_inst)
-        delivery_addr_field = self.driver.find_element_by_name(
-            'order_delivery_address')
-        delivery_addr_field.send_keys(delivery_addr)
-        notes_field = self.driver.find_element_by_name('order_notes')
-        notes_field.send_keys(notes)
-        # delete authorized quote instance
-        AuthorizedQuote.objects.get(pk=auth_quote.id).delete()
-        # submit form
-        self.driver.find_element_by_xpath('//button[@type="submit"]').click()
-        # assert not in order detail page
-        self.assertNotEqual(self.driver.current_url, "{}{}".format(
-            self.live_server_url,
-            reverse('ventas:order_detail', kwargs={'pk': quote.id})))

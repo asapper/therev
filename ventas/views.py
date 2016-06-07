@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 
 from . import utility
 from .forms import OrderForm, QuoteForm
-from .models import AuthorizedQuote, Order, Quote, Quote_Finishing
+from .models import Order, Quote, Quote_Finishing
 from recursos.models import Finishing
 
 
@@ -49,7 +49,7 @@ class OrderCreateView(CreateView):
         """Determine whether or not page should be accessible."""
         pk = self.kwargs['pk']
         try:
-            AuthorizedQuote.objects.get(quote_id=pk)
+            Quote.objects.get(pk=pk)
         except ObjectDoesNotExist:
             raise Http404("Quote does not exist.")
         return super(OrderCreateView, self).get(self.request)
@@ -57,18 +57,17 @@ class OrderCreateView(CreateView):
     def form_valid(self, form):
         """Process a valid form."""
         pk = self.kwargs['pk']
-        # retrieve auth quote
         error = False
         try:
-            auth_quote = AuthorizedQuote.objects.get(quote_id=pk)
+            quote = Quote.objects.get(pk=pk)
         except ObjectDoesNotExist:
             error = True
         if error is False:
             pack_inst = form['order_packaging_instructions'].value()
             delivery_addr = form['order_delivery_address'].value()
             notes = form['order_notes'].value()
-            # call auth quote function to create order
-            auth_quote.create_order(pack_inst, delivery_addr, notes)
+            # call function to create order
+            quote.create_order(pack_inst, delivery_addr, notes)
             return redirect(reverse(
                 'ventas:order_detail', kwargs={'pk': pk}))
         else:

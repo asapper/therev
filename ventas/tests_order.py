@@ -5,7 +5,6 @@ from django.test import TestCase
 
 from .forms import OrderForm
 from .models import Quote
-from .models import AuthorizedQuote
 from .tests_quote import QuoteSetUpClass
 
 
@@ -18,8 +17,7 @@ class OrderMethodTests(QuoteSetUpClass, TestCase):
         cls.notes = "Due soon!"
         quote = Quote.objects.get(pk=cls.quote_instance.id)
         quote.authorize_quote()
-        auth_quote = AuthorizedQuote.objects.get(quote_id=quote.id)
-        cls.order_instance = auth_quote.create_order(
+        cls.order_instance = quote.create_order(
             cls.pack_inst, cls.delivery_addr, cls.notes)
 
     def test_get_quote_id(self):
@@ -43,10 +41,10 @@ class OrderMethodTests(QuoteSetUpClass, TestCase):
             colors_front=4, colors_back=4, materials=[self.m_print],
             finishings=[self.f_trim])
         # authorize quotes and retrieve authorized quotes
-        auth_quote_future = quote_future.authorize_quote()
+        quote_future.authorize_quote()
         # create orders (today order already exists)
         order_today = self.order_instance
-        order_future = auth_quote_future.create_order(
+        order_future = quote_future.create_order(
             self.pack_inst, self.delivery_addr, self.notes)
         # check method: get_quote_due_date()
         self.assertEqual(order_today.get_due_date(), self.due_today)
@@ -82,9 +80,9 @@ class OrderMethodTests(QuoteSetUpClass, TestCase):
             colors_front=4, colors_back=4, materials=[self.m_print],
             finishings=finishings)
         # authorize quote
-        auth_quote = quote.authorize_quote()
+        quote.authorize_quote()
         # create order
-        order = auth_quote.create_order(
+        order = quote.create_order(
             self.pack_inst, self.delivery_addr, self.notes)
         self.assertSequenceEqual(order.get_finishings(), finishings)
 
@@ -102,9 +100,9 @@ class OrderMethodTests(QuoteSetUpClass, TestCase):
             colors_front=4, colors_back=4, materials=materials,
             finishings=[self.f_trim])
         # authorize quote
-        auth_quote = quote.authorize_quote()
+        quote.authorize_quote()
         # create order
-        order = auth_quote.create_order(
+        order = quote.create_order(
             self.pack_inst, self.delivery_addr, self.notes)
         self.assertSequenceEqual(order.get_materials(), materials)
 
@@ -217,8 +215,7 @@ class OrderViewTests(QuoteSetUpClass, TestCase):
         notes = "Due soon!"
         quote = Quote.objects.get(pk=self.quote_instance.id)
         quote.authorize_quote()
-        auth_quote = AuthorizedQuote.objects.get(quote_id=quote.id)
-        auth_quote.create_order(pack_inst, delivery_addr, notes)
+        quote.create_order(pack_inst, delivery_addr, notes)
 
         response = self.client.get(reverse('ventas:orders'))
         self.assertQuerysetEqual(
@@ -235,8 +232,8 @@ class OrderDetailViewTests(QuoteSetUpClass, TestCase):
         notes = "Deliver ASAP!"
         # authorize and approve quote in db
         quote = Quote.objects.get(pk=self.quote_instance.id)
-        auth_quote = quote.authorize_quote()
-        auth_quote.create_order(pack_inst, delivery_addr, notes)
+        quote.authorize_quote()
+        quote.create_order(pack_inst, delivery_addr, notes)
         # access order detail page
         response = self.client.get(
             reverse('ventas:order_detail', kwargs={'pk': quote.id}))
