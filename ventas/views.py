@@ -67,10 +67,10 @@ class OrderCreateView(CreateView):
             delivery_addr = form['order_delivery_address'].value()
             notes = form['order_notes'].value()
             # call function to create order
-            OrderController.create_order(
+            order = OrderController.create_order(
                 quote, pack_inst, delivery_addr, notes)
             return redirect(reverse(
-                'ventas:order_detail', kwargs={'pk': pk}))
+                'ventas:order_detail', kwargs={'pk': order.id}))
         else:
             raise Http404("Quote does not exist.")
 

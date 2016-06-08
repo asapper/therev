@@ -315,7 +315,7 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         # assert Authorize button is disabled
         auth_button = self.driver.find_element_by_css_selector('button.btn')
         self.assertTrue('disabled' in auth_button.get_attribute('class'))
-        # assert Create Order button is disabled
+        # assert Create Order button is enabled
         create_order_button = self.driver.find_element_by_link_text(
             self.CREATE_ORDER_TEXT)
         self.assertTrue(
@@ -343,3 +343,78 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         self.assertEqual(self.driver.current_url, "{}{}".format(
             self.live_server_url,
             reverse('ventas:order_detail', kwargs={'pk': self.INDEX_ONE})))
+
+    def test_create_order_with_different_quote_id(self):
+        """
+        Test accessing the detail page of a quote and creating an order
+        by clicking Create Order, while there exist a few quotes already
+        in the database. Verify that it redirects to the approve
+        page. Verify the buttons are correctly enabled/disabled before
+        and after creating the order. Fill out Order form and submit.
+        Verify it redirects to order detail page of order's id and
+        not of quote's id.
+        """
+        # store order data
+        pack_inst = "Pack in groups of 100."
+        delivery_addr = "123 ave"
+        notes = "Due in two days!"
+        # create one quote
+        self.create_quote(
+            name="Test quote ABC", due_date=self.due_today, copies=100,
+            product_name="test", width=8.5, length=5.5, bleed=0.1, sides=1,
+            colors_front=4, colors_back=0, materials=[self.m_print],
+            finishings=[self.f_trim])
+        # create another quote (three in system now)
+        third_quote = self.create_quote(
+            name="Test quote DEF", due_date=self.due_today, copies=100,
+            product_name="test", width=8.5, length=5.5, bleed=0.1, sides=1,
+            colors_front=4, colors_back=0, materials=[self.m_print],
+            finishings=[self.f_trim])
+        # authorize third quote
+        QuoteController.authorize_quote(third_quote)
+        # authorize and create order for first quote in db
+        first_quote = self.quote_instance
+        QuoteController.authorize_quote(first_quote)
+        OrderController.create_order(
+            first_quote, pack_inst, delivery_addr, notes)
+        # access detail page of last quote created
+        self.driver.get('{}{}'.format(
+            self.live_server_url,
+            reverse('ventas:quote_detail', kwargs={'pk': third_quote.id})))
+        # wait for page to load
+        WebDriverWait(self.driver, self.TIMEOUT).until(
+            lambda driver: self.driver.find_element_by_tag_name('body'))
+        # assert Edit button is disabled
+        edit_button = self.driver.find_element_by_link_text(self.EDIT_TEXT)
+        self.assertTrue('disabled' in edit_button.get_attribute('class'))
+        # assert Authorize button is disabled
+        auth_button = self.driver.find_element_by_css_selector('button.btn')
+        self.assertTrue('disabled' in auth_button.get_attribute('class'))
+        # assert Create Order button is enabled
+        create_order_button = self.driver.find_element_by_link_text(
+            self.CREATE_ORDER_TEXT)
+        self.assertTrue(
+            'disabled' not in create_order_button.get_attribute('class'))
+        create_order_button.click()
+        # assert redirects to approve page
+        self.assertEqual(self.driver.current_url, "{}{}".format(
+            self.live_server_url,
+            reverse('ventas:quote_approve', kwargs={'pk': third_quote.id})))
+        # fill in form
+        pack_inst_field = self.driver.find_element_by_name(
+            'order_packaging_instructions')
+        pack_inst_field.send_keys(pack_inst)
+        delivery_addr_field = self.driver.find_element_by_name(
+            'order_delivery_address')
+        delivery_addr_field.send_keys(delivery_addr)
+        notes_field = self.driver.find_element_by_name('order_notes')
+        notes_field.send_keys(notes)
+        # submit form
+        self.driver.find_element_by_xpath('//button[@type="submit"]').click()
+        # wait for page to load
+        WebDriverWait(self.driver, self.TIMEOUT).until(
+            lambda driver: self.driver.find_element_by_tag_name('body'))
+        # assert in order detail page
+        self.assertEqual(self.driver.current_url, "{}{}".format(
+            self.live_server_url,
+            reverse('ventas:order_detail', kwargs={'pk': self.INDEX_TWO})))
