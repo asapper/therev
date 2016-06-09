@@ -223,6 +223,23 @@ class OrderViewTests(QuoteSetUpClass, TestCase):
             response.context['latest_order_list'],
             [("<Order: Id: 1; Started: False; Finished: False>")])
 
+    def test_cannot_access_start_order_page(self):
+        """
+        If accessing /ventas/orders/X/start a 405 error should be returned.
+        """
+        # create an order
+        pack_inst = "None."
+        delivery_addr = "123 ave"
+        notes = "Due soon!"
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, pack_inst, delivery_addr, notes)
+        # access start page
+        response = self.client.get(reverse(
+            'ventas:order_start', kwargs={'pk': order.id}))
+        self.assertEqual(response.status_code, 405)
+
 
 class OrderDetailViewTests(QuoteSetUpClass, TestCase):
     def test_order_detail_view(self):

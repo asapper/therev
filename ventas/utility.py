@@ -1,5 +1,7 @@
 import math
 
+from django.utils import timezone
+
 from .models import Order, Quote_Finishing
 
 
@@ -21,6 +23,16 @@ class OrderController():
             if error is False:
                 quote.set_approved()
                 return order
+
+    @classmethod
+    def start_order(cls, order):
+        """
+        Starts the given order by setting is_started to True and
+        assigning its start time to timezone.now.
+        """
+        if order.order_is_started is False:
+            order.set_start_datetime(timezone.now())
+            order.set_started()
 
 
 class QuoteController():

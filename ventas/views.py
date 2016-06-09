@@ -39,6 +39,19 @@ class OrdersView(ListView):
         """Return all the Orders."""
         return Order.objects.all()
 
+    @require_http_methods(["POST"])
+    def start_order(self, pk):
+        """Calls helper function to start this Order."""
+        error = False
+        try:
+            order = Order.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            error = True
+        if error is False:
+            OrderController.start_order(order)
+        return redirect(reverse(
+            'ventas:order_detail', kwargs={'pk': pk}))
+
 
 class OrderCreateView(CreateView):
     model = Order

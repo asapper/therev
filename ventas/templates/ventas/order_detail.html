@@ -2,10 +2,60 @@
 
 {% block content %}
     <h1>Order #{{ order.id }}</h1>
+    <h3>{{ order.get_quote_name }}</h3>
+
+    <br>
+    <p><strong>Date created: </strong>{{ order.order_date_created }}</p>
+    <p><strong>Due Date:     </strong>{{ order.get_due_date }}</p>
+    <p><strong>Client:       </strong>{{ order.get_client }}</p>
+
+    <br>
     <p><strong>Packaging instructions: </strong>{{ order.order_packaging_instructions }}</p>
     <p><strong>Delivery address:       </strong>{{ order.order_delivery_address }}</p>
     <p><strong>Notes:                  </strong>{{ order.order_notes }}</p>
 
     <br>
+    <p><strong>Sheets:     </strong>{{ order.get_total_sheets }}</p>
+    <p><strong>Finishings: </strong>
+        <ul>
+            {% for finishing in order.get_finishings %}
+                <li>{{ finishing }}</li>
+            {% endfor %}
+        </ul>
+    </p>
+    <p><strong>Materials:  </strong>
+        <ul>
+            {% for material in order.get_materials %}
+                <li>{{ material }}</li>
+            {% endfor %}
+        </ul>
+    </p>
+
+    <br>
+    <p><strong>Started?  </strong>{{ order.order_is_started }}</p>
+    {% if order.order_is_started %}
+        <p><strong>Date Started:  </strong>{{ order.order_datetime_started }}</p>
+    {% endif %}
+    <p><strong>Finished? </strong>{{ order.order_is_finished }}</p>
+    {% if order.order_is_finished %}
+        <p><strong>Date Finished: </strong>{{ order.order_datetime_finished }}</p>
+    {% endif %}
+
+    <br>
     <p><a class="btn btn-default" href="{% url 'ventas:orders' %}">View all orders</a></p>
+    {% if not order.order_is_started and not order.order_is_finished %}
+        <form method="POST" action="{% url 'ventas:order_start' order.id %}">{% csrf_token %}
+            <button class="btn btn-default" type="submit">Start order</button>
+        </form>
+    {% else %}
+        <p><a class="btn btn-default disabled">Start order</a></p>
+    {% endif %}
+
+    {% if order.order_is_started and not order.order_is_finished %}
+        <form method="POST" action="">{% csrf_token %}
+            <button class="btn btn-default" type="submit">Finish order</button>
+        </form>
+    {% else %}
+        <p><a class="btn btn-default disabled">Finish order</a></p>
+    {% endif %}
 {% endblock %}

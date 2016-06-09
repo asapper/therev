@@ -5,7 +5,7 @@ from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
-from .models import Quote
+from .models import Order, Quote
 from .tests_quote import QuoteSetUpClass
 from .utility import OrderController, QuoteController
 
@@ -22,6 +22,11 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         cls.CREATE_QUOTE_TEXT = 'CREATE NEW QUOTE'
         cls.EDIT_TEXT = 'EDIT QUOTE'
         cls.CREATE_ORDER_TEXT = 'CREATE ORDER'
+        cls.START_ORDER_TEXT = 'START ORDER'
+        cls.FINISH_ORDER_TEXT = 'FINISH ORDER'
+        cls.pack_inst = "Pack in 20s."
+        cls.delivery_addr = "123 ave."
+        cls.notes = "None."
 
     @classmethod
     def tearDownClass(cls):
@@ -144,14 +149,11 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         Test accessing the detail page of an approved quote, and verify
         the buttons are correctly enabled/disabled.
         """
-        # store data to create order
-        pack_inst = "Pack in groups of 100."
-        delivery_addr = "123 ave"
-        notes = "Due in two days!"
         # authorize and approve quote (create order)
         quote = Quote.objects.get(pk=self.quote_instance.id)
         QuoteController.authorize_quote(quote)
-        OrderController.create_order(quote, pack_inst, delivery_addr, notes)
+        OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
         # access detail page of quote in db (through set up class)
         self.driver.get('{}{}'.format(
             self.live_server_url,
@@ -298,10 +300,6 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         # authorize quote
         quote = Quote.objects.get(pk=self.quote_instance.id)
         QuoteController.authorize_quote(quote)
-        # store order data
-        pack_inst = "Pack in groups of 100."
-        delivery_addr = "123 ave"
-        notes = "Due in two days!"
         # access detail page of quote in db (through set up class)
         self.driver.get('{}{}'.format(
             self.live_server_url,
@@ -328,12 +326,12 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         # fill in form
         pack_inst_field = self.driver.find_element_by_name(
             'order_packaging_instructions')
-        pack_inst_field.send_keys(pack_inst)
+        pack_inst_field.send_keys(self.pack_inst)
         delivery_addr_field = self.driver.find_element_by_name(
             'order_delivery_address')
-        delivery_addr_field.send_keys(delivery_addr)
+        delivery_addr_field.send_keys(self.delivery_addr)
         notes_field = self.driver.find_element_by_name('order_notes')
-        notes_field.send_keys(notes)
+        notes_field.send_keys(self.notes)
         # submit form
         self.driver.find_element_by_xpath('//button[@type="submit"]').click()
         # wait for page to load
@@ -344,7 +342,7 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
             self.live_server_url,
             reverse('ventas:order_detail', kwargs={'pk': self.INDEX_ONE})))
 
-    def test_create_order_with_different_quote_id(self):
+    def test_create_order_with_different_id_than_its_quote(self):
         """
         Test accessing the detail page of a quote and creating an order
         by clicking Create Order, while there exist a few quotes already
@@ -354,10 +352,6 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         Verify it redirects to order detail page of order's id and
         not of quote's id.
         """
-        # store order data
-        pack_inst = "Pack in groups of 100."
-        delivery_addr = "123 ave"
-        notes = "Due in two days!"
         # create one quote
         self.create_quote(
             name="Test quote ABC", due_date=self.due_today, copies=100,
@@ -376,7 +370,7 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         first_quote = self.quote_instance
         QuoteController.authorize_quote(first_quote)
         OrderController.create_order(
-            first_quote, pack_inst, delivery_addr, notes)
+            first_quote, self.pack_inst, self.delivery_addr, self.notes)
         # access detail page of last quote created
         self.driver.get('{}{}'.format(
             self.live_server_url,
@@ -403,12 +397,12 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         # fill in form
         pack_inst_field = self.driver.find_element_by_name(
             'order_packaging_instructions')
-        pack_inst_field.send_keys(pack_inst)
+        pack_inst_field.send_keys(self.pack_inst)
         delivery_addr_field = self.driver.find_element_by_name(
             'order_delivery_address')
-        delivery_addr_field.send_keys(delivery_addr)
+        delivery_addr_field.send_keys(self.delivery_addr)
         notes_field = self.driver.find_element_by_name('order_notes')
-        notes_field.send_keys(notes)
+        notes_field.send_keys(self.notes)
         # submit form
         self.driver.find_element_by_xpath('//button[@type="submit"]').click()
         # wait for page to load
@@ -418,3 +412,73 @@ class SeleniumQuoteTests(QuoteSetUpClass, StaticLiveServerTestCase):
         self.assertEqual(self.driver.current_url, "{}{}".format(
             self.live_server_url,
             reverse('ventas:order_detail', kwargs={'pk': self.INDEX_TWO})))
+
+    def test_start_order(self):
+        """Test starting an order."""
+        # authorize and create order for first quote in db
+        first_quote = self.quote_instance
+        QuoteController.authorize_quote(first_quote)
+        order = OrderController.create_order(
+            first_quote, self.pack_inst, self.delivery_addr, self.notes)
+        # access order detail page
+        self.driver.get('{}{}'.format(
+            self.live_server_url,
+            reverse('ventas:order_detail', kwargs={'pk': order.id})))
+        # wait for page to load
+        WebDriverWait(self.driver, self.TIMEOUT).until(
+            lambda driver: self.driver.find_element_by_tag_name('body'))
+        # assert Start Order button enabled
+        start_order_button = self.driver.find_element_by_xpath(
+            '//button[@type="submit"]')
+        self.assertTrue(
+            'disabled' not in start_order_button.get_attribute('class'))
+        # assert Finish Order button disabled
+        finish_order_button = self.driver.find_element_by_link_text(
+            self.FINISH_ORDER_TEXT)
+        self.assertTrue(
+            'disabled' in finish_order_button.get_attribute('class'))
+        # start order
+        start_order_button.click()
+        # assert page redirects to order detail page
+        self.assertEqual(self.driver.current_url, '{}{}'.format(
+            self.live_server_url,
+            reverse('ventas:order_detail', kwargs={'pk': order.id})))
+        # assert order is started
+        order = Order.objects.get(pk=order.id)  # refresh instance
+        self.assertTrue(order.order_is_started)
+        # assert Start Order button disabled
+        start_order_button = self.driver.find_element_by_link_text(
+            self.START_ORDER_TEXT)
+        self.assertTrue(
+            'disabled' in start_order_button.get_attribute('class'))
+        # assert Finish Order button enabled
+        finish_order_button = self.driver.find_element_by_xpath(
+            '//button[@type="submit"]')
+        self.assertTrue(
+            'disabled' not in finish_order_button.get_attribute('class'))
+
+    def test_start_order_already_started(self):
+        """Test trying to start an order already started."""
+        # authorize, create and start order for first quote in db
+        first_quote = self.quote_instance
+        QuoteController.authorize_quote(first_quote)
+        order = OrderController.create_order(
+            first_quote, self.pack_inst, self.delivery_addr, self.notes)
+        OrderController.start_order(order)  # start order
+        # access order detail page
+        self.driver.get('{}{}'.format(
+            self.live_server_url,
+            reverse('ventas:order_detail', kwargs={'pk': order.id})))
+        # wait for page to load
+        WebDriverWait(self.driver, self.TIMEOUT).until(
+            lambda driver: self.driver.find_element_by_tag_name('body'))
+        # assert Start Order button disabled
+        start_order_button = self.driver.find_element_by_link_text(
+            self.START_ORDER_TEXT)
+        self.assertTrue(
+            'disabled' in start_order_button.get_attribute('class'))
+        # assert Finish Order button enabled
+        finish_order_button = self.driver.find_element_by_xpath(
+            '//button[@type="submit"]')
+        self.assertTrue(
+            'disabled' not in finish_order_button.get_attribute('class'))

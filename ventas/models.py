@@ -83,6 +83,10 @@ class Quote(models.Model):
         """Return this Quote's id."""
         return self.id
 
+    def get_quote_name(self):
+        """Return this Quote's name."""
+        return self.quote_name
+
     def get_due_date(self):
         """Return this Quote's due date."""
         return self.quote_due_date
@@ -141,6 +145,10 @@ class Quote(models.Model):
         self.quote_imposing_per_sheet = imposing
         self.save()
 
+    def get_total_sheets(self):
+        """Return this quote's total sheets."""
+        return self.quote_total_sheets
+
     def set_total_sheets(self, sheets):
         """Assign the number of sheets used for this Quote."""
         self.quote_total_sheets = sheets
@@ -192,9 +200,20 @@ class Order(models.Model):
         """Return the quote id associated with this Order."""
         return self.quote.get_quote_id()
 
+    def get_quote_name(self):
+        """Return the quote name associated with this Order."""
+        return self.quote.get_quote_name()
+
     def get_due_date(self):
         """Return the quote due date associated with this Order."""
         return self.quote.get_due_date()
+
+    def get_total_sheets(self):
+        """
+        Return the number of sheets the quote
+        associated with this Order requires.
+        """
+        return self.quote.get_total_sheets()
 
     def get_client(self):
         """Return the client of associated quote."""
@@ -215,3 +234,13 @@ class Order(models.Model):
     def get_paper(self):
         """Return the paper of associated quote."""
         return self.quote.get_paper()
+
+    def set_start_datetime(self, date):
+        """Assign the start datetime for this order."""
+        self.order_datetime_started = date
+        self.save()
+
+    def set_started(self):
+        """Assigns this Order's is_started to True."""
+        self.order_is_started = True
+        self.save()

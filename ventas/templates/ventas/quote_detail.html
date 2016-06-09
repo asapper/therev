@@ -25,14 +25,14 @@
 
     <p><strong>Finishings:   </strong>
         <ul>
-            {% for finishing in quote.finishings.all %}
+            {% for finishing in quote.get_finishings %}
                 <li>{{ finishing }}</li>
             {% endfor %}
         </ul>
     </p>
     <p><strong>Materials:    </strong>
         <ul>
-            {% for material in quote.materials.all %}
+            {% for material in quote.get_materials %}
                 <li>{{ material }}</li>
             {% endfor %}
         </ul>
