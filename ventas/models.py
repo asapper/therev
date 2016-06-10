@@ -165,25 +165,47 @@ class Quote_Finishing(models.Model):
     quote = models.ForeignKey(Quote)
     # finishing reference
     finishing = models.ForeignKey(Finishing)
+    # is started?
+    quote_finishing_is_started = models.BooleanField(default=False)
     # datetime started
-    date_started = models.DateTimeField(null=True)
+    quote_finishing_datetime_started = models.DateTimeField(null=True)
+    # is finished?
+    quote_finishing_is_finished = models.BooleanField(default=False)
     # datetime finished
-    date_finished = models.DateTimeField(null=True)
+    quote_finishing_datetime_finished = models.DateTimeField(null=True)
 
     def get_date_started(self):
         """Return the date this Finishing was started."""
-        return self.date_started
+        return self.quote_finishing_datetime_started
 
     def get_date_finished(self):
         """Return the date this Finishing was finished."""
-        return self.date_finished
+        return self.quote_finishing_datetime_finished
+
+    def get_is_started(self):
+        """Return whether or not this QuoteFinishing is started."""
+        return self.quote_finishing_is_started
 
     def set_started(self):
         """
         Assign this Finishing as started by setting
         its start date to timezone.now.
         """
-        self.date_started = timezone.now()
+        self.quote_finishing_datetime_started = timezone.now()
+        self.quote_finishing_is_started = True
+        self.save()
+
+    def get_is_finished(self):
+        """Return whether or not this QuoteFinishing is finished."""
+        return self.quote_finishing_is_finished
+
+    def set_finished(self):
+        """
+        Assign this Finishing as finished by setting
+        its finish data to timezone.now.
+        """
+        self.quote_finishing_datetime_finished = timezone.now()
+        self.quote_finishing_is_finished = True
         self.save()
 
 
@@ -251,12 +273,8 @@ class Order(models.Model):
         """Return the paper of associated quote."""
         return self.quote.get_paper()
 
-    def set_start_datetime(self, date):
-        """Assign the start datetime for this order."""
-        self.order_datetime_started = date
-        self.save()
-
     def set_started(self):
         """Assigns this Order's is_started to True."""
+        self.order_datetime_started = timezone.now()
         self.order_is_started = True
         self.save()

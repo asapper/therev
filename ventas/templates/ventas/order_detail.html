@@ -22,10 +22,10 @@
                 <li>
                     {{ q_finishing.finishing }}
                     <ul>
-                        <li><strong>Date Started:  </strong>{{ q_finishing.date_started|default_if_none:"---" }}</li>
-                        <li><strong>Date Finished: </strong>{{ q_finishing.date_finished|default_if_none:"---"}}</li>
+                        <li><strong>Date Started:  </strong>{{ q_finishing.quote_finishing_datetime_started|default_if_none:"---" }}</li>
+                        <li><strong>Date Finished: </strong>{{ q_finishing.quote_finishing_datetime_finished|default_if_none:"---"}}</li>
                         <li>
-                            {% if q_finishing.date_started == None and order.order_is_started %}
+                            {% if not q_finishing.quote_finishing_is_started and order.order_is_started %}
                                 <form method="POST" action="{% url 'ventas:order_start_finishing' order.id q_finishing.finishing.id %}">{% csrf_token %}
                                     <button id="btn-start-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default" type="submit">Start finishing</button>
                                 </form>
@@ -34,8 +34,10 @@
                             {% endif %}
                         </li>
                         <li>
-                            {% if q_finishing.date_started != None and q_finishing.date_finished == None %}
-                                <a id="btn-finish-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default">Finish finishing</a>
+                            {% if q_finishing.quote_finishing_is_started and not q_finishing.quote_finishing_is_finished %}
+                                <form method="POST" action="{% url 'ventas:order_finish_finishing' order.id q_finishing.finishing.id %}">{% csrf_token %}
+                                    <button id="btn-finish-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default" type="submit">Finish finishing</button>
+                                </form>
                             {% else %}
                                 <a id="btn-finish-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default disabled">Finish finishing</a>
                             {% endif %}

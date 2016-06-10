@@ -534,7 +534,7 @@ class SeleniumOrderTests(SeleniumSetUpClass, StaticLiveServerTestCase):
             'disabled' in start_fin_button.get_attribute('class'))
         # assert Finish Finishing 1 button is enabled
         finish_fin_button = self.driver.find_element_by_xpath(
-            '//a[@id="{}-{}"]'.format(
+            '//button[@id="{}-{}"]'.format(
                 self.FINISH_FINISHING_BTN_ID, self.INDEX_ONE))
         self.assertTrue(
             'disabled' not in finish_fin_button.get_attribute('class'))
@@ -558,6 +558,61 @@ class SeleniumOrderTests(SeleniumSetUpClass, StaticLiveServerTestCase):
         self.assertTrue(
             'disabled' in start_fin_button.get_attribute('class'))
         # assert Finish Finishing 1 button is disabled
+        finish_fin_button = self.driver.find_element_by_xpath(
+            '//a[@id="{}-{}"]'.format(
+                self.FINISH_FINISHING_BTN_ID, self.INDEX_ONE))
+        self.assertTrue(
+            'disabled' in finish_fin_button.get_attribute('class'))
+
+    def test_finish_finishing(self):
+        """
+        Test finishing a finishing of an order already started.
+        Verify buttons are enabled/disabled correctly.
+        """
+        OrderController.start_order(self.order)  # start order
+        # access order detail page
+        self.driver.get('{}{}'.format(
+            self.live_server_url,
+            reverse('ventas:order_detail', kwargs={'pk': self.order.id})))
+        # wait for page to load
+        WebDriverWait(self.driver, self.TIMEOUT).until(
+            lambda driver: self.driver.find_element_by_tag_name('body'))
+        # get start and finish buttons
+        start_fin_button = self.driver.find_element_by_xpath(
+            '//button[@id="{}-{}"]'.format(
+                self.START_FINISHING_BTN_ID, self.INDEX_ONE))
+        finish_fin_button = self.driver.find_element_by_xpath(
+            '//a[@id="{}-{}"]'.format(
+                self.FINISH_FINISHING_BTN_ID, self.INDEX_ONE))
+        # start finishing 1
+        start_fin_button.click()
+        # assert redirected to same page
+        self.driver.get('{}{}'.format(
+            self.live_server_url,
+            reverse('ventas:order_detail', kwargs={'pk': self.order.id})))
+        # wait for page to load
+        WebDriverWait(self.driver, self.TIMEOUT).until(
+            lambda driver: self.driver.find_element_by_tag_name('body'))
+        # get start and finish buttons
+        start_fin_button = self.driver.find_element_by_xpath(
+            '//a[@id="{}-{}"]'.format(
+            self.START_FINISHING_BTN_ID, self.INDEX_ONE))
+        self.assertTrue(
+            'disabled' in start_fin_button.get_attribute('class'))
+        finish_fin_button = self.driver.find_element_by_xpath(
+            '//button[@id="{}-{}"]'.format(
+                self.FINISH_FINISHING_BTN_ID, self.INDEX_ONE))
+        self.assertTrue(
+            'disabled' not in finish_fin_button.get_attribute('class'))
+        # finish finishing
+        finish_fin_button.click()
+        # assert Start Finishing button is disabled
+        start_fin_button = self.driver.find_element_by_xpath(
+            '//a[@id="{}-{}"]'.format(
+            self.START_FINISHING_BTN_ID, self.INDEX_ONE))
+        self.assertTrue(
+            'disabled' in start_fin_button.get_attribute('class'))
+        # assert Finish Finishing button is disabled
         finish_fin_button = self.driver.find_element_by_xpath(
             '//a[@id="{}-{}"]'.format(
                 self.FINISH_FINISHING_BTN_ID, self.INDEX_ONE))

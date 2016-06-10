@@ -1,7 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseNotFound
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
@@ -16,18 +15,10 @@ from recursos.models import Finishing, Material
 @require_http_methods(["POST"])
 def authorize_quote(request, pk):
     """Authorizes quote if POST received and redirects to quote detail page."""
-    response = None
-    error = False
-    try:
-        quote = Quote.objects.get(pk=pk)
-    except ObjectDoesNotExist:
-        error = True
-        response = HttpResponseNotFound("Order not found")
-    if error is False:
-        QuoteController.authorize_quote(quote)
-        response = redirect(reverse(
-            'ventas:quote_detail', kwargs={'pk': pk}))
-    return response
+    quote = get_object_or_404(Quote, pk=pk)
+    msg = QuoteController.authorize_quote(quote)
+    return redirect(reverse(
+        'ventas:quote_detail', kwargs={'pk': pk}))
 
 
 class VentasView(TemplateView):
@@ -48,11 +39,8 @@ class OrdersView(ListView):
         Retrieve order with given pk and call
         helper function to start this Order.
         """
-        try:
-            order = Order.objects.get(pk=pk)
-        except ObjectDoesNotExist:
-            return HttpResponseNotFound("Order not found")
-        OrderController.start_order(order)
+        order = get_object_or_404(Order, pk=pk)  # get order
+        msg = OrderController.start_order(order)
         return redirect(reverse(
             'ventas:order_detail', kwargs={'pk': pk}))
 
@@ -63,21 +51,40 @@ class OrdersView(ListView):
         quote id and given finishing id, and call helper function
         to start that Finishing.
         """
-        try:
-            order = Order.objects.get(pk=pk)
-        except ObjectDoesNotExist:
-            return HttpResponseNotFound("Order not found")
+        order = get_object_or_404(Order, pk=pk)  # get order
         if order.order_is_started is True:
-            try:
-                quote_finishing_instance = Quote_Finishing.objects.get(
-                    quote_id=order.get_quote_id(),
-                    finishing_id=finishing_id)
-            except ObjectDoesNotExist:
-                return HttpResponseNotFound("Finishing not found")
-            OrderController.start_finishing(quote_finishing_instance)
-            return redirect(reverse(
-                'ventas:order_detail', kwargs={'pk': pk}))
-        return HttpResponseNotFound("Order not started")
+            # get quote_finishing
+            quote_finishing_instance = get_object_or_404(
+                Quote_Finishing,
+                quote_id=order.get_quote_id(),
+                finishing_id=finishing_id)
+            # start finishing
+            msg = OrderController.start_finishing(quote_finishing_instance)
+        else:  # order not started
+            msg = "Order not started"
+        return redirect(reverse(
+            'ventas:order_detail', kwargs={'pk': pk}))
+
+    @require_http_methods(["POST"])
+    def finish_finishing(self, pk, finishing_id):
+        """
+        Retrieve order with given pk, as well as QuoteFinishing with
+        quote id and given finishing id, and call helper function
+        to finish that Finishing.
+        """
+        order = get_object_or_404(Order, pk=pk)  # get order
+        if order.order_is_started is True:
+            # get quote_finishing
+            q_fin_instance = get_object_or_404(
+                Quote_Finishing,
+                quote_id=order.get_quote_id(),
+                finishing_id=finishing_id)
+            # finish finishing
+            msg = OrderController.finish_finishing(q_fin_instance)
+        else:  # order not started
+            msg = "Order not started"
+        return redirect(reverse(
+            'ventas:order_detail', kwargs={'pk': pk}))
 
 
 class OrderCreateView(CreateView):
@@ -88,19 +95,14 @@ class OrderCreateView(CreateView):
     def get(self, *args, **kwargs):
         """Determine whether or not page should be accessible."""
         pk = self.kwargs['pk']
-        try:
-            Quote.objects.get(pk=pk)
-        except ObjectDoesNotExist:
-            return HttpResponseNotFound("Quote does not exist.")
+        get_object_or_404(Quote, pk=pk)  # get quote
         return super(OrderCreateView, self).get(self.request)
 
     def form_valid(self, form):
         """Process a valid form."""
         pk = self.kwargs['pk']
-        try:
-            quote = Quote.objects.get(pk=pk)
-        except ObjectDoesNotExist:
-            return HttpResponseNotFound("Quote not found")
+        quote = get_object_or_404(Quote, pk=pk)  # get quote
+        # retrieve information for order
         pack_inst = form['order_packaging_instructions'].value()
         delivery_addr = form['order_delivery_address'].value()
         notes = form['order_notes'].value()

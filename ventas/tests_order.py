@@ -320,6 +320,66 @@ class OrderViewTests(OrderSetUpClass, TestCase):
             kwargs={'pk': order.id, 'finishing_id': self.BAD_INDEX}))
         self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
 
+    def test_cannot_access_finish_finishing_page(self):
+        """
+        If accessing /ventas/orders/X/finish_finishing/Y/ a
+        405 error should be returned.
+        """
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        OrderController.start_order(order)  # start order
+        # attemp to access start finishing page
+        response = self.client.get(reverse(
+            'ventas:order_finish_finishing',
+            kwargs={'pk': order.id, 'finishing_id': self.INDEX_ONE}))
+        self.assertEqual(response.status_code, self.NOT_ALLOWED_STATUS)
+
+    def test_access_finish_finishing_of_unstarted_order(self):
+        """
+        Attempt to access the Finish Finishing page of an order
+        that has not been started.
+        """
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        # attemp to access start finishing page
+        response = self.client.post(reverse(
+            'ventas:order_finish_finishing',
+            kwargs={'pk': order.id, 'finishing_id': self.BAD_INDEX}))
+        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+
+    def test_access_finish_finishing_of_nonexisting_order(self):
+        """
+        Attempt to access the Finish Finishing page of an
+        order that does not exist.
+        """
+        # attempt to access start page
+        response = self.client.post(reverse(
+            'ventas:order_finish_finishing',
+            kwargs={'pk': self.BAD_INDEX, 'finishing_id': self.INDEX_ONE}))
+        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+
+    def test_access_finish_finishing_of_nonexisting_finishing(self):
+        """
+        Attempt to access the Finish Finishing page of an order
+        that exists but where the desired Finishing does not exist.
+        """
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        OrderController.start_order(order)  # start order
+        # attemp to access start finishing page
+        response = self.client.post(reverse(
+            'ventas:order_finish_finishing',
+            kwargs={'pk': order.id, 'finishing_id': self.BAD_INDEX}))
+        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+
 
 class OrderDetailViewTests(OrderSetUpClass, TestCase):
     def test_order_detail_view(self):

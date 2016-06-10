@@ -17,6 +17,9 @@ urlpatterns = [
     # ex: /ventas/orders/5/start_finishing/1/
     url(r'^orders/(?P<pk>[0-9]+)/start_finishing/(?P<finishing_id>[0-9]+)/$',
         views.OrdersView.start_finishing, name='order_start_finishing'),
+    # ex: /ventas/orders/5/finish_finishing/1/
+    url(r'^orders/(?P<pk>[0-9]+)/finish_finishing/(?P<finishing_id>[0-9]+)/$',
+        views.OrdersView.finish_finishing, name='order_finish_finishing'),
     # ex: /ventas/quotes/
     url(r'^quotes/$', views.QuotesView.as_view(), name='quotes'),
     # ex: /ventas/quotes/new/

@@ -27,45 +27,69 @@ class OrderController():
     @classmethod
     def start_order(cls, order):
         """
-        Starts the given order by setting is_started to True and
-        assigning its start time to timezone.now.
+        Starts the given order by calling the order's set_started function.
         """
+        # verify order is not started already
         if order.order_is_started is False:
-            order.set_start_datetime(timezone.now())
-            order.set_started()
+            order.set_started()  # function handles assignment
+        else:
+            # order already started
+            return "Order already started"
 
     @classmethod
     def start_finishing(cls, quote_finishing_instance):
         """
-        Starts the given finishing by setting its start date
-        to timezone.now.
+        Starts the given finishing by calling
+        the quote_finishing's set_started function.
         """
-        # verify start date is not set
-        if quote_finishing_instance.get_date_started() is None:
-            # start finishing helper function
+        # verify quote finishing is not started
+        if quote_finishing_instance.get_is_started() is False:
+            # function handles assignment
             quote_finishing_instance.set_started()
+        else:
+            return "Finishing already started"
+
+    @classmethod
+    def finish_finishing(cls, quote_finishing_instance):
+        """
+        Finish the given finishing by calling
+        the quote_finishing's set_finished function.
+        """
+        # verify quote finishing is started and not finished
+        if quote_finishing_instance.get_is_started() is True:
+            if quote_finishing_instance.get_is_finished() is False:
+                # function handles assignment
+                quote_finishing_instance.set_finished()
+            else:
+                return "Finishing already finished"
+        else:
+            return "Finishing not started"
 
 
 class QuoteController():
     @classmethod
     def authorize_quote(cls, quote):
         """Authorize given Quote."""
-        if (quote.quote_is_authorized is False and
-                quote.quote_is_approved is False):
-            quote.set_authorized()
+        if quote.quote_is_authorized is False:
+            if quote.quote_is_approved is False:
+                quote.set_authorized()  # authorize quote
+            else:  # quote approved
+                return "Quote already approved"
+        else:
+            return "Quote already authorized"
 
     @classmethod
     def get_total_price(cls, quote):
         """Return the total price for all processes in a Quote."""
-
+        # get materials price
         total_materials_price = 0
         for material in quote.materials.all():
             total_materials_price += material.material_price
-
+        # get finishings price
         total_finishings_price = 0
         for finishing in quote.finishings.all():
             total_finishings_price += finishing.finishing_price
-
+        # get paper price
         paper_price = quote.paper.paper_price
         # calculate total price
         sheets = quote.quote_total_sheets
