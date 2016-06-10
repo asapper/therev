@@ -9,13 +9,23 @@ from .tests_quote import QuoteSetUpClass
 from .utility import OrderController, QuoteController
 
 
-class OrderMethodTests(QuoteSetUpClass, TestCase):
+class OrderSetUpClass(QuoteSetUpClass, TestCase):
     @classmethod
     def setUpTestData(cls):
-        super(OrderMethodTests, cls).setUpTestData()
+        super(OrderSetUpClass, cls).setUpTestData()
         cls.pack_inst = "None."
         cls.delivery_addr = "123 ave"
         cls.notes = "Due soon!"
+        # store HTTP response statuses
+        cls.OK_STATUS = 200
+        cls.NOT_FOUND_STAUS = 404
+        cls.NOT_ALLOWED_STATUS = 405
+
+
+class OrderMethodTests(OrderSetUpClass, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super(OrderMethodTests, cls).setUpTestData()
         quote = Quote.objects.get(pk=cls.quote_instance.id)
         QuoteController.authorize_quote(quote)
         cls.order_instance = OrderController.create_order(
@@ -116,7 +126,7 @@ class OrderMethodTests(QuoteSetUpClass, TestCase):
         self.assertEqual(order.get_paper(), self.paper_instance)
 
 
-class OrderCreateFormTests(QuoteSetUpClass, TestCase):
+class OrderCreateFormTests(OrderSetUpClass, TestCase):
     @classmethod
     def setUpTestData(cls):
         super(OrderCreateFormTests, cls).setUpTestData()
@@ -200,24 +210,28 @@ class OrderCreateFormTests(QuoteSetUpClass, TestCase):
         self.assertNotIn('order_notes', form.errors)
 
 
-class OrderViewTests(QuoteSetUpClass, TestCase):
+class OrderViewTests(OrderSetUpClass, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super(OrderViewTests, cls).setUpTestData()
+        cls.INDEX_ONE = 1
+        cls.BAD_INDEX = 100
+
     def test_order_view_with_no_orders(self):
         """If no Orders exist, an appropriate message should be displayed."""
         response = self.client.get(reverse('ventas:orders'))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, self.OK_STATUS)
         self.assertContains(response, "No orders are available.")
         self.assertQuerysetEqual(response.context['latest_order_list'], [])
 
     def test_order_view_with_an_order(self):
         """If an Order exists, it should be displayed."""
         # create an order
-        pack_inst = "None."
-        delivery_addr = "123 ave"
-        notes = "Due soon!"
         quote = Quote.objects.get(pk=self.quote_instance.id)
         QuoteController.authorize_quote(quote)
-        OrderController.create_order(quote, pack_inst, delivery_addr, notes)
-
+        OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        # access orders list view
         response = self.client.get(reverse('ventas:orders'))
         self.assertQuerysetEqual(
             response.context['latest_order_list'],
@@ -228,34 +242,97 @@ class OrderViewTests(QuoteSetUpClass, TestCase):
         If accessing /ventas/orders/X/start a 405 error should be returned.
         """
         # create an order
-        pack_inst = "None."
-        delivery_addr = "123 ave"
-        notes = "Due soon!"
         quote = Quote.objects.get(pk=self.quote_instance.id)
         QuoteController.authorize_quote(quote)
         order = OrderController.create_order(
-            quote, pack_inst, delivery_addr, notes)
-        # access start page
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        # attempt to access start page
         response = self.client.get(reverse(
             'ventas:order_start', kwargs={'pk': order.id}))
-        self.assertEqual(response.status_code, 405)
+        self.assertEqual(response.status_code, self.NOT_ALLOWED_STATUS)
+
+    def test_access_start_order_page_of_nonexisting_order(self):
+        """
+        Attempt to access the Start Order page of an order that does not exist.
+        """
+        # attempt to access start page
+        response = self.client.post(reverse(
+            'ventas:order_start', kwargs={'pk': self.BAD_INDEX}))
+        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+
+    def test_cannot_access_start_finishing_page(self):
+        """
+        If accessing /ventas/orders/X/start_finishing/Y/ a
+        405 error should be returned.
+        """
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        OrderController.start_order(order)  # start order
+        # attemp to access start finishing page
+        response = self.client.get(reverse(
+            'ventas:order_start_finishing',
+            kwargs={'pk': order.id, 'finishing_id': self.INDEX_ONE}))
+        self.assertEqual(response.status_code, self.NOT_ALLOWED_STATUS)
+
+    def test_access_start_finishing_of_unstarted_order(self):
+        """
+        Attempt to access the Start Finishing page of an order
+        that has not been started.
+        """
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        # attemp to access start finishing page
+        response = self.client.post(reverse(
+            'ventas:order_start_finishing',
+            kwargs={'pk': order.id, 'finishing_id': self.BAD_INDEX}))
+        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+
+    def test_access_start_finishing_of_nonexisting_order(self):
+        """
+        Attempt to access the Start Finishing page of an
+        order that does not exist.
+        """
+        # attempt to access start page
+        response = self.client.post(reverse(
+            'ventas:order_start_finishing',
+            kwargs={'pk': self.BAD_INDEX, 'finishing_id': self.INDEX_ONE}))
+        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+
+    def test_access_start_finishing_of_nonexisting_finishing(self):
+        """
+        Attempt to access the Start Finishing page of an order
+        that exists but where the desired Finishing does not exist.
+        """
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        OrderController.start_order(order)  # start order
+        # attemp to access start finishing page
+        response = self.client.post(reverse(
+            'ventas:order_start_finishing',
+            kwargs={'pk': order.id, 'finishing_id': self.BAD_INDEX}))
+        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
 
 
-class OrderDetailViewTests(QuoteSetUpClass, TestCase):
+class OrderDetailViewTests(OrderSetUpClass, TestCase):
     def test_order_detail_view(self):
         """Test that data is displayed correctly."""
-        # store data to use in creating order
-        pack_inst = "Pack in least packages possible."
-        delivery_addr = "S. 7th street"
-        notes = "Deliver ASAP!"
         # authorize and approve quote in db
         quote = Quote.objects.get(pk=self.quote_instance.id)
         QuoteController.authorize_quote(quote)
-        OrderController.create_order(quote, pack_inst, delivery_addr, notes)
+        OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
         # access order detail page
         response = self.client.get(
             reverse('ventas:order_detail', kwargs={'pk': quote.id}))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, self.OK_STATUS)
 
     def test_not_existent_order_detail_page(self):
         """
@@ -265,10 +342,10 @@ class OrderDetailViewTests(QuoteSetUpClass, TestCase):
         BAD_QUOTE_ID = 100
         response = self.client.get(
             reverse('ventas:order_detail', kwargs={'pk': BAD_QUOTE_ID}))
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
 
 
-class OrderCreateViewTests(QuoteSetUpClass, TestCase):
+class OrderCreateViewTests(OrderSetUpClass, TestCase):
     def test_not_existent_order_create_page(self):
         """
         Test that a 404 is returned when accessing the create page
@@ -277,4 +354,4 @@ class OrderCreateViewTests(QuoteSetUpClass, TestCase):
         BAD_QUOTE_ID = 100
         response = self.client.get(
             reverse('ventas:quote_approve', kwargs={'pk': BAD_QUOTE_ID}))
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)

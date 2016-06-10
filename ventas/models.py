@@ -170,6 +170,22 @@ class Quote_Finishing(models.Model):
     # datetime finished
     date_finished = models.DateTimeField(null=True)
 
+    def get_date_started(self):
+        """Return the date this Finishing was started."""
+        return self.date_started
+
+    def get_date_finished(self):
+        """Return the date this Finishing was finished."""
+        return self.date_finished
+
+    def set_started(self):
+        """
+        Assign this Finishing as started by setting
+        its start date to timezone.now.
+        """
+        self.date_started = timezone.now()
+        self.save()
+
 
 class Order(models.Model):
     # auhtorized quote reference

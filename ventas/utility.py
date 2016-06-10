@@ -34,6 +34,17 @@ class OrderController():
             order.set_start_datetime(timezone.now())
             order.set_started()
 
+    @classmethod
+    def start_finishing(cls, quote_finishing_instance):
+        """
+        Starts the given finishing by setting its start date
+        to timezone.now.
+        """
+        # verify start date is not set
+        if quote_finishing_instance.get_date_started() is None:
+            # start finishing helper function
+            quote_finishing_instance.set_started()
+
 
 class QuoteController():
     @classmethod
@@ -74,7 +85,7 @@ class QuoteController():
         num_copies = quote.quote_copies * quote.quote_quires
 
         results = []
-        results = calculate_impose(paper_width, paper_length, job_width,
+        results = _calculate_impose(paper_width, paper_length, job_width,
                                    job_length, job_bleed)
 
         results.sort(reverse=True)
@@ -86,7 +97,7 @@ class QuoteController():
         return best_result, best_sheets
 
 
-def calculate_impose(paper_width, paper_length, job_width, job_length,
+def _calculate_impose(paper_width, paper_length, job_width, job_length,
                      job_bleed):
     """
     Calculate ways to impose job in the given paper and call
@@ -109,7 +120,7 @@ def calculate_impose(paper_width, paper_length, job_width, job_length,
     min_leftover = paper_min - min_final
 
     # call method 1
-    total_method_1 = do_impose(
+    total_method_1 = _do_impose(
         paper_min,
         paper_max,
         job_width,
@@ -135,7 +146,7 @@ def calculate_impose(paper_width, paper_length, job_width, job_length,
     min_leftover = paper_min - min_final
 
     # call method 2
-    total_method_2 = do_impose(
+    total_method_2 = _do_impose(
         paper_min,
         paper_max,
         job_width,
@@ -155,7 +166,7 @@ def calculate_impose(paper_width, paper_length, job_width, job_length,
     return results
 
 
-def do_impose(paper_min, paper_max, job_width, job_length, job_bleed,
+def _do_impose(paper_min, paper_max, job_width, job_length, job_bleed,
               job_total_min, job_total_max, max_side, min_side, max_final,
               min_final, max_leftover, min_leftover):
     """Do the imposing of the given job in the given paper."""
@@ -172,7 +183,7 @@ def do_impose(paper_min, paper_max, job_width, job_length, job_bleed,
             # to store leftover imposing
             leftover_imp = []
             # impose on leftover area
-            leftover_imp = calculate_impose(
+            leftover_imp = _calculate_impose(
                 paper_min,  # paper width
                 max_leftover,  # paper length
                 job_width,
@@ -190,7 +201,7 @@ def do_impose(paper_min, paper_max, job_width, job_length, job_bleed,
             # store leftover imposing
             leftover_imp = []
             # impose on leftover area
-            leftover_imp = calculate_impose(
+            leftover_imp = _calculate_impose(
                 paper_max,  # paper width
                 min_leftover,  # paper length
                 job_width,

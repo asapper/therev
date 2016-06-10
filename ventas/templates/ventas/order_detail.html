@@ -18,25 +18,41 @@
     <p><strong>Sheets:     </strong>{{ order.get_total_sheets }}</p>
     <p><strong>Finishings: </strong>
         <ul>
-            {% for finishing in order.get_finishings %}
-                <li>{{ finishing }}</li>
+            {% for q_finishing in quote_finishing_list %}
+                <li>
+                    {{ q_finishing.finishing }}
+                    <ul>
+                        <li><strong>Date Started:  </strong>{{ q_finishing.date_started|default_if_none:"---" }}</li>
+                        <li><strong>Date Finished: </strong>{{ q_finishing.date_finished|default_if_none:"---"}}</li>
+                        <li>
+                            {% if q_finishing.date_started == None and order.order_is_started %}
+                                <form method="POST" action="{% url 'ventas:order_start_finishing' order.id q_finishing.finishing.id %}">{% csrf_token %}
+                                    <button id="btn-start-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default" type="submit">Start finishing</button>
+                                </form>
+                            {% else %}
+                                <a id="btn-start-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default disabled">Start Finishing</a>
+                            {% endif %}
+                        </li>
+                        <li>
+                            {% if q_finishing.date_started != None and q_finishing.date_finished == None %}
+                                <a id="btn-finish-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default">Finish finishing</a>
+                            {% else %}
+                                <a id="btn-finish-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default disabled">Finish finishing</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </li>
             {% endfor %}
         </ul>
     </p>
-    <p><strong>Materials:  </strong>
-        <ul>
-            {% for material in order.get_materials %}
-                <li>{{ material }}</li>
-            {% endfor %}
-        </ul>
-    </p>
+    <p><strong>Materials:  </strong><ul>{{ order.get_materials|unordered_list }}</ul></p>
 
     <br>
-    <p><strong>Started?  </strong>{{ order.order_is_started }}</p>
+    <p><strong>Started?  </strong>{{ order.order_is_started|yesno:"Yes,No,No" }}</p>
     {% if order.order_is_started %}
         <p><strong>Date Started:  </strong>{{ order.order_datetime_started }}</p>
     {% endif %}
-    <p><strong>Finished? </strong>{{ order.order_is_finished }}</p>
+    <p><strong>Finished? </strong>{{ order.order_is_finished|yesno:"Yes,No,No" }}</p>
     {% if order.order_is_finished %}
         <p><strong>Date Finished: </strong>{{ order.order_datetime_finished }}</p>
     {% endif %}
@@ -45,17 +61,17 @@
     <p><a class="btn btn-default" href="{% url 'ventas:orders' %}">View all orders</a></p>
     {% if not order.order_is_started and not order.order_is_finished %}
         <form method="POST" action="{% url 'ventas:order_start' order.id %}">{% csrf_token %}
-            <button class="btn btn-default" type="submit">Start order</button>
+            <button id="btn-start-order" class="btn btn-default" type="submit">Start order</button>
         </form>
     {% else %}
-        <p><a class="btn btn-default disabled">Start order</a></p>
+        <p><a id="btn-start-order" class="btn btn-default disabled">Start order</a></p>
     {% endif %}
 
     {% if order.order_is_started and not order.order_is_finished %}
         <form method="POST" action="">{% csrf_token %}
-            <button class="btn btn-default" type="submit">Finish order</button>
+            <button id="btn-finish-order" class="btn btn-default" type="submit">Finish order</button>
         </form>
     {% else %}
-        <p><a class="btn btn-default disabled">Finish order</a></p>
+        <p><a id="btn-finish-order" class="btn btn-default disabled">Finish order</a></p>
     {% endif %}
 {% endblock %}
