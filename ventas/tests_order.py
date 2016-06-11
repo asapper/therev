@@ -239,7 +239,7 @@ class OrderViewTests(OrderSetUpClass, TestCase):
 
     def test_cannot_access_start_order_page(self):
         """
-        If accessing /ventas/orders/X/start a 405 error should be returned.
+        If accessing /ventas/orders/X/start/ a 405 error should be returned.
         """
         # create an order
         quote = Quote.objects.get(pk=self.quote_instance.id)
@@ -258,6 +258,29 @@ class OrderViewTests(OrderSetUpClass, TestCase):
         # attempt to access start page
         response = self.client.post(reverse(
             'ventas:order_start', kwargs={'pk': self.BAD_INDEX}))
+        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+
+    def test_cannot_access_finish_order_page(self):
+        """
+        If accessing /ventas/orders/X/finish/ a 405 error should be returned.
+        """
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        # attempt to access start page
+        response = self.client.get(reverse(
+            'ventas:order_finish', kwargs={'pk': order.id}))
+        self.assertEqual(response.status_code, self.NOT_ALLOWED_STATUS)
+
+    def test_access_finish_order_page_of_nonexisting_order(self):
+        """
+        Attempt to access the Finish Order page of an order that does not exist.
+        """
+        # attempt to access start page
+        response = self.client.post(reverse(
+            'ventas:order_finish', kwargs={'pk': self.BAD_INDEX}))
         self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
 
     def test_cannot_access_start_finishing_page(self):

@@ -14,6 +14,9 @@ urlpatterns = [
     # ex: /ventas/orders/5/start/
     url(r'^orders/(?P<pk>[0-9]+)/start/$', views.OrdersView.start_order,
         name='order_start'),
+    # ex: /ventas/orders/5/finish/
+    url(r'^orders/(?P<pk>[0-9]+)/finish/$', views.OrdersView.finish_order,
+        name='order_finish'),
     # ex: /ventas/orders/5/start_finishing/1/
     url(r'^orders/(?P<pk>[0-9]+)/start_finishing/(?P<finishing_id>[0-9]+)/$',
         views.OrdersView.start_finishing, name='order_start_finishing'),

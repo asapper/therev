@@ -274,7 +274,19 @@ class Order(models.Model):
         return self.quote.get_paper()
 
     def set_started(self):
-        """Assigns this Order's is_started to True."""
+        """
+        Assigns this Order's is_started to True and sets
+        datetime started to timezone.now.
+        """
         self.order_datetime_started = timezone.now()
         self.order_is_started = True
+        self.save()
+
+    def set_finished(self):
+        """
+        Assigns this Order's is_finished to True and sets
+        datetime finished to timezone.now.
+        """
+        self.order_datetime_finished = timezone.now()
+        self.order_is_finished = True
         self.save()

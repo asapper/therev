@@ -69,8 +69,8 @@
         <p><a id="btn-start-order" class="btn btn-default disabled">Start order</a></p>
     {% endif %}
 
-    {% if order.order_is_started and not order.order_is_finished %}
-        <form method="POST" action="">{% csrf_token %}
+    {% if order.order_is_started and not order.order_is_finished  %}
+        <form method="POST" action="{% url 'ventas:order_finish' order.id %}">{% csrf_token %}
             <button id="btn-finish-order" class="btn btn-default" type="submit">Finish order</button>
         </form>
     {% else %}

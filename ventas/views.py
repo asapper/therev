@@ -45,6 +45,17 @@ class OrdersView(ListView):
             'ventas:order_detail', kwargs={'pk': pk}))
 
     @require_http_methods(["POST"])
+    def finish_order(self, pk):
+        """
+        Retrieve order with given pk and call
+        helper function to finish this Order.
+        """
+        order = get_object_or_404(Order, pk=pk)  # get order
+        msg = OrderController.finish_order(order)
+        return redirect(reverse(
+            'ventas:order_detail', kwargs={'pk': pk}))
+
+    @require_http_methods(["POST"])
     def start_finishing(self, pk, finishing_id):
         """
         Retrieve order with given pk, as well as QuoteFinishing with
@@ -121,8 +132,9 @@ class OrderDetailView(DetailView):
         context = super(OrderDetailView, self).get_context_data(**kwargs)
         order = kwargs['object']
         # add in QuoteFinishing information
-        context['quote_finishing_list'] = Quote_Finishing.objects.filter(
+        quote_finishings = Quote_Finishing.objects.filter(
             quote_id=order.get_quote_id())
+        context['quote_finishing_list'] = quote_finishings
         return context
 
 

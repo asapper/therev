@@ -37,6 +37,29 @@ class OrderController():
             return "Order already started"
 
     @classmethod
+    def finish_order(cls, order):
+        """
+        Finish the given order by calling the order's set_finished function.
+        """
+        # verify order is already started
+        if order.order_is_started is True:
+            # verify order is not finished already
+            if order.order_is_finished is False:
+                # verify all finishings are finished
+                quote_id = order.get_quote_id()
+                for finishing in order.get_finishings():
+                    q_fin_instance = Quote_Finishing.objects.get(
+                        quote_id=quote_id,
+                        finishing_id=finishing.id)
+                    if q_fin_instance.get_is_finished() is False:
+                        return "Not all finishings are finished"
+                order.set_finished()  # function handles assignment
+            else:  # order already finished
+                return "Order already finished"
+        else:  # order not yet started
+            return "Order not started"
+
+    @classmethod
     def start_finishing(cls, quote_finishing_instance):
         """
         Starts the given finishing by calling
