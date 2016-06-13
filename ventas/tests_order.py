@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from .forms import OrderForm
-from .models import Quote
+from .models import Quote, Quote_Finishing
 from .tests_quote import QuoteSetUpClass
 from .utility import OrderController, QuoteController
 
@@ -18,8 +18,18 @@ class OrderSetUpClass(QuoteSetUpClass, TestCase):
         cls.notes = "Due soon!"
         # store HTTP response statuses
         cls.OK_STATUS = 200
-        cls.NOT_FOUND_STAUS = 404
+        cls.NOT_FOUND_STATUS = 404
         cls.NOT_ALLOWED_STATUS = 405
+        # useful constants
+        cls.ENCODING = "utf-8"
+        # response info messages
+        cls.ORDER_NOT_STARTED_MSG = "Order not started"
+        cls.ORDER_ALREADY_STARTED_MSG = "Order already started"
+        cls.ORDER_ALREADY_FINISHED_MSG = "Order already finished"
+        cls.NOT_ALL_FINISHINGS_FINISHED_MSG = "Not all finishings are finished"
+        cls.FINISHING_ALREADY_STARTED_MSG = "Finishing already started"
+        cls.FINISHING_NOT_STARTED_MSG = "Finishing not started"
+        cls.FINISHING_ALREADY_FINISHED_MSG = "Finishing already finished"
 
 
 class OrderMethodTests(OrderSetUpClass, TestCase):
@@ -258,7 +268,24 @@ class OrderViewTests(OrderSetUpClass, TestCase):
         # attempt to access start page
         response = self.client.post(reverse(
             'ventas:order_start', kwargs={'pk': self.BAD_INDEX}))
-        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+        self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)
+
+    def test_acess_start_order_page_of_order_already_started(self):
+        """Test accessing Start Order page of order already started."""
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        OrderController.start_order(order)  # start order
+        # attempt to access start order page
+        response = self.client.post(reverse(
+            'ventas:order_start', kwargs={'pk': order.id}),
+            follow=True)  # follow redirect
+        self.assertEqual(response.status_code, self.OK_STATUS)
+        self.assertIn(
+            self.ORDER_ALREADY_STARTED_MSG,
+            response.content.decode(self.ENCODING))
 
     def test_cannot_access_finish_order_page(self):
         """
@@ -281,7 +308,65 @@ class OrderViewTests(OrderSetUpClass, TestCase):
         # attempt to access start page
         response = self.client.post(reverse(
             'ventas:order_finish', kwargs={'pk': self.BAD_INDEX}))
-        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+        self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)
+
+    def test_acess_finish_order_page_of_order_not_started(self):
+        """Test accessing Finish Order page of order not started."""
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        # attempt to access finish order page
+        response = self.client.post(reverse(
+            'ventas:order_finish', kwargs={'pk': order.id}),
+            follow=True)  # follow redirect
+        self.assertEqual(response.status_code, self.OK_STATUS)
+        self.assertIn(
+            self.ORDER_NOT_STARTED_MSG,
+            response.content.decode(self.ENCODING))
+
+    def test_acess_finish_order_page_of_order_already_finished(self):
+        """Test accessing Finish Order page of order already finished."""
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        OrderController.start_order(order)  # start order
+        quote_id = order.get_quote_id()  # get quote id
+        for finishing in order.get_finishings():
+            q_fin = Quote_Finishing.objects.get(
+                quote_id=quote_id,
+                finishing_id=finishing.id)
+            OrderController.start_finishing(q_fin)  # start fin
+            OrderController.finish_finishing(q_fin)  # finish fin
+        OrderController.finish_order(order)  # finish order
+        # attempt to access finish order page
+        response = self.client.post(reverse(
+            'ventas:order_finish', kwargs={'pk': order.id}),
+            follow=True)  # follow redirect
+        self.assertEqual(response.status_code, self.OK_STATUS)
+        self.assertIn(
+            self.ORDER_ALREADY_FINISHED_MSG,
+            response.content.decode(self.ENCODING))
+
+    def test_acess_finish_order_page_without_all_finishings_finished(self):
+        """Test accessing Finish Order page of order already finished."""
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        OrderController.start_order(order)  # start order
+        # attempt to access finish order page
+        response = self.client.post(reverse(
+            'ventas:order_finish', kwargs={'pk': order.id}),
+            follow=True)  # follow redirect
+        self.assertEqual(response.status_code, self.OK_STATUS)
+        self.assertIn(
+            self.NOT_ALL_FINISHINGS_FINISHED_MSG,
+            response.content.decode(self.ENCODING))
 
     def test_cannot_access_start_finishing_page(self):
         """
@@ -294,7 +379,7 @@ class OrderViewTests(OrderSetUpClass, TestCase):
         order = OrderController.create_order(
             quote, self.pack_inst, self.delivery_addr, self.notes)
         OrderController.start_order(order)  # start order
-        # attemp to access start finishing page
+        # attempt to access start finishing page
         response = self.client.get(reverse(
             'ventas:order_start_finishing',
             kwargs={'pk': order.id, 'finishing_id': self.INDEX_ONE}))
@@ -309,11 +394,14 @@ class OrderViewTests(OrderSetUpClass, TestCase):
         QuoteController.authorize_quote(quote)
         order = OrderController.create_order(
             quote, self.pack_inst, self.delivery_addr, self.notes)
-        # attemp to access start finishing page
+        # attempt to access start finishing page
         response = self.client.post(reverse(
             'ventas:order_start_finishing',
-            kwargs={'pk': order.id, 'finishing_id': self.BAD_INDEX}))
-        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+            kwargs={'pk': order.id, 'finishing_id': self.BAD_INDEX}),
+            follow=True)  # follow redirect
+        self.assertEqual(response.status_code, self.OK_STATUS)
+        self.assertIn(
+            self.ORDER_NOT_STARTED_MSG, response.content.decode(self.ENCODING))
 
     def test_access_start_finishing_of_nonexisting_order(self):
         """
@@ -324,7 +412,7 @@ class OrderViewTests(OrderSetUpClass, TestCase):
         response = self.client.post(reverse(
             'ventas:order_start_finishing',
             kwargs={'pk': self.BAD_INDEX, 'finishing_id': self.INDEX_ONE}))
-        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+        self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)
 
     def test_access_start_finishing_of_nonexisting_finishing(self):
         """
@@ -337,11 +425,89 @@ class OrderViewTests(OrderSetUpClass, TestCase):
         order = OrderController.create_order(
             quote, self.pack_inst, self.delivery_addr, self.notes)
         OrderController.start_order(order)  # start order
-        # attemp to access start finishing page
+        # attempt to access start finishing page
         response = self.client.post(reverse(
             'ventas:order_start_finishing',
             kwargs={'pk': order.id, 'finishing_id': self.BAD_INDEX}))
-        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+        self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)
+
+    def test_access_start_finishing_of_finishing_already_started(self):
+        """
+        Attempt to access the Start Finishing page of a finishing
+        already started.
+        """
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        OrderController.start_order(order)  # start order
+        finishing = order.get_finishings()[0]
+        q_fin = Quote_Finishing.objects.get(
+            quote_id=order.get_quote_id(),
+            finishing_id=finishing.id)
+        OrderController.start_finishing(q_fin)  # start fin
+        # attempt to access finish order page
+        response = self.client.post(reverse(
+            'ventas:order_start_finishing',
+            kwargs={'pk': order.id, 'finishing_id': finishing.id}),
+            follow=True)  # follow redirect
+        self.assertEqual(response.status_code, self.OK_STATUS)
+        self.assertIn(
+            self.FINISHING_ALREADY_STARTED_MSG,
+            response.content.decode(self.ENCODING))
+
+    def test_access_finish_finishing_page_of_finishing_not_started(self):
+        """
+        Attempt to access the Finish Finishing page of a finishing
+        not started.
+        """
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        OrderController.start_order(order)  # start order
+        finishing = order.get_finishings()[0]
+        q_fin = Quote_Finishing.objects.get(
+            quote_id=order.get_quote_id(),
+            finishing_id=finishing.id)
+        # attempt to access finish order page
+        response = self.client.post(reverse(
+            'ventas:order_finish_finishing',
+            kwargs={'pk': order.id, 'finishing_id': finishing.id}),
+            follow=True)  # follow redirect
+        self.assertEqual(response.status_code, self.OK_STATUS)
+        self.assertIn(
+            self.FINISHING_NOT_STARTED_MSG,
+            response.content.decode(self.ENCODING))
+
+    def test_access_finish_finishing_page_of_finishing_already_finished(self):
+        """
+        Attempt to access the Finish Finishing page of a finishing
+        already finished.
+        """
+        # create an order
+        quote = Quote.objects.get(pk=self.quote_instance.id)
+        QuoteController.authorize_quote(quote)
+        order = OrderController.create_order(
+            quote, self.pack_inst, self.delivery_addr, self.notes)
+        OrderController.start_order(order)  # start order
+        finishing = order.get_finishings()[0]
+        q_fin = Quote_Finishing.objects.get(
+            quote_id=order.get_quote_id(),
+            finishing_id=finishing.id)
+        OrderController.start_finishing(q_fin)  # start fin
+        OrderController.finish_finishing(q_fin)  # finish fin
+        # attempt to access finish order page
+        response = self.client.post(reverse(
+            'ventas:order_finish_finishing',
+            kwargs={'pk': order.id, 'finishing_id': finishing.id}),
+            follow=True)  # follow redirect
+        self.assertEqual(response.status_code, self.OK_STATUS)
+        self.assertIn(
+            self.FINISHING_ALREADY_FINISHED_MSG,
+            response.content.decode(self.ENCODING))
 
     def test_cannot_access_finish_finishing_page(self):
         """
@@ -354,7 +520,7 @@ class OrderViewTests(OrderSetUpClass, TestCase):
         order = OrderController.create_order(
             quote, self.pack_inst, self.delivery_addr, self.notes)
         OrderController.start_order(order)  # start order
-        # attemp to access start finishing page
+        # attempt to access start finishing page
         response = self.client.get(reverse(
             'ventas:order_finish_finishing',
             kwargs={'pk': order.id, 'finishing_id': self.INDEX_ONE}))
@@ -369,11 +535,14 @@ class OrderViewTests(OrderSetUpClass, TestCase):
         QuoteController.authorize_quote(quote)
         order = OrderController.create_order(
             quote, self.pack_inst, self.delivery_addr, self.notes)
-        # attemp to access start finishing page
+        # attempt to access start finishing page
         response = self.client.post(reverse(
             'ventas:order_finish_finishing',
-            kwargs={'pk': order.id, 'finishing_id': self.BAD_INDEX}))
-        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+            kwargs={'pk': order.id, 'finishing_id': self.BAD_INDEX}),
+            follow=True)  # follow redirection
+        self.assertEqual(response.status_code, self.OK_STATUS)
+        self.assertIn(
+            self.ORDER_NOT_STARTED_MSG, response.content.decode(self.ENCODING))
 
     def test_access_finish_finishing_of_nonexisting_order(self):
         """
@@ -384,7 +553,7 @@ class OrderViewTests(OrderSetUpClass, TestCase):
         response = self.client.post(reverse(
             'ventas:order_finish_finishing',
             kwargs={'pk': self.BAD_INDEX, 'finishing_id': self.INDEX_ONE}))
-        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+        self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)
 
     def test_access_finish_finishing_of_nonexisting_finishing(self):
         """
@@ -397,11 +566,11 @@ class OrderViewTests(OrderSetUpClass, TestCase):
         order = OrderController.create_order(
             quote, self.pack_inst, self.delivery_addr, self.notes)
         OrderController.start_order(order)  # start order
-        # attemp to access start finishing page
+        # attempt to access start finishing page
         response = self.client.post(reverse(
             'ventas:order_finish_finishing',
             kwargs={'pk': order.id, 'finishing_id': self.BAD_INDEX}))
-        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+        self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)
 
 
 class OrderDetailViewTests(OrderSetUpClass, TestCase):
@@ -425,7 +594,7 @@ class OrderDetailViewTests(OrderSetUpClass, TestCase):
         BAD_QUOTE_ID = 100
         response = self.client.get(
             reverse('ventas:order_detail', kwargs={'pk': BAD_QUOTE_ID}))
-        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+        self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)
 
 
 class OrderCreateViewTests(OrderSetUpClass, TestCase):
@@ -437,4 +606,4 @@ class OrderCreateViewTests(OrderSetUpClass, TestCase):
         BAD_QUOTE_ID = 100
         response = self.client.get(
             reverse('ventas:quote_approve', kwargs={'pk': BAD_QUOTE_ID}))
-        self.assertEqual(response.status_code, self.NOT_FOUND_STAUS)
+        self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)

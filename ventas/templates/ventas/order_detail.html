@@ -1,6 +1,12 @@
 {% extends 'base_site.html' %}
 
 {% block content %}
+    {% if messages %}
+        {% for message in messages %}
+        <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% else %} class="alert alert-info"{% endif %} role="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
     <h1>Order #{{ order.id }}</h1>
     <h3>{{ order.get_quote_name }}</h3>
 
@@ -19,31 +25,31 @@
     <p><strong>Finishings: </strong>
         <ul>
             {% for q_finishing in quote_finishing_list %}
-                <li>
-                    {{ q_finishing.finishing }}
-                    <ul>
-                        <li><strong>Date Started:  </strong>{{ q_finishing.quote_finishing_datetime_started|default_if_none:"---" }}</li>
-                        <li><strong>Date Finished: </strong>{{ q_finishing.quote_finishing_datetime_finished|default_if_none:"---"}}</li>
-                        <li>
-                            {% if not q_finishing.quote_finishing_is_started and order.order_is_started %}
-                                <form method="POST" action="{% url 'ventas:order_start_finishing' order.id q_finishing.finishing.id %}">{% csrf_token %}
-                                    <button id="btn-start-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default" type="submit">Start finishing</button>
-                                </form>
-                            {% else %}
-                                <a id="btn-start-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default disabled">Start Finishing</a>
-                            {% endif %}
-                        </li>
-                        <li>
-                            {% if q_finishing.quote_finishing_is_started and not q_finishing.quote_finishing_is_finished %}
-                                <form method="POST" action="{% url 'ventas:order_finish_finishing' order.id q_finishing.finishing.id %}">{% csrf_token %}
-                                    <button id="btn-finish-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default" type="submit">Finish finishing</button>
-                                </form>
-                            {% else %}
-                                <a id="btn-finish-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default disabled">Finish finishing</a>
-                            {% endif %}
-                        </li>
-                    </ul>
-                </li>
+            <li>
+                {{ q_finishing.finishing }}
+                <ul>
+                    <li><strong>Date Started:  </strong>{{ q_finishing.quote_finishing_datetime_started|default_if_none:"---" }}</li>
+                    <li><strong>Date Finished: </strong>{{ q_finishing.quote_finishing_datetime_finished|default_if_none:"---"}}</li>
+                    <li>
+                        {% if not q_finishing.quote_finishing_is_started and order.order_is_started %}
+                        <form method="POST" action="{% url 'ventas:order_start_finishing' order.id q_finishing.finishing.id %}">{% csrf_token %}
+                            <button id="btn-start-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default" type="submit">Start finishing</button>
+                        </form>
+                        {% else %}
+                        <a id="btn-start-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default disabled">Start Finishing</a>
+                        {% endif %}
+                    </li>
+                    <li>
+                        {% if q_finishing.quote_finishing_is_started and not q_finishing.quote_finishing_is_finished %}
+                        <form method="POST" action="{% url 'ventas:order_finish_finishing' order.id q_finishing.finishing.id %}">{% csrf_token %}
+                            <button id="btn-finish-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default" type="submit">Finish finishing</button>
+                        </form>
+                        {% else %}
+                        <a id="btn-finish-finishing-{{ q_finishing.finishing.id }}" class="btn btn-default disabled">Finish finishing</a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </li>
             {% endfor %}
         </ul>
     </p>
@@ -52,28 +58,28 @@
     <br>
     <p><strong>Started?  </strong>{{ order.order_is_started|yesno:"Yes,No,No" }}</p>
     {% if order.order_is_started %}
-        <p><strong>Date Started:  </strong>{{ order.order_datetime_started }}</p>
+    <p><strong>Date Started:  </strong>{{ order.order_datetime_started }}</p>
     {% endif %}
     <p><strong>Finished? </strong>{{ order.order_is_finished|yesno:"Yes,No,No" }}</p>
     {% if order.order_is_finished %}
-        <p><strong>Date Finished: </strong>{{ order.order_datetime_finished }}</p>
+    <p><strong>Date Finished: </strong>{{ order.order_datetime_finished }}</p>
     {% endif %}
 
     <br>
     <p><a class="btn btn-default" href="{% url 'ventas:orders' %}">View all orders</a></p>
     {% if not order.order_is_started and not order.order_is_finished %}
-        <form method="POST" action="{% url 'ventas:order_start' order.id %}">{% csrf_token %}
-            <button id="btn-start-order" class="btn btn-default" type="submit">Start order</button>
-        </form>
+    <form method="POST" action="{% url 'ventas:order_start' order.id %}">{% csrf_token %}
+        <button id="btn-start-order" class="btn btn-default" type="submit">Start order</button>
+    </form>
     {% else %}
-        <p><a id="btn-start-order" class="btn btn-default disabled">Start order</a></p>
+    <p><a id="btn-start-order" class="btn btn-default disabled">Start order</a></p>
     {% endif %}
 
     {% if order.order_is_started and not order.order_is_finished  %}
-        <form method="POST" action="{% url 'ventas:order_finish' order.id %}">{% csrf_token %}
-            <button id="btn-finish-order" class="btn btn-default" type="submit">Finish order</button>
-        </form>
+    <form method="POST" action="{% url 'ventas:order_finish' order.id %}">{% csrf_token %}
+        <button id="btn-finish-order" class="btn btn-default" type="submit">Finish order</button>
+    </form>
     {% else %}
-        <p><a id="btn-finish-order" class="btn btn-default disabled">Finish order</a></p>
+    <p><a id="btn-finish-order" class="btn btn-default disabled">Finish order</a></p>
     {% endif %}
 {% endblock %}

@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
@@ -41,6 +42,7 @@ class OrdersView(ListView):
         """
         order = get_object_or_404(Order, pk=pk)  # get order
         msg = OrderController.start_order(order)
+        messages.info(self, msg)  # send returned messages
         return redirect(reverse(
             'ventas:order_detail', kwargs={'pk': pk}))
 
@@ -52,6 +54,7 @@ class OrdersView(ListView):
         """
         order = get_object_or_404(Order, pk=pk)  # get order
         msg = OrderController.finish_order(order)
+        messages.info(self, msg)  # send returned messages
         return redirect(reverse(
             'ventas:order_detail', kwargs={'pk': pk}))
 
@@ -71,8 +74,9 @@ class OrdersView(ListView):
                 finishing_id=finishing_id)
             # start finishing
             msg = OrderController.start_finishing(quote_finishing_instance)
+            messages.info(self, msg)  # send returned messages
         else:  # order not started
-            msg = "Order not started"
+            messages.info(self, "Order not started")  # send returned messages
         return redirect(reverse(
             'ventas:order_detail', kwargs={'pk': pk}))
 
@@ -92,8 +96,9 @@ class OrdersView(ListView):
                 finishing_id=finishing_id)
             # finish finishing
             msg = OrderController.finish_finishing(q_fin_instance)
+            messages.info(self, msg)  # send returned messages
         else:  # order not started
-            msg = "Order not started"
+            messages.info(self, "Order not started")  # send returned messages
         return redirect(reverse(
             'ventas:order_detail', kwargs={'pk': pk}))
 
