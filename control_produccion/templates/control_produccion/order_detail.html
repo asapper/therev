@@ -1,0 +1,32 @@
+{% extends 'base_site.html' %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+        <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% else %} class="alert alter-info"{% endif %} role="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <h1>Orden #{{ order.order_op_number }}</h1>
+    <h3>{{ order.order_description }}</h3>
+
+    <br>
+    <p><strong>Cliente:  </strong>{{ order.order_client }}</p>
+    <p><strong>Máquina:  </strong>{{ order.order_machine }}</p>
+    <p><strong>Cantidad: </strong>{{ order.order_quantity }}</p>
+    <p><strong>Pliegos:  </strong>{{ order.order_total_sheets }}</p>
+    <p><strong>Procesos: </strong>
+    <ul>
+        {% for order_process in order_process_list %}
+        <li>
+            {{ order_process.process }}
+            <ul>
+                <li><strong>Fecha comenzado: </strong>{{ order_process.order_process_datetime_started|default_if_none:"---" }}</li>
+                <li><strong>Fecha terminado: </strong>{{ order_process.order_process_datetime_finished|default_if_none:"---" }}</li>
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <p><a class="btn btn-default" href="{% url 'control_produccion:orders' %}">Ver todas las órdenes</a></p>
+{% endblock %}

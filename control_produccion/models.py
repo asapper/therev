@@ -5,10 +5,15 @@ class Process(models.Model):
     # name
     process_name = models.CharField(max_length=100)
 
+    def __str__(self):
+        """Return a string representation of this Process."""
+        return "Id: {}; Nombre: {}".format(
+            self.id, self.process_name)
+
 
 class Order(models.Model):
     # OP number
-    order_op_number = models.CharField(max_length=10)
+    order_op_number = models.CharField(max_length=10, unique=True)
     # client
     order_client = models.CharField(max_length=255)
     # material description
@@ -21,6 +26,13 @@ class Order(models.Model):
     order_total_sheets = models.PositiveSmallIntegerField()
     # processes
     processes = models.ManyToManyField(Process, through="Order_Process")
+
+    def __str__(self):
+        """Return a string representation of this Order."""
+        return "OP: {}; Cliente: {}; Descripción: {}".format(
+            self.order_op_number,
+            self.order_client,
+            self.order_description)
 
 
 class Order_Process(models.Model):
