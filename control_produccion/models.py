@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Process(models.Model):
@@ -34,6 +35,10 @@ class Order(models.Model):
             self.order_client,
             self.order_description)
 
+    def get_processes(self):
+        """Returns this Order's processes."""
+        return self.processes.all()
+
 
 class Order_Process(models.Model):
     # order reference
@@ -48,3 +53,29 @@ class Order_Process(models.Model):
     order_process_is_finished = models.BooleanField(default=False)
     # datetime finished
     order_process_datetime_finished = models.DateTimeField(null=True)
+
+    def get_is_started(self):
+        """Returns True if this Process is started, False otherwise."""
+        return self.order_process_is_started
+
+    def set_started(self):
+        """
+        Assign this Process as started by setting
+        its start datetime to timezone.now.
+        """
+        self.order_process_datetime_started = timezone.now()
+        self.order_process_is_started = True
+        self.save()
+
+    def get_is_finished(self):
+        """Returns True if this Process is finished, False otherwise."""
+        return self.order_process_is_finished
+
+    def set_finished(self):
+        """
+        Assign this Process as finished by setting
+        its start datetime to timezone.now.
+        """
+        self.order_process_datetime_finished = timezone.now()
+        self.order_process_is_finished = True
+        self.save()
