@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'control_produccion.apps.ControlProduccionConfig',
     'ventas.apps.VentasConfig',
     'recursos.apps.RecursosConfig',
     'personal.apps.PersonalConfig',
