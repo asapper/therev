@@ -8,8 +8,7 @@ class Process(models.Model):
 
     def __str__(self):
         """Return a string representation of this Process."""
-        return "Id: {}; Nombre: {}".format(
-            self.id, self.process_name)
+        return self.process_name
 
 
 class Order(models.Model):
@@ -40,6 +39,10 @@ class Order(models.Model):
     def get_processes(self):
         """Returns this Order's processes."""
         return self.processes.all()
+
+    def get_is_finished(self):
+        """Return True if this Order is finished, False otherwise."""
+        return self.order_is_finished
 
     def set_finished(self):
         """Assign this Order's is_finished to True."""

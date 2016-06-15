@@ -108,7 +108,8 @@ class OrdersView(ListView):
         finished_orders = Order.objects.exclude(order_op_number__in=op_list)
         # finish those Orders
         for order in finished_orders:
-            order.set_finished()
+            if order.get_is_finished() is False:
+                order.set_finished()
         return redirect(reverse('control_produccion:index'))
 
 
