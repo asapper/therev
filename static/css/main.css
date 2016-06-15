@@ -1,0 +1,50 @@
+/*******************************************************************************
+ * GENERAL
+ ******************************************************************************/
+body {
+    letter-spacing: 0;
+    min-width: 100%;
+    margin: 0;
+}
+
+.ui {
+    padding-right: 40px;
+    padding-left: 40px;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+
+
+/*******************************************************************************
+ * NAV
+ ******************************************************************************/
+.navbar {
+    min-height: 50px;
+    border-radius: 0;
+    margin-bottom: 15px;
+
+    background-color: #22A7F0;
+    
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.navbar-default .navbar-brand {
+    color: #FFF;
+}
+
+.navbar-default .navbar-brand:hover {
+    color: #ECECEC;
+}
+
+.navbar-brand {
+    font-size: 18px;
+    padding: 14.5px 15px;
+    line-height: 21px;
+    height: 50px;
+    margin-left: -15px;
+}

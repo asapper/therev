@@ -1,8 +1,10 @@
 {% extends 'base_site.html' %}
 
-{% block content %}
+{% block header %}
     <h2>Control de Producción</h2>
+{% endblock %}
 
+{% block content %}
     {% if messages %}
         {% for message in messages %}
         <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% else %} class="alert alert-warning"{% endif %} role="alert">{{ message }}</div>

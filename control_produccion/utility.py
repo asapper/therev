@@ -1,7 +1,5 @@
 from django.utils import timezone
 
-from .models import Order, Order_Process
-
 
 class OrderController():
     @classmethod

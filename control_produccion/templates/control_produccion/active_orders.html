@@ -1,12 +1,36 @@
 {% extends 'base_site.html' %}
 
+{% block header %}
+    <h1>Órdenes Activas</h1>
+{% endblock %}
+
 {% block content %}
     {% if latest_active_orders_list %}
-    <ul>
         {% for order in latest_active_orders_list %}
-        <li>{{ order }}</li>
+        <div class="panel panel-default">
+            <div class="panel-heading">Orden #{{ order.order_op_number }} | {{ order.order_client }} | {{ order.order_description }}</div>
+            <ul class="list-group">
+                {% with order_processes=order.get_order_processes %}
+                {% if order_processes %}
+                    {% for order_process in order_processes %}
+                    <li class="list-group-item">
+                    {{ order_process.process }}
+                    {% if not order_process.get_is_started %}
+                    <span class="label label-success">No comenzado</span>
+                    {% elif order_process.get_is_started and not order_process.get_is_finished %}
+                    <span class="label label-warning">En proceso</span>
+                    {% elif order_process.get_is_finished %}
+                    <span class="label label-danger">Terminado</span>
+                    {% endif %}
+                    </li>
+                    {% endfor %}
+                {% else %}
+                <li class="list-group-item"><span class="label label-info">Sin procesos</span></li>
+                {% endif %}
+                {% endwith %}
+            </ul>
+        </div>
         {% endfor %}
-    </ul>
     {% else %}
     <p>No hay órdenes activas.</p>
     {% endif %}

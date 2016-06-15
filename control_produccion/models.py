@@ -36,9 +36,17 @@ class Order(models.Model):
             self.order_client,
             self.order_description)
 
+    def get_op_number(self):
+        """Return OP number."""
+        return self.order_op_number
+
     def get_processes(self):
         """Returns this Order's processes."""
         return self.processes.all()
+
+    def get_order_processes(self):
+        """Returns the Order_Process instances associated to this Order."""
+        return Order_Process.objects.filter(order_id=self.id)
 
     def get_is_finished(self):
         """Return True if this Order is finished, False otherwise."""
@@ -63,6 +71,10 @@ class Order_Process(models.Model):
     order_process_is_finished = models.BooleanField(default=False)
     # datetime finished
     order_process_datetime_finished = models.DateTimeField(null=True)
+
+    def get_op_number(self):
+        """Return OP number of associated order."""
+        return self.order.get_op_number()
 
     def get_is_started(self):
         """Returns True if this Process is started, False otherwise."""
