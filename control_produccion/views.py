@@ -28,42 +28,6 @@ class OrdersView(ListView):
     template_name = 'control_produccion/orders.html'
     context_object_name = 'latest_order_list'
 
-    def get(self, request, *args, **kwargs):
-        # query Sunhive db
-        op_list, results = DatabaseController.get_orders()
-        # create objects based on result from query
-        for item in results:
-            duplicate = False
-            try:
-                order = Order.objects.create(
-                    order_op_number=item[VALUE_OP_NUMBER],
-                    order_client=item[VALUE_CLIENT],
-                    order_description=item[VALUE_DESCRIPTION],
-                    order_machine=item[VALUE_MACHINE],
-                    order_quantity=item[VALUE_QUANTITY],
-                    order_total_sheets=item[VALUE_SHEETS])
-            except IntegrityError:
-                duplicate = True
-            if duplicate is False:
-                # create Order_Process objects for each process
-                for process_name in item[VALUE_PROCESSES]:
-                    try:
-                        # retrieve Process instance
-                        process_instance = Process.objects.get(
-                            process_name=process_name)
-                    except ObjectDoesNotExist:
-                        continue
-                    # create Order Process object if Process found
-                    Order_Process.objects.create(
-                        order=order,
-                        process=process_instance)
-        # retrieve all Orders not in result from query
-        finished_orders = Order.objects.exclude(order_op_number__in=op_list)
-        # finish those Orders
-        for order in finished_orders:
-            order.set_finished()
-        return super(OrdersView, self).get(request, *args, **kwargs)
-
     def get_queryset(self):
         """Return all the Orders."""
         return Order.objects.all().order_by('order_op_number')
@@ -103,6 +67,43 @@ class OrdersView(ListView):
         messages.info(self, msg)  # send returned messages
         return redirect(reverse(
             'control_produccion:order_detail', kwargs={'pk': pk}))
+
+    @require_http_methods(["POST"])
+    def refresh_database(self):
+        # query Sunhive db
+        op_list, results = DatabaseController.get_orders()
+        # create objects based on result from query
+        for item in results:
+            duplicate = False
+            try:
+                order = Order.objects.create(
+                    order_op_number=item[VALUE_OP_NUMBER],
+                    order_client=item[VALUE_CLIENT],
+                    order_description=item[VALUE_DESCRIPTION],
+                    order_machine=item[VALUE_MACHINE],
+                    order_quantity=item[VALUE_QUANTITY],
+                    order_total_sheets=item[VALUE_SHEETS])
+            except IntegrityError:
+                duplicate = True
+            if duplicate is False:
+                # create Order_Process objects for each process
+                for process_name in item[VALUE_PROCESSES]:
+                    try:
+                        # retrieve Process instance
+                        process_instance = Process.objects.get(
+                            process_name=process_name)
+                    except ObjectDoesNotExist:
+                        continue
+                    # create Order Process object if Process found
+                    Order_Process.objects.create(
+                        order=order,
+                        process=process_instance)
+        # retrieve all Orders not in result from query
+        finished_orders = Order.objects.exclude(order_op_number__in=op_list)
+        # finish those Orders
+        for order in finished_orders:
+            order.set_finished()
+        return redirect(reverse('control_produccion:index'))
 
 
 class OrderDetailView(DetailView):

@@ -5,4 +5,8 @@
 
     <p><a class="btn btn-default" href="{% url 'control_produccion:orders' %}">Ver todas las Órdenes</a></p>
     <p><a class="btn btn-default" href="{% url 'control_produccion:active_orders' %}">Ver las Órdenes activas</a></p>
+    <p>
+    <form method="POST" action="{% url 'control_produccion:refresh_database' %}">{% csrf_token %}
+        <button class="btn btn-default" type="submit">Actualizar base de datos</button>
+    </form>
 {% endblock %}

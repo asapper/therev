@@ -11,6 +11,9 @@ urlpatterns = [
     # ex: /control_produccion/active_orders_display/
     url(r'active_orders_display/$', views.ActiveOrdersView.as_view(),
         name='active_orders'),
+    # ex: /control_produccion/refresh_database/
+    url(r'refresh_database/$', views.OrdersView.refresh_database,
+        name='refresh_database'),
     # ex: /control_produccion/orders/5/
     url(r'^orders/(?P<pk>[0-9]+)/$', views.OrderDetailView.as_view(),
         name='order_detail'),
