@@ -687,7 +687,7 @@ class SeleniumOrderTests(SeleniumSetUpClass, StaticLiveServerTestCase):
         # start finishing 1
         start_fin_button.click()
         # assert redirected to same page
-        self.driver.get('{}{}'.format(
+        self.assertEqual(self.driver.current_url, '{}{}'.format(
             self.live_server_url,
             reverse('ventas:order_detail', kwargs={'pk': self.order.id})))
         # wait for page to load
@@ -754,7 +754,7 @@ class SeleniumOrderTests(SeleniumSetUpClass, StaticLiveServerTestCase):
         # start finishing 1
         start_fin_button.click()
         # assert redirected to same page
-        self.driver.get('{}{}'.format(
+        self.assertEqual(self.driver.current_url, '{}{}'.format(
             self.live_server_url,
             reverse('ventas:order_detail', kwargs={'pk': self.order.id})))
         # wait for page to load
