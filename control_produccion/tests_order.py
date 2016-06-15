@@ -57,6 +57,25 @@ class OrderViewTests(OrderSetUpClass):
             sheets=50,
             processes=[self.p_trim, self.p_print])
 
+    def test_active_order_view_with_no_orders(self):
+        """
+        If no active Orders exist, an appropriate message should be displayed.
+        """
+        self.order.set_finished()  # finish order
+        response = self.client.get(reverse('control_produccion:active_orders'))
+        self.assertEqual(response.status_code, self.OK_STATUS)
+        self.assertContains(response, "No hay órdenes activas.")
+        self.assertQuerysetEqual(
+            response.context['latest_active_orders_list'], [])
+
+    def test_active_order_view_with_one_order(self):
+        """If an active Order exists, it should be displayed."""
+        response = self.client.get(reverse('control_produccion:active_orders'))
+        self.assertEqual(response.status_code, self.OK_STATUS)
+        self.assertQuerysetEqual(
+            response.context['latest_active_orders_list'],
+            [("<Order: OP: 23456-1; Cliente: Test Cliente; Descripción: Producto 1>")])
+
     def test_order_view_with_no_orders(self):
         """If no Orders exist, an appropriate message should be displayed."""
         self.order.delete()  # clear db
