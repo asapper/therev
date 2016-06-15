@@ -27,6 +27,8 @@ class Order(models.Model):
     order_total_sheets = models.PositiveSmallIntegerField()
     # processes
     processes = models.ManyToManyField(Process, through="Order_Process")
+    # is finished?
+    order_is_finished = models.BooleanField(default=False)
 
     def __str__(self):
         """Return a string representation of this Order."""
@@ -38,6 +40,11 @@ class Order(models.Model):
     def get_processes(self):
         """Returns this Order's processes."""
         return self.processes.all()
+
+    def set_finished(self):
+        """Assign this Order's is_finished to True."""
+        self.order_is_finished = True
+        self.save()
 
 
 class Order_Process(models.Model):

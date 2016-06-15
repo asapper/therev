@@ -1,0 +1,15 @@
+{% extends 'base_site.html' %}
+
+{% block content %}
+    {% if latest_active_orders_list %}
+    <ul>
+        {% for order in latest_active_orders_list %}
+        <li>{{ order }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No hay órdenes activas.</p>
+    {% endif %}
+
+    <p><a class="btn btn-default" href="{% url 'control_produccion:index' %}">Página Principal</a></p>
+{% endblock %}
