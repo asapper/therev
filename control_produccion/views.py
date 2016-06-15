@@ -93,6 +93,12 @@ class OrdersView(ListView):
                         process_instance = Process.objects.get(
                             process_name=process_name)
                     except ObjectDoesNotExist:
+                        messages.warning(
+                            self,
+                            ("Orden #{}: proceso {} no existe en la "
+                             "base de datos").format(
+                                order.id,
+                                process_name))
                         continue
                     # create Order Process object if Process found
                     Order_Process.objects.create(
