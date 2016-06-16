@@ -1,6 +1,7 @@
 {% extends 'base_site.html' %}
 
 {% block header %}
+    {% load humanize %}
     {% if messages %}
         {% for message in messages %}
         <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% else %} class="alert alter-info"{% endif %} role="alert">{{ message }}</div>
@@ -22,8 +23,8 @@
         <li>
             {{ order_process.process }}
             <ul>
-                <li><strong>Fecha comenzado: </strong>{{ order_process.order_process_datetime_started|default_if_none:"---" }}</li>
-                <li><strong>Fecha terminado: </strong>{{ order_process.order_process_datetime_finished|default_if_none:"---" }}</li>
+                <li><strong>Fecha comenzado: </strong>{{ order_process.order_process_datetime_started|naturaltime|default_if_none:"---" }}</li>
+                <li><strong>Fecha terminado: </strong>{{ order_process.order_process_datetime_finished|naturaltime|default_if_none:"---" }}</li>
                 <li>
                 {% if not order_process.order_process_is_started and not order_process.order_process_is_finished %}
                 <form method="POST" action="{% url 'control_produccion:order_start_process' order.id order_process.process.id %}">{% csrf_token %}
