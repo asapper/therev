@@ -2,38 +2,59 @@
 
 {% block header %}
     <h1>Órdenes Activas</h1>
+    <form method="POST" action="{% url 'control_produccion:refresh_database' %}">{% csrf_token %}
+        <button class="btn btn-info" type="submit">Actualizar base de datos</button>
+    </form>
+    <a class="btn btn-default" href="{% url 'control_produccion:index' %}">Página Principal</a>
 {% endblock %}
 
 {% block content %}
+
     {% if latest_active_orders_list %}
-        {% for order in latest_active_orders_list %}
-        <div class="panel panel-default">
-            <div class="panel-heading">Orden #{{ order.order_op_number }} | {{ order.order_client }} | {{ order.order_description }}</div>
-            <ul class="list-group">
-                {% with order_processes=order.get_order_processes %}
-                {% if order_processes %}
-                    {% for order_process in order_processes %}
-                    <li class="list-group-item">
-                    {{ order_process.process }}
-                    {% if not order_process.get_is_started %}
-                    <span class="label label-success">No comenzado</span>
-                    {% elif order_process.get_is_started and not order_process.get_is_finished %}
-                    <span class="label label-warning">En proceso</span>
-                    {% elif order_process.get_is_finished %}
-                    <span class="label label-danger">Terminado</span>
-                    {% endif %}
-                    </li>
-                    {% endfor %}
+        <div id="carousel-example-generic" class="carousel slide" data-ride="carousel" data-interval="3500">
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner" role="listbox">
+                {% with latest_active_orders_list|first as first_order %}
+                {% for order in latest_active_orders_list %}
+                {% if order == first_order %}
+                <div class="item active">
                 {% else %}
-                <li class="list-group-item"><span class="label label-info">Sin procesos</span></li>
+                <div class="item">
                 {% endif %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Orden #{{ order.order_op_number }} | {{ order.order_client }} | {{ order.order_description }}</div>
+                        <ul class="list-group">
+                            {% with order_processes=order.get_order_processes %}
+                            {% if order_processes %}
+                                {% for order_process in order_processes %}
+                                {% if not order_process.get_is_started %}
+                                <li class="list-group-item list-group-item-danger">
+                                <span class="label label-danger">No comenzado</span>
+                                {% elif order_process.get_is_started and not order_process.get_is_finished %}
+                                <li class="list-group-item list-group-item-warning">
+                                <span class="label label-warning">En proceso</span>
+                                {% elif order_process.get_is_finished %}
+                                <li class="list-group-item list-group-item-success">
+                                <span class="label label-success">Terminado</span>
+                                {% else %}
+                                <li class="list-group-item list-group-item-warning">
+                                {% endif %}
+                                {{ order_process.process }}
+                                </li>
+                                {% endfor %}
+                            {% else %}
+                            <li class="list-group-item"><span class="label label-info">Sin procesos</span></li>
+                            {% endif %}
+                            {% endwith %}
+                            <li class="list-group-item list-group-item-info text-center">Orden {{ forloop.counter }} de {{ latest_active_orders_list|length }}</li>
+                        </ul>
+                    </div>
+                </div>
+                {% endfor %}
                 {% endwith %}
-            </ul>
+            </div>
         </div>
-        {% endfor %}
     {% else %}
     <p>No hay órdenes activas.</p>
     {% endif %}
-
-    <p><a class="btn btn-default" href="{% url 'control_produccion:index' %}">Página Principal</a></p>
 {% endblock %}
