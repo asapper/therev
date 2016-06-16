@@ -22,7 +22,7 @@
                 <div class="item">
                 {% endif %}
                     <div class="panel panel-default">
-                        <div class="panel-heading">Orden #{{ order.order_op_number }} | {{ order.order_client }} | {{ order.order_description }}</div>
+                        <div class="panel-heading">Orden #{{ order.order_op_number }} | {{ order.order_client }} | {{ order.order_description }} | {{ order.order_due_date }}</div>
                         <ul class="list-group">
                             {% with order_processes=order.get_order_processes %}
                             {% if order_processes %}

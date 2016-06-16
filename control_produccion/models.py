@@ -28,6 +28,8 @@ class Order(models.Model):
     processes = models.ManyToManyField(Process, through="Order_Process")
     # is finished?
     order_is_finished = models.BooleanField(default=False)
+    # due date
+    order_due_date = models.DateTimeField()
 
     def __str__(self):
         """Return a string representation of this Order."""

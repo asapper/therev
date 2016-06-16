@@ -12,7 +12,7 @@ from .utility import OrderController
 from .db_utility import DatabaseController
 from .db_utility import (VALUE_OP_NUMBER, VALUE_CLIENT, VALUE_DESCRIPTION,
                          VALUE_MACHINE, VALUE_QUANTITY, VALUE_SHEETS,
-                         VALUE_PROCESSES)
+                         VALUE_PROCESSES, VALUE_DUE_DATE)
 
 
 class ActiveOrdersView(ListView):
@@ -83,7 +83,8 @@ class OrdersView(ListView):
                     order_description=item[VALUE_DESCRIPTION],
                     order_machine=item[VALUE_MACHINE],
                     order_quantity=item[VALUE_QUANTITY],
-                    order_total_sheets=item[VALUE_SHEETS])
+                    order_total_sheets=item[VALUE_SHEETS],
+                    order_due_date=item[VALUE_DUE_DATE])
             except IntegrityError:
                 duplicate = True
             if duplicate is False:
@@ -111,7 +112,7 @@ class OrdersView(ListView):
         for order in finished_orders:
             if order.get_is_finished() is False:
                 order.set_finished()
-        return redirect(reverse('control_produccion:index'))
+        return redirect(reverse('control_produccion:active_orders'))
 
 
 class OrderDetailView(DetailView):

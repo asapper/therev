@@ -37,6 +37,7 @@ INDEX_FOIL_TR = 27
 INDEX_LOMO = 28
 INDEX_GRAPA = 29
 INDEX_CORTE = 30
+INDEX_DUE_DATE = 31
 
 # values for stored indices
 VALUE_PROCESSES = 'processes'
@@ -71,6 +72,7 @@ VALUE_FOIL_TR = 'Foil Tiro/Retiro'
 VALUE_LOMO = 'Lomo'
 VALUE_GRAPA = 'Grapa'
 VALUE_CORTE = 'Corte'
+VALUE_DUE_DATE = 'Fecha Entrega'
 
 # list of tuples of index, name-of-field
 INDICES = [
@@ -105,6 +107,7 @@ INDICES = [
     (INDEX_LOMO, VALUE_LOMO),  # index 28
     (INDEX_GRAPA, VALUE_GRAPA),  # index 29
     (INDEX_CORTE, VALUE_CORTE),  # index 30
+    (INDEX_DUE_DATE, VALUE_DUE_DATE),  # index 31
 ]
 # db information
 DATABASE_NAME = "sunhive"
@@ -236,6 +239,7 @@ class DatabaseController():
             order_dict[VALUE_SHEETS] = row[INDEX_SHEETS]
             order_dict[VALUE_MACHINE] = row[INDEX_MACHINE]
             order_dict[VALUE_DESCRIPTION] = row[INDEX_DESCRIPTION]
+            order_dict[VALUE_DUE_DATE] = row[INDEX_DUE_DATE]
             # store OP number
             op_numbers.append(row[INDEX_OP_NUMBER])
             processes = []  # store processes
