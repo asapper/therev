@@ -74,6 +74,10 @@ class Order_Process(models.Model):
         """Return OP number of associated order."""
         return self.order.get_op_number()
 
+    def get_datetime_started(self):
+        """Return the datetime this Order_Process was started."""
+        return self.order_process_datetime_started
+
     def get_is_started(self):
         """Returns True if this Process is started, False otherwise."""
         return self.order_process_is_started
@@ -86,6 +90,10 @@ class Order_Process(models.Model):
         self.order_process_datetime_started = timezone.now()
         self.order_process_is_started = True
         self.save()
+
+    def get_datetime_finished(self):
+        """Return the datetime this Order_Process was finished."""
+        return self.order_process_datetime_finished
 
     def get_is_finished(self):
         """Returns True if this Process is finished, False otherwise."""
