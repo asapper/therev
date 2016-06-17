@@ -19,6 +19,12 @@ class ActiveOrdersView(ListView):
     template_name = 'control_produccion/active_orders.html'
     context_object_name = 'latest_active_orders_list'
 
+    def get_context_data(self, **kwargs):
+        context = super(ActiveOrdersView, self).get_context_data(**kwargs)
+        processes = Process.objects.all()
+        context['process_list'] = processes
+        return context
+
     def get_queryset(self):
         """Return all active Orders."""
         return Order.objects.filter(

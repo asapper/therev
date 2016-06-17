@@ -9,51 +9,43 @@
 {% endblock %}
 
 {% block content %}
-
+    {% load active_orders_tags %}
     {% if latest_active_orders_list %}
-        <div id="carousel-example-generic" class="carousel slide" data-ride="carousel" data-interval="3500">
-            <!-- Wrapper for slides -->
-            <div class="carousel-inner" role="listbox">
-                {% with latest_active_orders_list|first as first_order %}
+    <div class="panel panel-default table-responsive">
+        <table class="table table-striped table-condensed table-bordered table-color">
+            <thead>
+                <tr>
+                    <th class="cell-rotate"><div>Orden #</div></th>
+                    <th class="cell-rotate"><div>Cliente</div></th>
+                    {% for process in process_list %}
+                    <th class="cell-rotate"><div>{{ process }}</div></th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
                 {% for order in latest_active_orders_list %}
-                {% if order == first_order %}
-                <div class="item active">
-                {% else %}
-                <div class="item">
-                {% endif %}
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Orden #{{ order.order_op_number }} | {{ order.order_client }} | {{ order.order_description }} | {{ order.order_due_date }}</div>
-                        <ul class="list-group">
-                            {% with order_processes=order.get_order_processes %}
-                            {% if order_processes %}
-                                {% for order_process in order_processes %}
-                                {% if not order_process.get_is_started %}
-                                <li class="list-group-item list-group-item-danger">
-                                <span class="label label-danger">No comenzado</span>
-                                {% elif order_process.get_is_started and not order_process.get_is_finished %}
-                                <li class="list-group-item list-group-item-warning">
-                                <span class="label label-warning">En proceso</span>
-                                {% elif order_process.get_is_finished %}
-                                <li class="list-group-item list-group-item-success">
-                                <span class="label label-success">Terminado</span>
-                                {% else %}
-                                <li class="list-group-item list-group-item-warning">
-                                {% endif %}
-                                {{ order_process.process }}
-                                </li>
-                                {% endfor %}
-                            {% else %}
-                            <li class="list-group-item"><span class="label label-info">Sin procesos</span></li>
+                <tr>
+                    <td>{{ order.order_op_number }}</td>
+                    <td>{{ order.order_client }}</td>
+                    {% for process in process_list %}
+                        {% get_process_in_order order process as process_in_order %}
+                        {% if process_in_order %}
+                            {% if not process_in_order.get_is_started %}
+                            <td class="cell-danger"></td>
+                            {% elif process_in_order.get_is_started and not process_in_order.get_is_finished %}
+                            <td class="cell-warning"></td>
+                            {% elif process_in_order.get_is_finished %}
+                            <td class="cell-success"></td>
                             {% endif %}
-                            {% endwith %}
-                            <li class="list-group-item list-group-item-info text-center">Orden {{ forloop.counter }} de {{ latest_active_orders_list|length }}</li>
-                        </ul>
-                    </div>
-                </div>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-                {% endwith %}
-            </div>
-        </div>
+            </tbody>
+        </table>
+    </div>
     {% else %}
     <p>No hay órdenes activas.</p>
     {% endif %}

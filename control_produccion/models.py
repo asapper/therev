@@ -46,10 +46,6 @@ class Order(models.Model):
         """Returns this Order's processes."""
         return self.processes.all()
 
-    def get_order_processes(self):
-        """Returns the Order_Process instances associated to this Order."""
-        return Order_Process.objects.filter(order_id=self.id)
-
     def get_is_finished(self):
         """Return True if this Order is finished, False otherwise."""
         return self.order_is_finished
