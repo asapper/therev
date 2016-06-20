@@ -101,9 +101,10 @@ class OrdersView(ListView):
                         process_instance = Process.objects.get(
                             process_name=process_name)
                     except ObjectDoesNotExist:
-                        messages.warning(
+                        Process.objects.create(process_name=process_name)
+                        messages.info(
                             self,
-                            ("Orden #{}: proceso {} no existe en la "
+                            ("Orden #{}: nuevo proceso {} agregado a la "
                              "base de datos").format(
                                 order.id,
                                 process_name))
@@ -137,3 +138,10 @@ class OrderDetailView(DetailView):
 
 class ProduccionView(TemplateView):
     template_name = 'control_produccion/index.html'
+
+
+class AnalyticsView(TemplateView):
+    template_name = 'control_produccion/analytics.html'
+
+    def get_process_times(self):
+        return OrderController.get_avg_process_finish_time()
