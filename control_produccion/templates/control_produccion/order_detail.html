@@ -29,11 +29,11 @@
                 <li>
                 {% if not order_process.get_is_started and not order_process.get_is_finished %}
                 <form method="POST" action="{% url 'control_produccion:order_start_process' order.id order_process.process.id %}">{% csrf_token %}
-                    <button id="btn-start-process-{{ order_process.process.id }}" class="btn btn-default" type="submit">Comenzar proceso</button>
+                    <button id="btn-start-process-{{ order_process.process.id }}" class="btn btn-info" type="submit">Comenzar proceso</button>
                 </form>
                 {% elif order_process.get_is_started and not order_process.get_is_finished %}
                 <form method="POST" action="{% url 'control_produccion:order_finish_process' order.id order_process.process.id %}">{% csrf_token %}
-                    <button id="btn-finish-process-{{ order_process.process.id }}" class="btn btn-default" type="submit">Terminar proceso</button>
+                    <button id="btn-finish-process-{{ order_process.process.id }}" class="btn btn-info" type="submit">Terminar proceso</button>
                 </form>
                 {% endif %}
                 {% else %}
@@ -45,6 +45,5 @@
     </ul>
 
     <br>
-    <p><a class="btn btn-default" href="{% url 'control_produccion:orders' %}">Ver todas las órdenes</a></p>
-    <p><a class="btn btn-default" href="{% url 'control_produccion:index' %}">Página principal</a></p>
+    <p><a class="btn btn-danger" href="{% url 'control_produccion:orders' %}">Ver todas las órdenes</a></p>
 {% endblock %}

@@ -1,8 +1,5 @@
 {% extends 'base_site.html' %}
 
-{% block content %}
-    <h3>Quotes Project index page</h3>
-    <a class="btn btn-default" href="{% url 'personal:index' %}">Personal module</a>
-    <a class="btn btn-default" href="{% url 'recursos:index' %}">Recursos module</a>
-    <a class="btn btn-default" href="{% url 'ventas:index' %}">Ventas module</a>
+{% block header %}
+    <h3>Orders Project index page</h3>
 {% endblock %}

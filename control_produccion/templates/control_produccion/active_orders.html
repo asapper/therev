@@ -5,14 +5,13 @@
     <form method="POST" action="{% url 'control_produccion:refresh_database' %}">{% csrf_token %}
         <button class="btn btn-info" type="submit">Actualizar base de datos</button>
     </form>
-    <a class="btn btn-default" href="{% url 'control_produccion:index' %}">Página Principal</a>
 {% endblock %}
 
 {% block content %}
     {% load active_orders_tags %}
     {% if latest_active_orders_list %}
     <div class="panel panel-default table-responsive">
-        <table class="table table-striped table-condensed table-bordered table-color">
+        <table class="table table-striped table-bordered table-color table-condensed">
             <thead>
                 <tr>
                     <th class="cell-rotate"><div>Orden #</div></th>
