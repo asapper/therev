@@ -15,12 +15,14 @@ from .db_utility import (VALUE_OP_NUMBER, VALUE_CLIENT, VALUE_DESCRIPTION,
                          VALUE_PROCESSES, VALUE_DUE_DATE)
 
 
-class ActiveOrdersView(ListView):
-    template_name = 'control_produccion/active_orders.html'
+class ActiveOrdersRefreshView(ListView):
+    template_name = 'control_produccion/active_orders_table.html'
     context_object_name = 'latest_active_orders_list'
 
     def get_context_data(self, **kwargs):
-        context = super(ActiveOrdersView, self).get_context_data(**kwargs)
+        """Add process list to context and return context data."""
+        context = super(ActiveOrdersRefreshView, self).get_context_data(
+            **kwargs)
         processes = Process.objects.all()
         context['process_list'] = processes
         return context
@@ -29,6 +31,10 @@ class ActiveOrdersView(ListView):
         """Return all active Orders."""
         return Order.objects.filter(
             order_is_finished=False).order_by('order_op_number')
+
+
+class ActiveOrdersView(TemplateView):
+    template_name = 'control_produccion/active_orders.html'
 
 
 class OrdersView(ListView):
@@ -75,8 +81,8 @@ class OrdersView(ListView):
         return redirect(reverse(
             'control_produccion:order_detail', kwargs={'pk': pk}))
 
-    @require_http_methods(["POST"])
     def refresh_database(self):
+        """Connect to Sunhive db and update records on Active Orders."""
         # query Sunhive db
         op_list, results = DatabaseController.get_orders()
         # create objects based on result from query

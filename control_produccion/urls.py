@@ -13,6 +13,9 @@ urlpatterns = [
     # ex: /control_produccion/active_orders_display/
     url(r'active_orders_display/$', views.ActiveOrdersView.as_view(),
         name='active_orders'),
+    # ex: /control_produccion/active_orders_refresh/
+    url(r'active_orders_refresh/$', views.ActiveOrdersRefreshView.as_view(),
+        name='active_orders_refresh'),
     # ex: /control_produccion/refresh_database/
     url(r'refresh_database/$', views.OrdersView.refresh_database,
         name='refresh_database'),
