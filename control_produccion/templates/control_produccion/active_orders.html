@@ -29,13 +29,15 @@
                     {% for process in process_list %}
                         {% get_process_in_order order process as process_in_order %}
                         {% if process_in_order %}
+                            <td
                             {% if not process_in_order.get_is_started %}
-                            <td class="cell-danger"></td>
+                            class="cell-danger"
                             {% elif process_in_order.get_is_started and not process_in_order.get_is_finished %}
-                            <td class="cell-warning"></td>
+                            class="cell-warning"
                             {% elif process_in_order.get_is_finished %}
-                            <td class="cell-success"></td>
+                            class="cell-success"
                             {% endif %}
+                            data-toggle="tooltip" data-placement="left" title="{{ process }}"></td>
                         {% else %}
                         <td></td>
                         {% endif %}
@@ -48,4 +50,14 @@
     {% else %}
     <p>No hay órdenes activas.</p>
     {% endif %}
+{% endblock %}
+
+{% block jsfiles %}
+<script>
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip({
+        container: 'body'
+    });
+})
+</script>
 {% endblock %}

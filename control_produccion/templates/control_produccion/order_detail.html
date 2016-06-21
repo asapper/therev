@@ -12,38 +12,62 @@
 {% endblock %}
 
 {% block content %}
-    <br>
-    <p><strong>Cliente:  </strong>{{ order.order_client }}</p>
-    <p><strong>Máquina:  </strong>{{ order.order_machine }}</p>
-    <p><strong>Cantidad: </strong>{{ order.order_quantity }}</p>
-    <p><strong>Pliegos:  </strong>{{ order.order_total_sheets }}</p>
-    <p><strong>Procesos: </strong>
-    <ul>
-        {% for order_process in order_process_list %}
-        <li>
-            {{ order_process.process }}
-            <ul>
-                {% if not order_process.get_is_finished %}
-                <li><strong>Fecha comenzado: </strong>{{ order_process.get_datetime_started|naturaltime|default_if_none:"---" }}</li>
-                <li><strong>Fecha terminado: </strong>{{ order_process.get_datetime_finished|naturaltime|default_if_none:"---" }}</li>
-                <li>
-                {% if not order_process.get_is_started and not order_process.get_is_finished %}
-                <form method="POST" action="{% url 'control_produccion:order_start_process' order.id order_process.process.id %}">{% csrf_token %}
-                    <button id="btn-start-process-{{ order_process.process.id }}" class="btn btn-info" type="submit">Comenzar proceso</button>
-                </form>
-                {% elif order_process.get_is_started and not order_process.get_is_finished %}
-                <form method="POST" action="{% url 'control_produccion:order_finish_process' order.id order_process.process.id %}">{% csrf_token %}
-                    <button id="btn-finish-process-{{ order_process.process.id }}" class="btn btn-info" type="submit">Terminar proceso</button>
-                </form>
-                {% endif %}
-                {% else %}
-                <li><strong>Duración: </strong>{{ order_process.get_datetime_started|timesince:order_process.get_datetime_finished }}</li>
-                {% endif %}
-            </ul>
-        </li>
-        {% endfor %}
-    </ul>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-center">Cliente</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-center">Pliegos</th>
+                        <th class="text-center">Máquina</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-center">{{ order.order_client }}</td>
+                        <td class="text-center">{{ order.order_quantity }}</td>
+                        <td class="text-center">{{ order.order_total_sheets }}</td>
+                        <td class="text-center">{{ order.order_machine }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="row">
+    {% for order_process in order_process_list %}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="header">
+                {{ order_process.process }}
+                <p class="category">
+                    {% if not order_process.get_is_started and not order_process.get_is_finished %}
+                    Proceso no comenzado aún
+                    <hr>
+                    <form method="POST" action="{% url 'control_produccion:order_start_process' order.id order_process.process.id %}">{% csrf_token %}
+                        <button id="btn-start-process-{{ order_process.process.id }}" class="btn btn-success" type="submit">Comenzar proceso</button>
+                    </form>
+                    {% elif order_process.get_is_started and not order_process.get_is_finished %}
+                    Fecha comenzado: {{ order_process.get_datetime_started|naturaltime|default_if_none:"---" }}
+                    <hr>
+                    <form method="POST" action="{% url 'control_produccion:order_finish_process' order.id order_process.process.id %}">{% csrf_token %}
+                        <button id="btn-finish-process-{{ order_process.process.id }}" class="btn btn-danger" type="submit">Terminar proceso</button>
+                    </form>
+                    {% else %}
+                    Duración: {{ order_process.get_datetime_started|timesince:order_process.get_datetime_finished }}
+                    <hr>
+                    <button class="btn btn-default disabled">Proceso terminado</button>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="content"></div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 
     <br>
-    <p><a class="btn btn-danger" href="{% url 'control_produccion:orders' %}">Ver todas las órdenes</a></p>
+    <p><a class="btn btn-info" href="{% url 'control_produccion:orders' %}">Ver todas las órdenes</a></p>
 {% endblock %}

@@ -60,22 +60,7 @@ class OrderController():
                 avg_time = total_duration / count_finished_processes
             else:
                 avg_time = 0
-            # format average time
-            hours, remainder = divmod(avg_time, 3600)
-            minutes, seconds = divmod(remainder, 60)
             # store Process-AvgTime in list
-            proc_avg_time_list.append(avg_time / 60)
+            proc_avg_time_list.append((process.process_name, avg_time / 60))
         # return list of processes and their average times
         return proc_avg_time_list
-
-    @classmethod
-    def get_process_names(cls):
-        """Return the names of all existing processes."""
-        # get all processes from Process table
-        all_processes = Process.objects.all().order_by('id')
-        # store process and average time
-        proc_names = []
-        # get all Order_Process instances related to X process
-        for process in all_processes:
-            proc_names.append(process.process_name)
-        return proc_names
