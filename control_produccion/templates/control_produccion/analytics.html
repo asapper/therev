@@ -6,15 +6,31 @@
 
 {% block content %}
 <div class="row">
-    {% for process_time in view.get_process_times %}
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card">
             <div class="header">
-                {{ process_time.0 }}
-                <p class="category">Tiempo promedio: {{ process_time.1|floatformat:2 }} minutos</p>
+                Tiempos promedio por proceso
+            </div>
+            <div class="content">
+                <div class="table-responsive">
+                    <table id="avgProcessTimes" class="table">
+                        <thead>
+                            <tr>
+                                <th>Proceso</th>
+                                <th>Minutos por Unidad</th>
+                        </thead>
+                        <tbody>
+                            {% for process_time in view.get_process_times %}
+                            <tr>
+                                <td>{{ process_time.0 }}</td>
+                                <td>{{ process_time.1|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-    {% endfor %}
 </div>
 {% endblock %}

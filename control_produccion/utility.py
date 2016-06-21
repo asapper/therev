@@ -36,7 +36,9 @@ class OrderController():
     @classmethod
     def get_avg_process_finish_time(cls):
         """
-        Return the average time for a Process to be finished.
+        Return the average time (minutes) for a Process to be finished
+        per unit. The total time is divided by the number of
+        copies of the job.
         """
         # get all processes from Process table
         all_processes = Process.objects.all().order_by('id')
@@ -46,18 +48,22 @@ class OrderController():
         for process in all_processes:
             o_processes = Order_Process.objects.filter(process_id=process.id)
             # store duration for all instances of process
-            total_duration = 0
+            total_duration_per_unit = 0
             # store number of finished order_processes
             count_finished_processes = 0
             for o_proc in o_processes:
                 # if Order_Process if finished
                 if o_proc.get_is_finished() is True:
+                    # get quantity
+                    quantity = o_proc.get_order_quantity()
+                    # store time/unit
+                    time_per_unit = o_proc.get_duration() / quantity
                     # store duration
-                    total_duration += o_proc.get_duration()
+                    total_duration_per_unit += time_per_unit
                     count_finished_processes += 1
             # calculate average time for X process
             if count_finished_processes > 0:
-                avg_time = total_duration / count_finished_processes
+                avg_time = total_duration_per_unit / count_finished_processes
             else:
                 avg_time = 0
             # store Process-AvgTime in list

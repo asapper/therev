@@ -55,6 +55,10 @@ class Order(models.Model):
         self.order_is_finished = True
         self.save()
 
+    def get_quantity(self):
+        """Returns this Order's quantity."""
+        return self.order_quantity
+
 
 class Order_Process(models.Model):
     # order reference
@@ -113,3 +117,7 @@ class Order_Process(models.Model):
         diff = (self.order_process_datetime_finished - 
                 self.order_process_datetime_started)
         return diff.seconds
+    
+    def get_order_quantity(self):
+        """Returns the quantity stored in associated Order."""
+        return self.order.get_quantity()

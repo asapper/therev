@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 from django.test import TestCase
 
 from .models import Order, Order_Process, Process
@@ -20,7 +21,8 @@ class OrderSetUpClass(TestCase):
 
     @classmethod
     def create_order(cls, op_number, client, description, quantity,
-                     sheets, processes, machine="CP1000"):
+                     sheets, processes, machine="CP1000",
+                     due_date=timezone.now()):
         """Create an Order with the given information."""
         order = Order.objects.create(
             order_op_number=op_number,
@@ -28,7 +30,8 @@ class OrderSetUpClass(TestCase):
             order_description=description,
             order_machine=machine,
             order_quantity=quantity,
-            order_total_sheets=sheets)
+            order_total_sheets=sheets,
+            order_due_date=due_date)
         # create Order_Process
         for process in processes:
             Order_Process.objects.create(

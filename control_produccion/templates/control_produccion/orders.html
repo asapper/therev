@@ -1,4 +1,6 @@
 {% extends 'base_site.html' %}
+{% load l10n %}
+{% load humanize %}
 
 {% block header %}
     <h1>Órdenes</h1>
@@ -24,9 +26,9 @@
                     <td><a href="{% url 'control_produccion:order_detail' order.id %}">{{ order.order_op_number }}</a></td>
                     <td>{{ order.order_client }}</td>
                     <td>{{ order.order_description }}</td>
-                    <td>{{ order.order_quantity }}</td>
+                    <td>{{ order.order_quantity|intcomma }}</td>
                     <td>{{ order.order_machine }}</td>
-                    <td>{{ order.order_total_sheets }}</td>
+                    <td>{{ order.order_total_sheets|intcomma }}</td>
                 </tr>
                 {% endfor %}
             <tbody>
