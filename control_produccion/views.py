@@ -1,7 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.db import IntegrityError
+from django.db import DatabaseError, IntegrityError
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
@@ -84,7 +85,10 @@ class OrdersView(ListView):
     def refresh_database(self):
         """Connect to Sunhive db and update records on Active Orders."""
         # query Sunhive db
-        op_list, results = DatabaseController.get_orders()
+        try:
+            op_list, results = DatabaseController.get_orders()
+        except DatabaseError:  # if not able to connect to Sunhive db
+            return HttpResponse()
         # create objects based on result from query
         for item in results:
             duplicate = False
@@ -125,7 +129,7 @@ class OrdersView(ListView):
         for order in finished_orders:
             if order.get_is_finished() is False:
                 order.set_finished()
-        return redirect(reverse('control_produccion:active_orders'))
+        return HttpResponse()
 
 
 class OrderDetailView(DetailView):

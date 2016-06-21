@@ -1,5 +1,7 @@
 import psycopg2
 
+from django.db import DatabaseError
+
 
 # constants
 VAL_INDEX = 0
@@ -207,16 +209,19 @@ class DatabaseController():
     @classmethod
     def init_db(cls):
         """Initialize the connection to the database and return a cursor."""
-        # establish connection
-        conn = psycopg2.connect(
-            database=DATABASE_NAME,
-            user=USER_NAME,
-            password=PASSWORD,
-            host=HOST_NAME,
-            port=PORT_NUMBER)
-        # get cursors
-        cur = conn.cursor()
-        return cur
+        try:
+            # establish connection
+            conn = psycopg2.connect(
+                database=DATABASE_NAME,
+                user=USER_NAME,
+                password=PASSWORD,
+                host=HOST_NAME,
+                port=PORT_NUMBER)
+            # get cursors
+            cur = conn.cursor()
+            return cur
+        except psycopg2.OperationalError:
+            raise DatabaseError
 
     @classmethod
     def execute_query(cls, cursor):
