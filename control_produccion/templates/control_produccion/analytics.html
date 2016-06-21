@@ -1,0 +1,48 @@
+{% extends 'base_site.html' %}
+{% load staticfiles %}
+
+{% block cssfiles %}
+<!-- Charts -->
+<link rel="stylesheet" href="{% static 'css/chartist.min.css' %}">
+{% endblock %}
+
+{% block header %}
+<h1>Analytics</h1>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="header">
+                Promedio de Tiempos por Proceso<p class="category">Bar chart</p>
+            </div>
+            <div class="content">
+                <div class="ct-chart ct-perfect-fourth"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jsfiles %}
+<!-- Charts -->
+<script src="{% static 'js/chartist.min.js' %}"></script>
+<script>
+    var data = {
+        labels: {% autoescape off %}{{ view.get_process_names }}{% endautoescape %},
+        series: [
+            {{ view.get_process_times }}
+        ]
+    };
+    var options = {
+        seriesBarDistance: 10,
+        reverseData: true,
+        horizontalBars: true,
+        axisY: {
+            offset: 70
+        }
+    }
+    new Chartist.Bar('.ct-chart', data, options);
+</script>
+{% endblock %}

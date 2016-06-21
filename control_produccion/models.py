@@ -107,3 +107,9 @@ class Order_Process(models.Model):
         self.order_process_datetime_finished = timezone.now()
         self.order_process_is_finished = True
         self.save()
+
+    def get_duration(self):
+        """Returns the time it took to finish Process."""
+        diff = (self.order_process_datetime_finished - 
+                self.order_process_datetime_started)
+        return diff.seconds

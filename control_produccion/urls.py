@@ -6,6 +6,8 @@ app_name = 'control_produccion'
 urlpatterns = [
     # ex: /control_produccion/
     url(r'^$', views.ProduccionView.as_view(), name='index'),
+    # ex: /control_produccion/analytics/
+    url(r'^analytics/$', views.AnalyticsView.as_view(), name='analytics'),
     # ex: /control_produccion/orders/
     url(r'^orders/$', views.OrdersView.as_view(), name='orders'),
     # ex: /control_produccion/active_orders_display/

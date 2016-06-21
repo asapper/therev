@@ -144,4 +144,12 @@ class AnalyticsView(TemplateView):
     template_name = 'control_produccion/analytics.html'
 
     def get_process_times(self):
+        """
+        Call utility function to get the duration times
+        for all the processes.
+        """
         return OrderController.get_avg_process_finish_time()
+
+    def get_process_names(self):
+        """Call utility function to get all the Process names."""
+        return OrderController.get_process_names()
