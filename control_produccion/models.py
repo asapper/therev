@@ -64,6 +64,16 @@ class Order(models.Model):
         """Returns this Order's quantity."""
         return self.order_quantity
 
+    def is_past_due(self):
+        """
+        Return True is order was due in the past, return False otherwise.
+        """
+        return self.order_due_date.date() < timezone.now().date()
+
+    def is_due_today(self):
+        """Return True if order is due today, return False otherwise."""
+        return self.order_due_date.date() == timezone.now().date()
+
 
 class Order_Process(models.Model):
     # order reference
