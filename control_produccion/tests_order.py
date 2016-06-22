@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.test import TestCase
@@ -9,6 +10,13 @@ from .utility import OrderController
 class OrderSetUpClass(TestCase):
     @classmethod
     def setUpTestData(cls):
+        # user
+        cls.user = User.objects.create(
+            username='tmp',
+            password='00000000',
+            first_name='John',
+            last_name='Doe')
+        # useful statuses
         cls.OK_STATUS = 200
         cls.NOT_FOUND_STATUS = 404
         cls.NOT_ALLOWED_STATUS = 405
@@ -207,13 +215,14 @@ class OrderViewTests(OrderSetUpClass):
             order_id=self.order.id,
             process_id=process.id)
         # start process
-        OrderController.start_process(o_proc)
+        OrderController.start_process(o_proc, self.user)
         # finish process
-        OrderController.finish_process(o_proc)
+        OrderController.finish_process(o_proc, self.user)
         # acces start process page
         response = self.client.post(reverse(
             'control_produccion:order_finish_process',
             kwargs={'pk': self.order.id, 'process_id': process.id}),
+            {'username': self.user.username, 'password': self.user.password},
             follow=True)  # follow redirection
         self.assertEqual(response.status_code, self.OK_STATUS)
         self.assertIn(

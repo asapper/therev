@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
@@ -8,6 +9,10 @@ class Process(models.Model):
 
     def __str__(self):
         """Return a string representation of this Process."""
+        return self.process_name
+
+    def get_name(self):
+        """Return this Process' name."""
         return self.process_name
 
 
@@ -69,10 +74,16 @@ class Order_Process(models.Model):
     order_process_is_started = models.BooleanField(default=False)
     # datetime started
     order_process_datetime_started = models.DateTimeField(null=True)
+    # user that started this Order_Process
+    order_process_user_started = models.ForeignKey(
+        User, related_name='order_processes_started', null=True)
     # is finished?
     order_process_is_finished = models.BooleanField(default=False)
     # datetime finished
     order_process_datetime_finished = models.DateTimeField(null=True)
+    # user that finished this Order_Process
+    order_process_user_finished = models.ForeignKey(
+        User, related_name='order_processes_finished', null=True)
 
     def get_op_number(self):
         """Return OP number of associated order."""
@@ -121,3 +132,37 @@ class Order_Process(models.Model):
     def get_order_quantity(self):
         """Returns the quantity stored in associated Order."""
         return self.order.get_quantity()
+
+    def get_process_name(self):
+        """Return the name of the associated Process."""
+        return self.process.get_name()
+
+    def get_user_who_started_process(self):
+        """Return the user who started this Order_Process."""
+        return self.order_process_user_started
+
+    def get_user_short_name_who_started_process(self):
+        """
+        Return the short name of the user who started this Order_Process.
+        """
+        return self.order_process_user_started.get_short_name()
+
+    def set_user_who_started_process(self, user):
+        """Assign the given user to have started this Order_Process."""
+        self.order_process_user_started = user
+        self.save()
+
+    def get_user_who_finished_process(self):
+        """Return the user who finished this Order_Process."""
+        return self.order_process_user_finished
+
+    def get_user_short_name_who_finished_process(self):
+        """
+        Return the short name of the user who finished this Order_Process.
+        """
+        return self.order_process_user_finished.get_short_name()
+
+    def set_user_who_finished_process(self, user):
+        """Assign the given user to have finished this Order_Process."""
+        self.order_process_user_finished = user
+        self.save()

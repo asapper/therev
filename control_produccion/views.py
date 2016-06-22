@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.contrib.auth import authenticate
 from django.db import DatabaseError, IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -36,51 +37,6 @@ class ActiveOrdersRefreshView(ListView):
 
 class ActiveOrdersView(TemplateView):
     template_name = 'control_produccion/active_orders.html'
-
-
-class OrdersView(ListView):
-    template_name = 'control_produccion/orders.html'
-    context_object_name = 'latest_order_list'
-
-    def get_queryset(self):
-        """Return all the Orders."""
-        return Order.objects.all().order_by('order_op_number')
-
-    @require_http_methods(["POST"])
-    def start_process(self, pk, process_id):
-        """
-        Retrieve order with given pk, as well as OrderProcess with
-        order id and given process id, and call helper function
-        to start that Process.
-        """
-        order = get_object_or_404(Order, pk=pk)  # get order
-        # get order process
-        order_process_instance = get_object_or_404(
-            Order_Process,
-            order_id=order.id,
-            process_id=process_id)
-        msg = OrderController.start_process(order_process_instance)
-        messages.info(self, msg)  # send returned messages
-        return redirect(reverse(
-            'control_produccion:order_detail', kwargs={'pk': pk}))
-
-    @require_http_methods(["POST"])
-    def finish_process(self, pk, process_id):
-        """
-        Retrieve order with given pk, as well as OrderProcess with
-        order id and given process id, and call helper function
-        to finish that Process.
-        """
-        order = get_object_or_404(Order, pk=pk)  # get order
-        # get order process
-        order_process_instance = get_object_or_404(
-            Order_Process,
-            order_id=order.id,
-            process_id=process_id)
-        msg = OrderController.finish_process(order_process_instance)
-        messages.info(self, msg)  # send returned messages
-        return redirect(reverse(
-            'control_produccion:order_detail', kwargs={'pk': pk}))
 
     def refresh_database(self):
         """Connect to Sunhive db and update records on Active Orders."""
@@ -132,6 +88,15 @@ class OrdersView(ListView):
         return HttpResponse()
 
 
+class OrdersView(ListView):
+    template_name = 'control_produccion/orders.html'
+    context_object_name = 'latest_order_list'
+
+    def get_queryset(self):
+        """Return all the Orders."""
+        return Order.objects.all().order_by('order_op_number')
+
+
 class OrderDetailView(DetailView):
     model = Order
     template_name = 'control_produccion/order_detail.html'
@@ -144,6 +109,58 @@ class OrderDetailView(DetailView):
             order_id=order.id)
         context['order_process_list'] = processes
         return context
+
+    @require_http_methods(["POST"])
+    def start_process(self, pk, process_id):
+        """
+        Retrieve order with given pk, as well as OrderProcess with
+        order id and given process id, and call helper function
+        to start that Process.
+        """
+        username = self.POST.get('username')
+        password = self.POST.get('password')
+        user = authenticate(username=username, password=password)
+        if user is not None:  # if user is authenticated
+            order = get_object_or_404(Order, pk=pk)  # get order
+            # get order process
+            order_process_instance = get_object_or_404(
+                Order_Process,
+                order_id=order.id,
+                process_id=process_id)
+            level, msg = OrderController.start_process(
+                order_process_instance, user)
+            messages.add_message(self, level, msg)  # send returned messages
+        else:  # user authentication failed
+            messages.warning(
+                self, "Proceso no comenzado! Usuario/contraseña incorrecta.")
+        return redirect(reverse(
+            'control_produccion:order_detail', kwargs={'pk': pk}))
+
+    @require_http_methods(["POST"])
+    def finish_process(self, pk, process_id):
+        """
+        Retrieve order with given pk, as well as OrderProcess with
+        order id and given process id, and call helper function
+        to finish that Process.
+        """
+        username = self.POST.get('username')
+        password = self.POST.get('password')
+        user = authenticate(username=username, password=password)
+        if user is not None:  # if user is authenticated
+            order = get_object_or_404(Order, pk=pk)  # get order
+            # get order process
+            order_process_instance = get_object_or_404(
+                Order_Process,
+                order_id=order.id,
+                process_id=process_id)
+            level, msg = OrderController.finish_process(
+                order_process_instance, user)
+            messages.add_message(self, level, msg)  # send returned messages
+        else:  # user authentication failed
+            messages.warning(
+                self, "Proceso no terminado! Usuario/contraseña incorrecta.")
+        return redirect(reverse(
+            'control_produccion:order_detail', kwargs={'pk': pk}))
 
 
 class ProduccionView(TemplateView):

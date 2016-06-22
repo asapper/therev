@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.utils import timezone
 
 from .models import Order_Process, Process
@@ -5,33 +6,60 @@ from .models import Order_Process, Process
 
 class OrderController():
     @classmethod
-    def start_process(cls, order_process_instance):
+    def start_process(cls, order_process_instance, user):
         """
         Start the given process by caling the Order_Process'
-        set_started function.
+        set_started function, and assign the given user
+        to have started the given Order_Process.
         """
+        # get process name
+        process_name = order_process_instance.get_process_name()
         # verify order process is not started
         if order_process_instance.get_is_started() is False:
             # function handles assignment
             order_process_instance.set_started()
+            # function handle user assignment
+            order_process_instance.set_user_who_started_process(user)
+            return messages.SUCCESS, "{} ha sido comenzado!".format(
+                process_name)
         else:
-            return "Process already started"
+            return messages.WARNING, ("{} ha sido comenzado "
+                "anteriormente.").format(
+                process_name)
 
     @classmethod
-    def finish_process(cls, order_process_instance):
+    def finish_process(cls, order_process_instance, user):
         """
         Finish the given process by calling the Order_Process'
-        set_finished function.
+        set_finished function, and assign the given user
+        to have finished the given Order_Process.
         """
+        # get process name
+        process_name = order_process_instance.get_process_name()
         # verify order process is started and not finished
         if order_process_instance.get_is_started() is True:
             if order_process_instance.get_is_finished() is False:
-                # function handles assignment
-                order_process_instance.set_finished()
+                # check user who finishes is same as user who started
+                user_started = order_process_instance.get_user_who_started_process()
+                if user == user_started:
+                    # function handles assignment
+                    order_process_instance.set_finished()
+                    # function handles user assignment
+                    order_process_instance.set_user_who_finished_process(user)
+                else:  # users do not match
+                    return messages.WARNING, ("{} no ha sido terminado! "
+                        "Usuario {} no comenzó este proceso.").format(
+                            process_name, user)
+                return messages.SUCCESS, "{} ha sido terminado!".format(
+                    process_name)
             else:
-                return "Process already finished"
+                return messages.WARNING, ("{} ha sido terminado "
+                    "anteriormente.").format(
+                        process_name)
         else:
-            return "Process not started"
+            return messages.WARNING, ("Proceso no terminado. "
+                "{} no ha sido comenzado aún.").format(
+                    process_name)
 
     @classmethod
     def get_avg_process_finish_time(cls):

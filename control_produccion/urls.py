@@ -17,15 +17,15 @@ urlpatterns = [
     url(r'active_orders_refresh/$', views.ActiveOrdersRefreshView.as_view(),
         name='active_orders_refresh'),
     # ex: /control_produccion/refresh_database/
-    url(r'refresh_database/$', views.OrdersView.refresh_database,
+    url(r'refresh_database/$', views.ActiveOrdersView.refresh_database,
         name='refresh_database'),
     # ex: /control_produccion/orders/5/
     url(r'^orders/(?P<pk>[0-9]+)/$', views.OrderDetailView.as_view(),
         name='order_detail'),
     # ex: /control_produccion/orders/5/start_process/1/
     url(r'^orders/(?P<pk>[0-9]+)/start_process/(?P<process_id>[0-9]+)/$',
-        views.OrdersView.start_process, name='order_start_process'),
+        views.OrderDetailView.start_process, name='order_start_process'),
     # ex: /control_produccion/orders/5/finish_process/1/
     url(r'^orders/(?P<pk>[0-9]+)/finish_process/(?P<process_id>[0-9]+)/$',
-        views.OrdersView.finish_process, name='order_finish_process'),
+       views.OrderDetailView.finish_process, name='order_finish_process'),
 ]
