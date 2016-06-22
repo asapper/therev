@@ -16,6 +16,7 @@
                     <th>Cliente</th>
                     <th>Descrición</th>
                     <th>Cantidad</th>
+                    <th>Fecha de Entrega</th>
                     <th>Máquina</th>
                     <th>Pliegos</th>
                 </tr>
@@ -27,6 +28,7 @@
                     <td>{{ order.order_client }}</td>
                     <td>{{ order.order_description }}</td>
                     <td>{{ order.order_quantity|intcomma }}</td>
+                    <td>{{ order.order_due_date|date }}</td>
                     <td>{{ order.order_machine }}</td>
                     <td>{{ order.order_total_sheets|intcomma }}</td>
                 </tr>

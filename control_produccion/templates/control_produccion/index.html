@@ -1,16 +1,94 @@
 {% extends 'base_site.html' %}
 
 {% block header %}
-    <h2>Control de Producción</h2>
+    <h2>Instrucciones de Uso</h2>
 {% endblock %}
 
 {% block content %}
-    {% if messages %}
-        {% for message in messages %}
-        <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% else %} class="alert alert-warning"{% endif %} role="alert">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+{% if messages %}
+    {% for message in messages %}
+    <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% else %} class="alert alert-warning"{% endif %} role="alert">{{ message }}</div>
+    {% endfor %}
+{% endif %}
 
-    <p>Aquí irán instrucciones acerca del módulo de Control de Producción</p>
-    {% lorem 2 p %}
+<div class="col-md-4 col-sm-12">
+    <div class="card">
+        <div class="header">
+            <h4 class="title">Listado de Órdenes</h4>
+        </div>
+        <div class="content">
+            <div class="table-full-width">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>Se verán todas las órdenes guardadas en el sistema, activas y terminadas.</td>
+                        </tr>
+                        <tr>
+                            <td>Se verán todos los detalles de cada orden.</td>
+                        </tr>
+                        <tr>
+                            <td>Se accesa la página de Detalle de Orden al hacer click en el número de Orden (primer columna).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-4 col-sm-12">
+    <div class="card">
+        <div class="header">
+            <h4 class="title">Detalle de Orden específica</h4>
+        </div>
+        <div class="content">
+            <div class="table-full-width">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>Se podrán ver todos los procesos que una orden lleva.</td>
+                        </tr>
+                        <tr>
+                            <td>Se podrá comenzar/terminar un proceso.</td>
+                        </tr>
+                        <tr>
+                            <td>Para comenzar o terminar un proceso se deben proveer el usuario y contraseña de quien está encargado de hacer tal proceso.</td>
+                        </tr>
+                        <tr>
+                            <td>El trabajador que comienze un proceso debe terminarlo. Un trabajador no podrá terminar un proceso a menos que lo haya comenzado.</td>
+                        </tr>
+                        <tr>
+                            <td>El usuario y contraseña de cada trabajador será creado por el administrador.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-4 col-sm-12">
+    <div class="card">
+        <div class="header">
+            <h4 class="title">Listado de Órdenes Activas</h4>
+        </div>
+        <div class="content">
+            <div class="table-full-width">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>El listado se actualiza automáticamente cada minuto.</td>
+                        </tr>
+                        <tr>
+                            <td>El estado de los procesos se actualizará aún sin una conexión a Internet.</td>
+                        </tr>
+                        <tr>
+                            <td>El listado de nuevas órdenes activas y órdenes terminadas no se actualizará a menos que haya una conexión a Internet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -5,6 +5,7 @@
         <tr>
             <th class="cell-rotate"><div>Orden #</div></th>
             <th class="cell-rotate"><div>Cliente</div></th>
+            <th class="cell-rotate"><div>Trabajo</div></th>
             <th class="cell-rotate"><div>Fecha de Entrega</div></th>
             {% for process in process_list %}
             <th class="cell-rotate"><div>{{ process }}</div></th>
@@ -16,6 +17,7 @@
         <tr>
             <td>{{ order.order_op_number }}</td>
             <td style="width: 20%;">{{ order.order_client }}</td>
+            <td style="width: 7%">{{ order.order_description }}</td>
             {% if order.is_past_due %}
             <td class="cell-danger" style="width: 10%;">{{ order.order_due_date|date }}</td>
             {% elif order.is_due_today %}
