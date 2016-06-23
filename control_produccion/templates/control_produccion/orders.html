@@ -1,42 +1,75 @@
 {% extends 'base_site.html' %}
-{% load l10n %}
 {% load humanize %}
 
 {% block header %}
-    <h1>Órdenes</h1>
+{% if messages %}
+    {% for message in messages %}
+    <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% else %} class="alert alert-info"{% endif %} role="alert">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<h1>
+    Órdenes
+    <!-- Start process button -->
+    <a tabindex="0" id="popover-pause-all-processes" class="btn btn-info" role="button" data-placement="bottom" title="Entra tus credenciales">Pausar todos los procesos activos</a>
+    <div id="popover-pause-all-processes-content" class="hide">
+        <form method="POST" action="{% url 'control_produccion:pause_all_processes' %}">{% csrf_token %}
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" name="username" placeholder="Usuario" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" name="password" placeholder="Contraseña" class="form-control">
+            </div>
+            <button class="btn btn-info" type="submit">Listo</button>
+        </form>
+    </div>
+</h1>
 {% endblock %}
 
 {% block content %}
-    {% if latest_order_list %}
-    <div class="panel panel-default">
-        <table class="table table-striped table-hover table-condensed">
-            <thead>
-                <tr>
-                    <th>Orden #</th>
-                    <th>Cliente</th>
-                    <th>Descrición</th>
-                    <th>Cantidad</th>
-                    <th>Fecha de Entrega</th>
-                    <th>Máquina</th>
-                    <th>Pliegos</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in latest_order_list %}
-                <tr>
-                    <td><a href="{% url 'control_produccion:order_detail' order.id %}">{{ order.order_op_number }}</a></td>
-                    <td>{{ order.order_client }}</td>
-                    <td>{{ order.order_description }}</td>
-                    <td>{{ order.order_quantity|intcomma }}</td>
-                    <td>{{ order.order_due_date|date }}</td>
-                    <td>{{ order.order_machine }}</td>
-                    <td>{{ order.order_total_sheets|intcomma }}</td>
-                </tr>
-                {% endfor %}
-            <tbody>
-        </table>
-    </div>
-    {% else %}
-    <p>No hay órdenes hábiles.</p>
-    {% endif %}
+{% if latest_order_list %}
+<div class="panel panel-default">
+    <table class="table table-striped table-hover table-condensed">
+        <thead>
+            <tr>
+                <th>Orden #</th>
+                <th>Cliente</th>
+                <th>Descrición</th>
+                <th>Cantidad</th>
+                <th>Fecha de Entrega</th>
+                <th>Máquina</th>
+                <th>Pliegos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in latest_order_list %}
+            <tr>
+                <td><a href="{% url 'control_produccion:order_detail' order.id %}">{{ order.order_op_number }}</a></td>
+                <td>{{ order.order_client }}</td>
+                <td>{{ order.order_description }}</td>
+                <td>{{ order.order_quantity|intcomma }}</td>
+                <td>{{ order.order_due_date|date }}</td>
+                <td>{{ order.order_machine }}</td>
+                <td>{{ order.order_total_sheets|intcomma }}</td>
+            </tr>
+            {% endfor %}
+        <tbody>
+    </table>
+</div>
+{% else %}
+<p>No hay órdenes hábiles.</p>
+{% endif %}
+{% endblock %}
+
+{% block jsfiles %}
+<script>
+    $('#popover-pause-all-processes').popover({ 
+        html : true,
+        content: function() {
+            return $("#popover-pause-all-processes-content").html();
+        }
+    });
+</script>
 {% endblock %}

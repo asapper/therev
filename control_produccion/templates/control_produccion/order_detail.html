@@ -113,7 +113,7 @@
                         </form>
                     </div>
                     {% else %}
-                    Proceso terminado en {{ order_process.get_duration|floatformat:0 }} minutos por {{ order_process.get_user_short_name_who_finished_process }}
+                    Proceso terminado en {{ order_process.get_duration_humanized }} por {{ order_process.get_user_short_name_who_finished_process }}
                     <hr>
                     <button class="btn btn-default disabled">Proceso terminado</button>
                     {% endif %}
@@ -131,31 +131,31 @@
 
 {% block jsfiles %}
 <script>
-{% for order_process in order_process_list %}
-$('#popover-start-process-{{ order_process.process.id }}').popover({ 
-    html : true,
-    content: function() {
-        return $("#popover-start-process-content-{{ order_process.process.id }}").html();
-    }
-});
-$('#popover-pause-process-{{ order_process.process.id }}').popover({ 
-    html : true,
-    content: function() {
-        return $("#popover-pause-process-content-{{ order_process.process.id }}").html();
-    }
-});
-$('#popover-resume-process-{{ order_process.process.id }}').popover({ 
-    html : true,
-    content: function() {
-        return $("#popover-resume-process-content-{{ order_process.process.id }}").html();
-    }
-});
-$('#popover-finish-process-{{ order_process.process.id }}').popover({ 
-    html : true,
-    content: function() {
-        return $("#popover-finish-process-content-{{ order_process.process.id }}").html();
-    }
-});
+    {% for order_process in order_process_list %}
+    $('#popover-start-process-{{ order_process.process.id }}').popover({ 
+        html : true,
+        content: function() {
+            return $("#popover-start-process-content-{{ order_process.process.id }}").html();
+        }
+    });
+    $('#popover-pause-process-{{ order_process.process.id }}').popover({ 
+        html : true,
+        content: function() {
+            return $("#popover-pause-process-content-{{ order_process.process.id }}").html();
+        }
+    });
+    $('#popover-resume-process-{{ order_process.process.id }}').popover({ 
+        html : true,
+        content: function() {
+            return $("#popover-resume-process-content-{{ order_process.process.id }}").html();
+        }
+    });
+    $('#popover-finish-process-{{ order_process.process.id }}').popover({ 
+        html : true,
+        content: function() {
+            return $("#popover-finish-process-content-{{ order_process.process.id }}").html();
+        }
+    });
 {% endfor %}
 </script>
 {% endblock %}

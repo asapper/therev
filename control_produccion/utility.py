@@ -31,6 +31,25 @@ class OrderController():
                 process_name)
 
     @classmethod
+    def pause_all_processes(cls, user):
+        """If user is superuser, pause all active processes."""
+        if user.is_superuser:
+            # get active order process instances
+            active_order_processes = Order_Process.objects.filter(
+                order_process_is_started=True,
+                order_process_is_paused=False,
+                order_process_is_finished=False)
+            for proc in active_order_processes:
+                # handle pausing of process
+                cls.pause_process(proc, user)
+            return messages.SUCCESS, ("Todos los procesos "
+                "activos han sido pausados!")
+        else:  # user is not superuser
+            return messages.WARNING, ("Usuario {} "
+                "no tiene permiso para pausar todos los "
+                "procesos").format(user)
+
+    @classmethod
     def pause_process(cls, order_process_instance, user):
         """
         Pause the given process by calling the Order_Process'

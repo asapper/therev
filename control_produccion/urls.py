@@ -34,4 +34,7 @@ urlpatterns = [
     # ex: /control_produccion/orders/5/resume_process/1/
     url(r'^orders/(?P<pk>[0-9]+)/resume_process/(?P<process_id>[0-9]+)/$',
         views.OrderDetailView.resume_process, name='order_resume_process'),
+    # ex: /control_produccion/orders/pause_all_processes/
+    url(r'^orders/pause_all_processes/$',
+        views.OrdersView.pause_all_processes, name='pause_all_processes'),
 ]

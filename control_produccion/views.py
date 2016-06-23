@@ -97,6 +97,23 @@ class OrdersView(ListView):
         """Return all the Orders."""
         return Order.objects.all().order_by('order_op_number')
 
+    @require_http_methods(["POST"])
+    def pause_all_processes(self):
+        """
+        Retrieve all active Order_Process'es and call helper
+        function to pause each of them.
+        """
+        username = self.POST.get('username')
+        password = self.POST.get('password')
+        user = authenticate(username=username, password=password)
+        if user is not None:  # if user is authenticated
+            level, msg = OrderController.pause_all_processes(user)
+            messages.add_message(self, level, msg)  # send returned messages
+        else:  # user authentication failed
+            messages.warning(
+                self, "Procesos no pausados! Usuario/contraseña incorrecta.")
+        return redirect(reverse('control_produccion:orders'))
+
 
 class OrderDetailView(DetailView):
     model = Order
