@@ -14,7 +14,7 @@ from .utility import OrderController
 from .db_utility import DatabaseController
 from .db_utility import (VALUE_OP_NUMBER, VALUE_CLIENT, VALUE_DESCRIPTION,
                          VALUE_MACHINE, VALUE_QUANTITY, VALUE_SHEETS,
-                         VALUE_PROCESSES, VALUE_DUE_DATE)
+                         VALUE_PROCESSES, VALUE_DUE_DATE, VALUE_DATE_CREATED)
 
 
 class ActiveOrdersRefreshView(ListView):
@@ -56,7 +56,8 @@ class ActiveOrdersView(TemplateView):
                     order_machine=item[VALUE_MACHINE],
                     order_quantity=item[VALUE_QUANTITY],
                     order_total_sheets=item[VALUE_SHEETS],
-                    order_due_date=item[VALUE_DUE_DATE])
+                    order_due_date=item[VALUE_DUE_DATE],
+                    order_date_created=itme[VALUE_DATE_CREATED])
             except IntegrityError:
                 duplicate = True
             if duplicate is False:
@@ -177,6 +178,23 @@ class AnalyticsView(TemplateView):
         """
         return OrderController.get_avg_process_finish_time()
 
-    def get_process_names(self):
-        """Call utility function to get all the Process names."""
-        return OrderController.get_process_names()
+    def get_general_top_most_present_processes(self):
+        """
+        Call utility function to get the top 5 process
+        most often seen in all the Orders.
+        """
+        return OrderController.get_general_top_five_most_often_present_processes()
+
+    def get_last_week_top_most_present_processes(self):
+        """
+        Call utility function to get the top 5 process
+        most often seen in all the Orders.
+        """
+        return OrderController.get_last_week_top_five_most_often_present_processes()
+
+    def get_last_month_top_most_present_processes(self):
+        """
+        Call utility function to get the top 5 process
+        most often seen in all the Orders.
+        """
+        return OrderController.get_last_month_top_five_most_often_present_processes()

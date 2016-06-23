@@ -40,6 +40,7 @@ INDEX_LOMO = 28
 INDEX_GRAPA = 29
 INDEX_CORTE = 30
 INDEX_DUE_DATE = 31
+INDEX_DATE_CREATED = 32
 
 # values for stored indices
 VALUE_PROCESSES = 'processes'
@@ -75,6 +76,7 @@ VALUE_LOMO = 'Lomo'
 VALUE_GRAPA = 'Grapa'
 VALUE_CORTE = 'Corte'
 VALUE_DUE_DATE = 'Fecha Entrega'
+VALUE_DATE_CREATED = 'Fecha Creada'
 
 # list of tuples of index, name-of-field
 INDICES = [
@@ -110,6 +112,7 @@ INDICES = [
     (INDEX_GRAPA, VALUE_GRAPA),  # index 29
     (INDEX_CORTE, VALUE_CORTE),  # index 30
     (INDEX_DUE_DATE, VALUE_DUE_DATE),  # index 31
+    (INDEX_DATE_CREATED, VALUE_DATE_CREATED),  # index 32
 ]
 # db information
 DATABASE_NAME = "sunhive"
@@ -148,6 +151,7 @@ QUERY = (
     "max(case when cop.\"CodigoProceso\"=10 then 'X' else '' end) as \"Grapa\", "
     "max(case when cop.\"CodigoProceso\"=5 then 'X' else '' end) as \"Corte\", "
     "op.\"FechaRequerida\" "
+    "op.\"FechaCreacion\" "
     "from \"Produccion\".\"OrdenesProduccion\" op "
     "inner join \"Produccion\".\"OrdenesProduccionProductos\" opp on "
     "op.\"Codigo\"=opp.\"CodigoOrdenProduccion\" "
@@ -245,6 +249,7 @@ class DatabaseController():
             order_dict[VALUE_MACHINE] = row[INDEX_MACHINE]
             order_dict[VALUE_DESCRIPTION] = row[INDEX_DESCRIPTION]
             order_dict[VALUE_DUE_DATE] = row[INDEX_DUE_DATE]
+            order_dict[VALUE_DATE_CREATED] = row[INDEX_DATE_CREATED]
             # store OP number
             op_numbers.append(row[INDEX_OP_NUMBER])
             processes = []  # store processes

@@ -32,5 +32,77 @@
             </div>
         </div>
     </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="header">
+                Procesos más pedidos
+            </div>
+            <div class="content">
+                <div class="row">
+                    <h6>En la última semana</h6>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Proceso</th>
+                                    <th>Número pedido</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for process in view.get_last_week_top_most_present_processes %}
+                                <tr>
+                                    <td>{{ process.process_name }}</td>
+                                    <td>{{ process.order_process__count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <h6>En el último mes</h6>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Proceso</th>
+                                    <th>Número pedido</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for process in view.get_last_month_top_most_present_processes %}
+                                <tr>
+                                    <td>{{ process.process_name }}</td>
+                                    <td>{{ process.order_process__count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <h6>En general</h6>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Proceso</th>
+                                    <th>Número pedido</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for process in view.get_general_top_most_present_processes %}
+                                <tr>
+                                    <td>{{ process.process_name }}</td>
+                                    <td>{{ process.order_process__count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

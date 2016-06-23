@@ -1,4 +1,7 @@
+import datetime
+
 from django.contrib import messages
+from django.db.models import Count
 from django.utils import timezone
 
 from .models import Order_Process, Process
@@ -41,9 +44,11 @@ class OrderController():
             if order_process_instance.get_is_finished() is False:
                 # check user who finishes is same as user who started
                 user_started = order_process_instance.get_user_who_started_process()
-                if user == user_started:
+                if user == user_started or user.is_superuser:
                     # function handles assignment
                     order_process_instance.set_finished()
+                    if user.is_superuser:  # superuser finishing a process
+                        user = user_started  # assign to user who started it
                     # function handles user assignment
                     order_process_instance.set_user_who_finished_process(user)
                 else:  # users do not match
@@ -96,5 +101,35 @@ class OrderController():
                 avg_time = 0
             # store Process-AvgTime in list
             proc_avg_time_list.append((process.process_name, avg_time / 60))
+        # sort by avg time
+        proc_avg_time_list.sort(key=lambda tup: tup[1], reverse=True)
         # return list of processes and their average times
         return proc_avg_time_list
+
+    @classmethod
+    def get_general_top_five_most_often_present_processes(cls):
+        """Return the top 5 processes more often present in Orders."""
+        return Process.objects.annotate(
+            Count('order_process')).order_by('-order_process__count')[:5]
+
+    @classmethod
+    def get_last_week_top_five_most_often_present_processes(cls):
+        """
+        Return the top 5 processes more often present in
+        Orders created last week.
+        """
+        last_week = timezone.now() - datetime.timedelta(days=8)
+        return Process.objects.filter(
+            order_process__order__order_date_created__gt=last_week).annotate(
+                Count('order_process')).order_by('-order_process__count')[:5]
+
+    @classmethod
+    def get_last_month_top_five_most_often_present_processes(cls):
+        """
+        Return the top 5 processes more often present in
+        Orders created last month.
+        """
+        last_month = timezone.now() - datetime.timedelta(days=31)
+        return Process.objects.filter(
+            order_process__order__order_date_created__gt=last_month).annotate(
+                Count('order_process')).order_by('-order_process__count')[:5]

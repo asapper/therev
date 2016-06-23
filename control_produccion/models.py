@@ -35,6 +35,8 @@ class Order(models.Model):
     order_is_finished = models.BooleanField(default=False)
     # due date
     order_due_date = models.DateTimeField()
+    # date created
+    order_date_created = models.DateTimeField()
 
     def __str__(self):
         """Return a string representation of this Order."""
