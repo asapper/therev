@@ -57,7 +57,7 @@ class ActiveOrdersView(TemplateView):
                     order_quantity=item[VALUE_QUANTITY],
                     order_total_sheets=item[VALUE_SHEETS],
                     order_due_date=item[VALUE_DUE_DATE],
-                    order_date_created=itme[VALUE_DATE_CREATED])
+                    order_date_created=item[VALUE_DATE_CREATED])
             except IntegrityError:
                 duplicate = True
             if duplicate is False:
