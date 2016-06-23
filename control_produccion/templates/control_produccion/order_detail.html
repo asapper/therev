@@ -46,6 +46,7 @@
                     {% if not order_process.get_is_started and not order_process.get_is_finished %}
                     Proceso no comenzado aún
                     <hr>
+                    <!-- Start process button -->
                     <a tabindex="0" id="popover-start-process-{{ order_process.process.id }}" class="btn btn-success" role="button" data-placement="top" title="Entra tus credenciales">Comenzar proceso</a>
                     <div id="popover-start-process-content-{{ order_process.process.id }}" class="hide">
                         <form method="POST" action="{% url 'control_produccion:order_start_process' order.id order_process.process.id %}">{% csrf_token %}
@@ -60,9 +61,43 @@
                             <button class="btn btn-info" type="submit">Listo</button>
                         </form>
                     </div>
+                    {% elif order_process.get_is_paused %}
+                    Proceso pausado
+                    <hr>
+                    <!-- Resume process button -->
+                    <a tabindex="0" id="popover-resume-process-{{ order_process.process.id }}" class="btn btn-info" role="button" data-placement="top" title="Entra tus credenciales">Resumir proceso</a>
+                    <div id="popover-resume-process-content-{{ order_process.process.id }}" class="hide">
+                        <form method="POST" action="{% url 'control_produccion:order_resume_process' order.id order_process.process.id %}">{% csrf_token %}
+                            <div class="form-group">
+                                <label for="username">Usuario</label>
+                                <input type="text" name="username" placeholder="Usuario" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Contraseña</label>
+                                <input type="password" name="password" placeholder="Contraseña" class="form-control">
+                            </div>
+                            <button class="btn btn-info" type="submit">Listo</button>
+                        </form>
+                    </div>
                     {% elif order_process.get_is_started and not order_process.get_is_finished %}
                     Proceso comenzado {{ order_process.get_datetime_started|naturaltime|default_if_none:"---" }} por {{ order_process.get_user_short_name_who_started_process }}
                     <hr>
+                    <!-- Pause process button -->
+                    <a tabindex="0" id="popover-pause-process-{{ order_process.process.id }}" class="btn btn-info" role="button" data-placement="top" title="Entra tus credenciales">Pausar proceso</a>
+                    <div id="popover-pause-process-content-{{ order_process.process.id }}" class="hide">
+                        <form method="POST" action="{% url 'control_produccion:order_pause_process' order.id order_process.process.id %}">{% csrf_token %}
+                            <div class="form-group">
+                                <label for="username">Usuario</label>
+                                <input type="text" name="username" placeholder="Usuario" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Contraseña</label>
+                                <input type="password" name="password" placeholder="Contraseña" class="form-control">
+                            </div>
+                            <button class="btn btn-info" type="submit">Listo</button>
+                        </form>
+                    </div>
+                    <!-- Finish process button -->
                     <a tabindex="1" id="popover-finish-process-{{ order_process.process.id }}" class="btn btn-danger" role="button" data-placement="top" title="Entra tus credenciales">Terminar proceso</a>
                     <div id="popover-finish-process-content-{{ order_process.process.id }}" class="hide">
                         <form method="POST" action="{% url 'control_produccion:order_finish_process' order.id order_process.process.id %}">{% csrf_token %}
@@ -78,7 +113,7 @@
                         </form>
                     </div>
                     {% else %}
-                    Proceso terminado en {{ order_process.get_datetime_started|timesince:order_process.get_datetime_finished }} por {{ order_process.get_user_short_name_who_finished_process }}
+                    Proceso terminado en {{ order_process.get_duration|floatformat:0 }} minutos por {{ order_process.get_user_short_name_who_finished_process }}
                     <hr>
                     <button class="btn btn-default disabled">Proceso terminado</button>
                     {% endif %}
@@ -101,6 +136,18 @@ $('#popover-start-process-{{ order_process.process.id }}').popover({
     html : true,
     content: function() {
         return $("#popover-start-process-content-{{ order_process.process.id }}").html();
+    }
+});
+$('#popover-pause-process-{{ order_process.process.id }}').popover({ 
+    html : true,
+    content: function() {
+        return $("#popover-pause-process-content-{{ order_process.process.id }}").html();
+    }
+});
+$('#popover-resume-process-{{ order_process.process.id }}').popover({ 
+    html : true,
+    content: function() {
+        return $("#popover-resume-process-content-{{ order_process.process.id }}").html();
     }
 });
 $('#popover-finish-process-{{ order_process.process.id }}').popover({ 

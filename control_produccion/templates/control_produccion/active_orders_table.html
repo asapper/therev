@@ -31,8 +31,10 @@
                     <td
                     {% if not process_in_order.get_is_started %}
                     class="cell-danger"
-                    {% elif process_in_order.get_is_started and not process_in_order.get_is_finished %}
+                    {% elif process_in_order.get_is_started and not process_in_order.get_is_finished and not process_in_order.get_is_paused %}
                     class="cell-warning"
+                    {% elif process_in_order.get_is_paused %}
+                    class="cell-default"
                     {% elif process_in_order.get_is_finished %}
                     class="cell-success"
                     {% endif %}

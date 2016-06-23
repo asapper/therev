@@ -43,6 +43,10 @@ body {
     font-size: 1.35rem;
 }
 
+.table tbody tr td.cell-default {
+    background-color: #95a5a6;
+}
+
 .table tbody tr td.cell-success {
     background-color: #5cb85c;
 }

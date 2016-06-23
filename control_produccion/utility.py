@@ -31,10 +31,68 @@ class OrderController():
                 process_name)
 
     @classmethod
+    def pause_process(cls, order_process_instance, user):
+        """
+        Pause the given process by calling the Order_Process'
+        set_paused method.
+        """
+        # get process name
+        process_name = order_process_instance.get_process_name()
+        # verify order process is started
+        if order_process_instance.get_is_started() is True:
+            # verify order process is not finished
+            if order_process_instance.get_is_finished() is False:
+                # check user who finishes is same as user who started
+                user_started = order_process_instance.get_user_who_started_process()
+                if user == user_started or user.is_superuser:
+                    # function handles assignment
+                    order_process_instance.set_paused()
+                    return messages.SUCCESS, "{} ha sido pausado!".format(
+                        process_name)
+                else:  # users do not match
+                    return messages.WARNING, ("{} no ha sido pausado! "
+                        "Usuario {} no comenzó este proceso.").format(
+                            process_name, user)
+            else:  # order process is finished
+                return messages.WARNING, ("{} no se puede pausar! "
+                    "Proceso ya ha sido terminado.").format(
+                        process_name)
+        else:  # order process is not started
+            return messages.WARNING, ("{} no se puede pausar! "
+                "Proceso no ha sido comenzado.").format(
+                    process_name)
+
+    @classmethod
+    def resume_process(cls, order_process_instance, user):
+        """
+        Resume the given process, if paused, by calling the
+        Order_Process' set_resumed method.
+        """
+        # get process name
+        process_name = order_process_instance.get_process_name()
+        # verify order process is started
+        if order_process_instance.get_is_paused() is True:
+            # check user who finishes is same as user who started
+            user_started = order_process_instance.get_user_who_started_process()
+            if user == user_started or user.is_superuser:
+                # function handles assignment
+                order_process_instance.set_resumed()
+                return messages.SUCCESS, "{} ha sido resumido!".format(
+                    process_name)
+            else:  # users do not match
+                return messages.WARNING, ("{} no ha sido resumido! "
+                    "Usuario {} no comenzó este proceso").format(
+                    process_name, user)
+        else:  # process is not paused
+            return messages.WARNING, ("{} no ha sido resumido! "
+                "Proceso no ha sido pausado.").format(
+                process_name)
+
+    @classmethod
     def finish_process(cls, order_process_instance, user):
         """
         Finish the given process by calling the Order_Process'
-        set_finished function, and assign the given user
+        set_finished method, and assign the given user
         to have finished the given Order_Process.
         """
         # get process name
@@ -51,17 +109,17 @@ class OrderController():
                         user = user_started  # assign to user who started it
                     # function handles user assignment
                     order_process_instance.set_user_who_finished_process(user)
+                    return messages.SUCCESS, "{} ha sido terminado!".format(
+                        process_name)
                 else:  # users do not match
                     return messages.WARNING, ("{} no ha sido terminado! "
                         "Usuario {} no comenzó este proceso.").format(
                             process_name, user)
-                return messages.SUCCESS, "{} ha sido terminado!".format(
-                    process_name)
-            else:
+            else:  # order process already finished
                 return messages.WARNING, ("{} ha sido terminado "
                     "anteriormente.").format(
                         process_name)
-        else:
+        else:  # order process not started
             return messages.WARNING, ("Proceso no terminado. "
                 "{} no ha sido comenzado aún.").format(
                     process_name)
@@ -100,7 +158,7 @@ class OrderController():
             else:
                 avg_time = 0
             # store Process-AvgTime in list
-            proc_avg_time_list.append((process.process_name, avg_time / 60))
+            proc_avg_time_list.append((process.process_name, avg_time))
         # sort by avg time
         proc_avg_time_list.sort(key=lambda tup: tup[1], reverse=True)
         # return list of processes and their average times

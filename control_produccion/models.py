@@ -96,6 +96,12 @@ class Order_Process(models.Model):
     # user that finished this Order_Process
     order_process_user_finished = models.ForeignKey(
         User, related_name='order_processes_finished', null=True)
+    # datetime process was paused
+    order_process_datetime_pause_start = models.DateTimeField(null=True)
+    # is paused?
+    order_process_is_paused = models.BooleanField(default=False)
+    # total seconds paused
+    order_process_seconds_paused = models.PositiveIntegerField(default=0)
 
     def get_op_number(self):
         """Return OP number of associated order."""
@@ -135,11 +141,34 @@ class Order_Process(models.Model):
         self.order_process_is_finished = True
         self.save()
 
+    def get_is_paused(self):
+        """Return the value of is_paused."""
+        return self.order_process_is_paused
+
+    def set_paused(self):
+        """
+        Set is_paued to True, and assign pause_start time to timezone.now.
+        """
+        self.order_process_datetime_pause_start = timezone.now()
+        self.order_process_is_paused = True
+        self.save()
+
+    def set_resumed(self):
+        """
+        Set is_paused to False, and increment seconds_paused by
+        timezone.now() - datetime_pause_start. Set pause_start to None.
+        """
+        diff = timezone.now() - self.order_process_datetime_pause_start
+        self.order_process_seconds_paused += diff.total_seconds()
+        self.order_process_datetime_pause_start = None
+        self.order_process_is_paused = False
+        self.save()
+
     def get_duration(self):
         """Returns the time it took to finish Process."""
         diff = (self.order_process_datetime_finished - 
                 self.order_process_datetime_started)
-        return diff.seconds
+        return (diff.total_seconds() - self.order_process_seconds_paused) / 60
     
     def get_order_quantity(self):
         """Returns the quantity stored in associated Order."""
