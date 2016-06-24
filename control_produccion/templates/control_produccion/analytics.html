@@ -18,6 +18,7 @@
                             <tr>
                                 <th>Proceso</th>
                                 <th>Minutos por Unidad</th>
+                            </tr>
                         </thead>
                         <tbody>
                             {% for process_time in view.get_process_times %}
@@ -187,11 +188,12 @@
             </div>
             <div class="content">
                 <div class="table-responsive">
-                    <table id="avgProcessTimes" class="table">
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>Proceso</th>
                                 <th>Minutos en pausa</th>
+                            </tr>
                         </thead>
                         <tbody>
                             {% for process_pause_time in view.get_process_pause_times %}

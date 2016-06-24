@@ -233,6 +233,20 @@ class ProduccionView(TemplateView):
     template_name = 'control_produccion/index.html'
 
 
+class OrderAnalyticsView(DetailView):
+    model = Order
+    template_name = 'control_produccion/order_analytics.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrderAnalyticsView, self).get_context_data(**kwargs)
+        order = kwargs['object']
+        # add in Processes information
+        processes = Order_Process.objects.filter(
+            order_id=order.id)
+        context['order_process_list'] = processes
+        return context
+
+
 class AnalyticsView(TemplateView):
     template_name = 'control_produccion/analytics.html'
 

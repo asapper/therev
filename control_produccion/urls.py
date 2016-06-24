@@ -22,6 +22,9 @@ urlpatterns = [
     # ex: /control_produccion/orders/5/
     url(r'^orders/(?P<pk>[0-9]+)/$', views.OrderDetailView.as_view(),
         name='order_detail'),
+    # ex: /control_produccion/orders/5/analytics
+    url(r'^orders/(?P<pk>[0-9]+)/analytics/$', views.OrderAnalyticsView.as_view(),
+        name='order_analytics'),
     # ex: /control_produccion/orders/5/start_process/1/
     url(r'^orders/(?P<pk>[0-9]+)/start_process/(?P<process_id>[0-9]+)/$',
         views.OrderDetailView.start_process, name='order_start_process'),

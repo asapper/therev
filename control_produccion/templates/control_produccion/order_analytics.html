@@ -1,0 +1,103 @@
+{% extends 'base_site.html' %}
+{% load humanize_extras %}
+
+{% block header %}
+<h1>Analytics para orden #{{ order.order_op_number }}</h1>
+{% endblock %}
+
+{% block content %}
+<!-- Order details -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="text-center">Cliente</th>
+                        <th class="text-center">Trabajo</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-center">Pliegos</th>
+                        <th class="text-center">Máquina</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-center">{{ order.order_client }}</td>
+                        <td class="text-center">{{ order.order_description }}</td>
+                        <td class="text-center">{{ order.order_quantity }}</td>
+                        <td class="text-center">{{ order.order_total_sheets }}</td>
+                        <td class="text-center">{{ order.order_machine }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Tables for analytics display -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="header">
+                Duración de procesos terminados
+            </div>
+            <div class="content">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Proceso</th>
+                                <th>Tiempo</th>
+                                <th>Operario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order_process in order_process_list %}
+                            {% if order_process.get_is_finished %}
+                            <tr>
+                                <td>{{ order_process.process }}</td>
+                                <td>{{ order_process.get_duration|humanize_seconds }}</td>
+                                <td>{{ order_process.get_user_short_name_who_finished_process }}</td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="header">
+                Pausas hechas
+            </div>
+            <div class="content">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Proceso</th>
+                                <th>Tiempo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order_process in order_process_list %}
+                            {% if order_process.order_process_seconds_paused > 0 %}
+                            <tr>
+                                <td>{{ order_process.process }}{% if not order_process.get_is_finished %}*{% endif %}</td>
+                                <td>{{ order_process.order_process_seconds_paused|humanize_seconds }}</td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+                <div class="stats">
+                    * = procesos aún activos
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

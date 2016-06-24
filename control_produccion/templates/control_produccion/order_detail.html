@@ -1,7 +1,8 @@
 {% extends 'base_site.html' %}
+{% load humanize %}
+{% load humanize_extras %}
 
 {% block header %}
-    {% load humanize %}
     {% if messages %}
         {% for message in messages %}
         <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% else %} class="alert alter-info"{% endif %} role="alert">{{ message }}</div>
@@ -113,7 +114,7 @@
                         </form>
                     </div>
                     {% else %}
-                    Proceso terminado en {{ order_process.get_duration_humanized }} por {{ order_process.get_user_short_name_who_finished_process }}
+                    Proceso terminado en {{ order_process.get_duration|humanize_seconds }} por {{ order_process.get_user_short_name_who_finished_process }}
                     <hr>
                     <button class="btn btn-default disabled">Proceso terminado</button>
                     {% endif %}

@@ -167,7 +167,7 @@ class OrderController():
                     # get quantity
                     quantity = o_proc.get_order_quantity()
                     # store time/unit
-                    time_per_unit = o_proc.get_duration() / quantity
+                    time_per_unit = (o_proc.get_duration() / 60) / quantity
                     # store duration
                     total_duration_per_unit += time_per_unit
                     count_finished_processes += 1

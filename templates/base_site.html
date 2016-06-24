@@ -51,20 +51,10 @@
                             </a>
                         </li>
                         <li>
-                            <a data-toggle="collapse" href="#analyticsOptions" class="collapsed" aria-expanded="false">
+                            <a href="{% url 'control_produccion:analytics' %}" class="simple-text">
                                 <i class="pe-7s-graph2"></i>
-                                <p>Analytics<b class="caret"></b></p>
+                                <p>Analytics</p>
                             </a>
-                            <div class="collapse" id="analyticsOptions" aria-expanded="false" style="height: 0px;">
-                                <ul class="nav">
-                                    <li>
-                                        <a href="{% url 'control_produccion:analytics' %}">General</a>
-                                    </li>
-                                    <li>
-                                        <a href="{% url 'control_produccion:analytics' %}">Por orden</a>
-                                    </li>
-                                </ul>
-                            </div>
                         </li>
                     </ul>
                 </div>

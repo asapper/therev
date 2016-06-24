@@ -165,35 +165,11 @@ class Order_Process(models.Model):
         self.save()
 
     def get_duration(self):
-        """Returns the time (in minutes) it took to finish Process."""
+        """Returns the time (in seconds) it took to finish Process."""
         diff = (self.order_process_datetime_finished - 
                 self.order_process_datetime_started)
-        return (diff.total_seconds() - self.order_process_seconds_paused) / 60
+        return diff.total_seconds() - self.order_process_seconds_paused
 
-    def get_duration_humanized(self):
-        """Returns the duration time (minutes) humanized."""
-        diff = (self.order_process_datetime_finished - 
-                self.order_process_datetime_started) 
-        diff = diff.total_seconds() -  self.order_process_seconds_paused
-        hours, remainder = divmod(diff, 3600)
-        minutes, seconds = divmod(remainder, 60)
-        finalStr = ""  # store final sentence
-        tmpStr = ""  # store singular/plural of hour/minute
-        hasHours = False  # used to format minutes
-        if hours > 0:
-            tmpStr= "horas"
-            if hours == 1:
-                tmpStr = "hora"
-            finalStr += "{} {}".format(hours, tmpStr)
-        if minutes >= 0:
-            if hasHours is True:
-                finalStr += ", "
-            tmpStr = "minutos"
-            if minutes == 1:
-                tmpStr = "minuto"
-            finalStr += "{} {}".format(int(minutes), tmpStr)
-        return finalStr
-    
     def get_order_quantity(self):
         """Returns the quantity stored in associated Order."""
         return self.order.get_quantity()
@@ -228,6 +204,6 @@ class Order_Process(models.Model):
         return self.order_process_user_finished.get_short_name()
 
     def set_user_who_finished_process(self, user):
-        """Assign the given user to have finished this Order_Process."""
+        """Assign given user to have finished this Process."""
         self.order_process_user_finished = user
         self.save()

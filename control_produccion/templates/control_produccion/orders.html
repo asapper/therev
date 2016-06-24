@@ -41,6 +41,7 @@
                 <th>Fecha de Entrega</th>
                 <th>Máquina</th>
                 <th>Pliegos</th>
+                <th>Analytics</th>
             </tr>
         </thead>
         <tbody>
@@ -53,6 +54,7 @@
                 <td>{{ order.order_due_date|date }}</td>
                 <td>{{ order.order_machine }}</td>
                 <td>{{ order.order_total_sheets|intcomma }}</td>
+                <td><a href="{% url 'control_produccion:order_analytics' order.id %}">Ver</a></td>
             </tr>
             {% endfor %}
         <tbody>
