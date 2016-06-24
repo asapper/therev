@@ -46,7 +46,7 @@
             {% for order in latest_order_list %}
             <tr>
                 <td><a href="{% url 'control_produccion:order_detail' order.id %}">{{ order.order_op_number }}</a></td>
-                <td>{{ order.order_client }}</td>
+                <td style="width: 30%;">{{ order.order_client }}</td>
                 <td>{{ order.order_description }}</td>
                 <td>{{ order.order_quantity }}</td>
                 <td>{{ order.order_due_date|date }}</td>
