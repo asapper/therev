@@ -32,12 +32,6 @@
                         <a href="{% url 'index' %}" class="simple-text">Orders Project</a>
                     </div>
                     <ul class="nav">
-                        <li>    
-                            <a href="{% url 'control_produccion:index' %}" class="simple-text">
-                                <i class="pe-7s-plugin"></i>
-                                <p>Control Producción</p>
-                            </a>
-                        </li>
                         <li>
                             <a href="{% url 'control_produccion:orders' %}" class="simple-text">
                                 <i class="pe-7s-note2"></i>
@@ -87,6 +81,11 @@
 
                 <footer class="footer">
                     <div class="container-fluid">
+                        <nav class="pull-left">
+                            <ul>
+                                <li><a href="{% url 'control_produccion:index' %}">Instrucciones</a></li>
+                            </ul>
+                        </nav>
                         <p class="copyright pull-right">&copy; 2016. Diseñado y creado por <a href="mailto:Andy_Sapper@baylor.edu">Andy Sapper</a></p>
                     </div>
                 </footer>
