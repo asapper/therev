@@ -253,13 +253,41 @@ class AnalyticsView(TemplateView):
     def get_last_week_top_most_present_processes(self):
         """
         Call utility function to get the top 5 process
-        most often seen in all the Orders.
+        most often seen in Orders created last week.
         """
         return OrderController.get_last_week_top_five_most_often_present_processes()
 
     def get_last_month_top_most_present_processes(self):
         """
         Call utility function to get the top 5 process
-        most often seen in all the Orders.
+        most often seen in Orders created last month.
         """
         return OrderController.get_last_month_top_five_most_often_present_processes()
+
+    def get_general_top_most_frequent_clients(self):
+        """
+        Call utility function to get the top 5 most
+        frequent clients in all orders.
+        """
+        return OrderController.get_general_top_five_most_frequent_clients()
+    
+    def get_last_week_top_most_frequent_clients(self):
+        """
+        Call utility function to get the top 5 most
+        frequent clients in Orders created last week.
+        """
+        return OrderController.get_last_week_top_five_most_frequent_clients()
+
+    def get_last_month_top_most_frequent_clients(self):
+        """
+        Call utility function to get the top 5 most
+        frequent clients in Orders created last month.
+        """
+        return OrderController.get_last_month_top_five_most_frequent_clients()
+
+    def get_process_pause_times(self):
+        """
+        Call utility funcion to get the average pause times
+        for each of the Processes.
+        """
+        return OrderController.get_avg_process_pause_time()

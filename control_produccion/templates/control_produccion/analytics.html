@@ -105,4 +105,106 @@
         </div>
     </div>
 </div>
+
+<!-- Client stats -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="header">
+                Clientes frecuentes
+            </div>
+            <div class="content">
+                <div class="row">
+                    <h6>En la última semana</h6>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Número de órdenes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order_client in view.get_last_week_top_most_frequent_clients %}
+                                <tr>
+                                    <td>{{ order_client.order_client }}</td>
+                                    <td>{{ order_client.order_client__count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <h6>En el último mes</h6>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Número de órdenes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order_client in view.get_last_month_top_most_frequent_clients %}
+                                <tr>
+                                    <td>{{ order_client.order_client }}</td>
+                                    <td>{{ order_client.order_client__count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <h6>En general</h6>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Número de órdenes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order_client in view.get_general_top_most_frequent_clients %}
+                                <tr>
+                                    <td>{{ order_client.order_client }}</td>
+                                    <td>{{ order_client.order_client__count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="header">
+                Pausa promedio por proceso pausado
+            </div>
+            <div class="content">
+                <div class="table-responsive">
+                    <table id="avgProcessTimes" class="table">
+                        <thead>
+                            <tr>
+                                <th>Proceso</th>
+                                <th>Minutos en pausa</th>
+                        </thead>
+                        <tbody>
+                            {% for process_pause_time in view.get_process_pause_times %}
+                            <tr>
+                                <td>{{ process_pause_time.process__process_name }}</td>
+                                <td>{{ process_pause_time.min_avg_pause|floatformat:0 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

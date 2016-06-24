@@ -1,10 +1,10 @@
 import datetime
 
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Avg, Count, ExpressionWrapper, F, DecimalField
 from django.utils import timezone
 
-from .models import Order_Process, Process
+from .models import Order, Order_Process, Process
 
 
 class OrderController():
@@ -210,3 +210,44 @@ class OrderController():
         return Process.objects.filter(
             order_process__order__order_date_created__gt=last_month).annotate(
                 Count('order_process')).order_by('-order_process__count')[:5]
+
+    @classmethod
+    def get_general_top_five_most_frequent_clients(cls):
+        """Return the top 5 most frequent clients in all Orders."""
+        return Order.objects.values('order_client').annotate(
+            Count('order_client')).order_by('-order_client__count')[:5]
+
+    @classmethod
+    def get_last_week_top_five_most_frequent_clients(cls):
+        """
+        Return the top 5 most frequent clients in all Orders
+        created last week.
+        """
+        last_week = timezone.now() - datetime.timedelta(days=8)
+        return Order.objects.filter(
+            order_date_created__gt=last_week).values('order_client').annotate(
+                Count('order_client')).order_by('-order_client__count')[:5]
+
+    @classmethod
+    def get_last_month_top_five_most_frequent_clients(cls):
+        """
+        Return the top 5 most frequent clients in all Orders
+        created last month.
+        """
+        last_month = timezone.now() - datetime.timedelta(days=31)
+        return Order.objects.filter(
+            order_date_created__gt=last_month).values('order_client').annotate(
+                Count('order_client')).order_by('-order_client__count')[:5]
+
+    @classmethod
+    def get_avg_process_pause_time(cls):
+        """
+        Return the average time (minutes) that a Process was paused.
+        """
+        return Order_Process.objects.filter(  # get paused order processes
+            order_process_seconds_paused__gt=0).values(  # group by proc name
+                'process__process_name').annotate(
+                    min_avg_pause=ExpressionWrapper(  # get in minutes
+                        Avg(F('order_process_seconds_paused') / 60.0),
+                            output_field=DecimalField())).order_by(
+                                '-min_avg_pause')
