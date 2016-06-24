@@ -9,10 +9,16 @@
         {% endfor %}
     {% endif %}
 
+    <!-- Nav tabs -->
+    <ul class="nav nav-pills pull-right" role="tablist">
+        <li role="presentation" class="active"><a href="#orderProcesses" aria-controls="orderProcesses" role="tab" data-toggle="tab">Procesos</a></li>
+        <li role="presentation"><a href="#orderAnalytics" aria-controls="orderAnalytics" role="tab" data-toggle="tab">Analytics</a></li>
+    </ul>
     <h1>Orden #{{ order.order_op_number }} <small> {{ order.order_description }}</small></h1>
 {% endblock %}
 
 {% block content %}
+<!-- Order details -->
 <div class="row">
     <div class="col-md-12">
         <div class="card">
@@ -37,93 +43,168 @@
         </div>
     </div>
 </div>
+
+<!-- Main content -->
 <div class="row">
-    {% for order_process in order_process_list %}
-    <div class="col-md-4">
-        <div class="card">
-            <div class="header">
-                {{ order_process.process }}
-                <p class="category">
-                    {% if not order_process.get_is_started and not order_process.get_is_finished %}
-                    Proceso no comenzado aún
-                    <hr>
-                    <!-- Start process button -->
-                    <a tabindex="0" id="popover-start-process-{{ order_process.process.id }}" class="btn btn-success" role="button" data-placement="top" title="Entra tus credenciales">Comenzar proceso</a>
-                    <div id="popover-start-process-content-{{ order_process.process.id }}" class="hide">
-                        <form method="POST" action="{% url 'control_produccion:order_start_process' order.id order_process.process.id %}">{% csrf_token %}
-                            <div class="form-group">
-                                <label for="username">Usuario</label>
-                                <input type="text" name="username" placeholder="Usuario" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Contraseña</label>
-                                <input type="password" name="password" placeholder="Contraseña" class="form-control">
-                            </div>
-                            <button class="btn btn-info" type="submit">Listo</button>
-                        </form>
+    <!-- Tab contents -->
+    <div class="tab-content">
+        <!-- Analytics -->
+        <div role="tabpanel" class="row tab-pane fade" id="orderAnalytics">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="header">
+                        Duración de procesos terminados
                     </div>
-                    {% elif order_process.get_is_paused %}
-                    Proceso pausado
-                    <hr>
-                    <!-- Resume process button -->
-                    <a tabindex="0" id="popover-resume-process-{{ order_process.process.id }}" class="btn btn-info" role="button" data-placement="top" title="Entra tus credenciales">Resumir proceso</a>
-                    <div id="popover-resume-process-content-{{ order_process.process.id }}" class="hide">
-                        <form method="POST" action="{% url 'control_produccion:order_resume_process' order.id order_process.process.id %}">{% csrf_token %}
-                            <div class="form-group">
-                                <label for="username">Usuario</label>
-                                <input type="text" name="username" placeholder="Usuario" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Contraseña</label>
-                                <input type="password" name="password" placeholder="Contraseña" class="form-control">
-                            </div>
-                            <button class="btn btn-info" type="submit">Listo</button>
-                        </form>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Proceso</th>
+                                        <th>Tiempo</th>
+                                        <th>Empleado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order_process in order_process_list %}
+                                    {% if order_process.get_is_finished %}
+                                    <tr>
+                                        <td>{{ order_process.process }}</td>
+                                        <td>{{ order_process.get_duration|humanize_seconds }}</td>
+                                        <td>{{ order_process.get_user_short_name_who_finished_process }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    {% elif order_process.get_is_started and not order_process.get_is_finished %}
-                    Proceso comenzado {{ order_process.get_datetime_started|naturaltime|default_if_none:"---" }} por {{ order_process.get_user_short_name_who_started_process }}
-                    <hr>
-                    <!-- Pause process button -->
-                    <a tabindex="0" id="popover-pause-process-{{ order_process.process.id }}" class="btn btn-info" role="button" data-placement="top" title="Entra tus credenciales">Pausar proceso</a>
-                    <div id="popover-pause-process-content-{{ order_process.process.id }}" class="hide">
-                        <form method="POST" action="{% url 'control_produccion:order_pause_process' order.id order_process.process.id %}">{% csrf_token %}
-                            <div class="form-group">
-                                <label for="username">Usuario</label>
-                                <input type="text" name="username" placeholder="Usuario" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Contraseña</label>
-                                <input type="password" name="password" placeholder="Contraseña" class="form-control">
-                            </div>
-                            <button class="btn btn-info" type="submit">Listo</button>
-                        </form>
-                    </div>
-                    <!-- Finish process button -->
-                    <a tabindex="1" id="popover-finish-process-{{ order_process.process.id }}" class="btn btn-danger" role="button" data-placement="top" title="Entra tus credenciales">Terminar proceso</a>
-                    <div id="popover-finish-process-content-{{ order_process.process.id }}" class="hide">
-                        <form method="POST" action="{% url 'control_produccion:order_finish_process' order.id order_process.process.id %}">{% csrf_token %}
-                            <div class="form-group">
-                                <label for="username">Usuario</label>
-                                <input type="text" name="username" placeholder="Usuario" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Contraseña</label>
-                                <input type="password" name="password" placeholder="Contraseña" class="form-control">
-                            </div>
-                            <button class="btn btn-info" type="submit">Listo</button>
-                        </form>
-                    </div>
-                    {% else %}
-                    Proceso terminado en {{ order_process.get_duration|humanize_seconds }} por {{ order_process.get_user_short_name_who_finished_process }}
-                    <hr>
-                    <button class="btn btn-default disabled">Proceso terminado</button>
-                    {% endif %}
-                </p>
+                </div>
             </div>
-            <div class="content"></div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="header">
+                        Pausas hechas
+                    </div>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Proceso</th>
+                                        <th>Tiempo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order_process in order_process_list %}
+                                    {% if order_process.order_process_seconds_paused > 0 %}
+                                    <tr>
+                                        <td>{{ order_process.process }}{% if not order_process.get_is_finished %}*{% endif %}</td>
+                                        <td>{{ order_process.order_process_seconds_paused|humanize_seconds }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <hr>
+                        <div class="stats">
+                            * = proceso aún activo
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Processes -->
+        <div role="tabpanel" class="row tab-pane fade in active" id="orderProcesses">
+            {% for order_process in order_process_list %}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="header">
+                        {{ order_process.process }}
+                        <p class="category">
+                            {% if not order_process.get_is_started and not order_process.get_is_finished %}
+                            Proceso no comenzado aún
+                            <hr>
+                            <!-- Start process button -->
+                            <a tabindex="0" id="popover-start-process-{{ order_process.process.id }}" class="btn btn-success" role="button" data-placement="top" title="Entra tus credenciales">Comenzar proceso</a>
+                            <div id="popover-start-process-content-{{ order_process.process.id }}" class="hide">
+                                <form method="POST" action="{% url 'control_produccion:order_start_process' order.id order_process.process.id %}">{% csrf_token %}
+                                    <div class="form-group">
+                                        <label for="username">Usuario</label>
+                                        <input type="text" name="username" placeholder="Usuario" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="password">Contraseña</label>
+                                        <input type="password" name="password" placeholder="Contraseña" class="form-control">
+                                    </div>
+                                    <button class="btn btn-info" type="submit">Listo</button>
+                                </form>
+                            </div>
+                            {% elif order_process.get_is_paused %}
+                            Proceso pausado
+                            <hr>
+                            <!-- Resume process button -->
+                            <a tabindex="0" id="popover-resume-process-{{ order_process.process.id }}" class="btn btn-info" role="button" data-placement="top" title="Entra tus credenciales">Resumir proceso</a>
+                            <div id="popover-resume-process-content-{{ order_process.process.id }}" class="hide">
+                                <form method="POST" action="{% url 'control_produccion:order_resume_process' order.id order_process.process.id %}">{% csrf_token %}
+                                    <div class="form-group">
+                                        <label for="username">Usuario</label>
+                                        <input type="text" name="username" placeholder="Usuario" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="password">Contraseña</label>
+                                        <input type="password" name="password" placeholder="Contraseña" class="form-control">
+                                    </div>
+                                    <button class="btn btn-info" type="submit">Listo</button>
+                                </form>
+                            </div>
+                            {% elif order_process.get_is_started and not order_process.get_is_finished %}
+                            Proceso comenzado {{ order_process.get_datetime_started|naturaltime|default_if_none:"---" }} por {{ order_process.get_user_short_name_who_started_process }}
+                            <hr>
+                            <!-- Pause process button -->
+                            <a tabindex="0" id="popover-pause-process-{{ order_process.process.id }}" class="btn btn-info" role="button" data-placement="top" title="Entra tus credenciales">Pausar proceso</a>
+                            <div id="popover-pause-process-content-{{ order_process.process.id }}" class="hide">
+                                <form method="POST" action="{% url 'control_produccion:order_pause_process' order.id order_process.process.id %}">{% csrf_token %}
+                                    <div class="form-group">
+                                        <label for="username">Usuario</label>
+                                        <input type="text" name="username" placeholder="Usuario" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="password">Contraseña</label>
+                                        <input type="password" name="password" placeholder="Contraseña" class="form-control">
+                                    </div>
+                                    <button class="btn btn-info" type="submit">Listo</button>
+                                </form>
+                            </div>
+                            <!-- Finish process button -->
+                            <a tabindex="1" id="popover-finish-process-{{ order_process.process.id }}" class="btn btn-danger" role="button" data-placement="top" title="Entra tus credenciales">Terminar proceso</a>
+                            <div id="popover-finish-process-content-{{ order_process.process.id }}" class="hide">
+                                <form method="POST" action="{% url 'control_produccion:order_finish_process' order.id order_process.process.id %}">{% csrf_token %}
+                                    <div class="form-group">
+                                        <label for="username">Usuario</label>
+                                        <input type="text" name="username" placeholder="Usuario" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="password">Contraseña</label>
+                                        <input type="password" name="password" placeholder="Contraseña" class="form-control">
+                                    </div>
+                                    <button class="btn btn-info" type="submit">Listo</button>
+                                </form>
+                            </div>
+                            {% else %}
+                            Proceso terminado en {{ order_process.get_duration|humanize_seconds }} por {{ order_process.get_user_short_name_who_finished_process }}
+                            <hr>
+                            <button class="btn btn-default disabled">Proceso terminado</button>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="content"></div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
-    {% endfor %}
 </div>
 
     <br>
