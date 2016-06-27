@@ -29,6 +29,17 @@
 
 {% block content %}
 {% if latest_order_list %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="input-group">
+            <input type="text" class="form-control" id="searchBox" placeholder="Buscar por número de orden o nombre de cliente...">
+            <span class="input-group-btn">
+                <button class="btn btn-info btn-fill" type="button" onclick="searchInput()">Buscar</button>
+            </span>
+        </div><!-- /input-group -->
+    </div><!-- /.col-lg-6 -->
+</div><!-- /.row -->
+<br>
 <div class="panel panel-default">
     <table class="table table-striped table-hover table-condensed">
         <thead>
@@ -44,9 +55,9 @@
         </thead>
         <tbody>
             {% for order in latest_order_list %}
-            <tr>
-                <td><a href="{% url 'control_produccion:order_detail' order.id %}">{{ order.order_op_number }}</a></td>
-                <td style="width: 30%;">{{ order.order_client }}</td>
+            <tr class="opRow">
+                <td><a class="opNumberCell" href="{% url 'control_produccion:order_detail' order.id %}">{{ order.order_op_number }}</a></td>
+                <td class="opClientCell" style="width: 30%;">{{ order.order_client }}</td>
                 <td>{{ order.order_description }}</td>
                 <td>{{ order.order_quantity }}</td>
                 <td>{{ order.order_due_date|date }}</td>
@@ -70,5 +81,24 @@
             return $("#popover-pause-all-processes-content").html();
         }
     });
+
+    function searchInput() {
+        var input = document.getElementById('searchBox').value;
+        var rows = document.getElementsByClassName('opRow');
+        var clients = document.getElementsByClassName('opClientCell');
+        var orders = document.getElementsByClassName('opNumberCell');
+        for (var i = 0; i < orders.length; i++) {
+            if (orders[i].innerHTML.indexOf(input) > -1) {
+                rows[i].className = "opRow";
+            } else if (clients[i].innerHTML.toLowerCase().indexOf(input.toLowerCase()) > -1) {
+                rows[i].className = "opRow";
+            } else {
+                if (!rows[i].classList.contains("hide") || !clients[i].classList.contains("hide")) {
+                    rows[i].className += " hide";
+                }
+            }
+        }
+
+    }
 </script>
 {% endblock %}
