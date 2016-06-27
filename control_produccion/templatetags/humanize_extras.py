@@ -19,7 +19,7 @@ def humanize_seconds(value):
         tmpStr= "horas"
         if hours == 1:  # singular form
             tmpStr = "hora"
-        finalStr += "{} {}".format(hours, tmpStr)
+        finalStr += "{} {}".format(int(hours), tmpStr)
     # minutes in time calculated?
     if minutes >= 0:
         if seconds >= 30:  # round minutes

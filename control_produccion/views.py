@@ -291,3 +291,10 @@ class AnalyticsView(TemplateView):
         for each of the Processes.
         """
         return OrderController.get_avg_process_pause_time()
+
+    def get_workers_times(self):
+        """
+        Call utility function to get the number of processes finished
+        per user.
+        """
+        return OrderController.get_workers_processes_finished_and_times()

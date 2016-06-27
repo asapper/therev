@@ -1,209 +1,256 @@
 {% extends 'base_site.html' %}
 
 {% block header %}
+<!-- Nav tabs -->
+<ul class="nav nav-pills pull-right" role="tablist">
+    <li role="presentation" class="active"><a href="#processesAnalytics" aria-controls="processesAnalytics" role="tab" data-toggle="tab">Procesos</a></li>
+    <li role="presentation"><a href="#clientsAnalytics" aria-controls="clientsAnalytics" role="tab" data-toggle="tab">Clientes</a></li>
+    <li role="presentation"><a href="#workersAnalytics" aria-controls="workersAnalytics" role="tab" data-toggle="tab">Trabajadores</a></li>
+</ul>
 <h1>Analytics</h1>
 {% endblock %}
 
 {% block content %}
+<!-- Analytics content -->
 <div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="header">
-                Tiempos promedio por proceso
-            </div>
-            <div class="content">
-                <div class="table-responsive">
-                    <table id="avgProcessTimes" class="table">
-                        <thead>
-                            <tr>
-                                <th>Proceso</th>
-                                <th>Minutos por Unidad</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for process_time in view.get_process_times %}
-                            <tr>
-                                <td>{{ process_time.0 }}</td>
-                                <td>{{ process_time.1|floatformat:2 }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="header">
-                Procesos más pedidos
-            </div>
-            <div class="content">
-                <div class="row">
-                    <h6>En la última semana</h6>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Proceso</th>
-                                    <th>Número pedido</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for process in view.get_last_week_top_most_present_processes %}
-                                <tr>
-                                    <td>{{ process.process_name }}</td>
-                                    <td>{{ process.order_process__count }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+    <!-- Tab contents -->
+    <div class="tab-content">
+        <!-- Clients analytics -->
+        <div role="tabpanel" class="row tab-pane fade" id="clientsAnalytics">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="header">
+                        Clientes frecuentes
                     </div>
-                </div>
-                <div class="row">
-                    <h6>En el último mes</h6>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Proceso</th>
-                                    <th>Número pedido</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for process in view.get_last_month_top_most_present_processes %}
-                                <tr>
-                                    <td>{{ process.process_name }}</td>
-                                    <td>{{ process.order_process__count }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="row">
-                    <h6>En general</h6>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Proceso</th>
-                                    <th>Número pedido</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for process in view.get_general_top_most_present_processes %}
-                                <tr>
-                                    <td>{{ process.process_name }}</td>
-                                    <td>{{ process.order_process__count }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="content">
+                        <div class="row">
+                            <h6>En la última semana</h6>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Cliente</th>
+                                            <th>Número de órdenes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order_client in view.get_last_week_top_most_frequent_clients %}
+                                        <tr>
+                                            <td>{{ order_client.order_client }}</td>
+                                            <td>{{ order_client.order_client__count }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <h6>En el último mes</h6>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Cliente</th>
+                                            <th>Número de órdenes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order_client in view.get_last_month_top_most_frequent_clients %}
+                                        <tr>
+                                            <td>{{ order_client.order_client }}</td>
+                                            <td>{{ order_client.order_client__count }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <h6>En general</h6>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Cliente</th>
+                                            <th>Número de órdenes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order_client in view.get_general_top_most_frequent_clients %}
+                                        <tr>
+                                            <td>{{ order_client.order_client }}</td>
+                                            <td>{{ order_client.order_client__count }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Client stats -->
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="header">
-                Clientes frecuentes
-            </div>
-            <div class="content">
-                <div class="row">
-                    <h6>En la última semana</h6>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Cliente</th>
-                                    <th>Número de órdenes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for order_client in view.get_last_week_top_most_frequent_clients %}
-                                <tr>
-                                    <td>{{ order_client.order_client }}</td>
-                                    <td>{{ order_client.order_client__count }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+        <!-- Workers Analytics -->
+        <div role="tabpanel" class="row tab-pane fade" id="workersAnalytics">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="header">
+                        Trabajadores
                     </div>
-                </div>
-                <div class="row">
-                    <h6>En el último mes</h6>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Cliente</th>
-                                    <th>Número de órdenes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for order_client in view.get_last_month_top_most_frequent_clients %}
-                                <tr>
-                                    <td>{{ order_client.order_client }}</td>
-                                    <td>{{ order_client.order_client__count }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="row">
-                    <h6>En general</h6>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Cliente</th>
-                                    <th>Número de órdenes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for order_client in view.get_general_top_most_frequent_clients %}
-                                <tr>
-                                    <td>{{ order_client.order_client }}</td>
-                                    <td>{{ order_client.order_client__count }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="content">
+                        {% for worker_proc in view.get_workers_times %}
+                        <div class="row">
+                            <h6>{{ worker_proc.0 }}</h6>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50%;">Proceso</th>
+                                            <th style="width: 50%;">Minutos por unidad</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for proc, time_per_unit in worker_proc.1 %}
+                                        <tr>
+                                            <td>{{ proc }}</td>
+                                            <td>{{ time_per_unit|floatformat:2 }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div><!-- /.row -->
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="header">
-                Pausa promedio por proceso pausado
+        <!-- Processes analytics -->
+        <div role="tabpanel" class="row tab-pane fade in active" id="processesAnalytics">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="header">
+                        Tiempos promedio por proceso
+                    </div>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table id="avgProcessTimes" class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Proceso</th>
+                                        <th>Minutos por Unidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for process_time in view.get_process_times %}
+                                    <tr>
+                                        <td>{{ process_time.0 }}</td>
+                                        <td>{{ process_time.1|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="content">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Proceso</th>
-                                <th>Minutos en pausa</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for process_pause_time in view.get_process_pause_times %}
-                            <tr>
-                                <td>{{ process_pause_time.process__process_name }}</td>
-                                <td>{{ process_pause_time.min_avg_pause|floatformat:0 }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="header">
+                        Procesos más pedidos
+                    </div>
+                    <div class="content">
+                        <div class="row">
+                            <h6>En la última semana</h6>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Proceso</th>
+                                            <th>Número pedido</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for process in view.get_last_week_top_most_present_processes %}
+                                        <tr>
+                                            <td>{{ process.process_name }}</td>
+                                            <td>{{ process.order_process__count }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <h6>En el último mes</h6>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Proceso</th>
+                                            <th>Número pedido</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for process in view.get_last_month_top_most_present_processes %}
+                                        <tr>
+                                            <td>{{ process.process_name }}</td>
+                                            <td>{{ process.order_process__count }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <h6>En general</h6>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Proceso</th>
+                                            <th>Número pedido</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for process in view.get_general_top_most_present_processes %}
+                                        <tr>
+                                            <td>{{ process.process_name }}</td>
+                                            <td>{{ process.order_process__count }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="header">
+                        Pausa promedio por proceso pausado
+                    </div>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Proceso</th>
+                                        <th>Minutos en pausa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for process_pause_time in view.get_process_pause_times %}
+                                    <tr>
+                                        <td>{{ process_pause_time.process__process_name }}</td>
+                                        <td>{{ process_pause_time.min_avg_pause|floatformat:0 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

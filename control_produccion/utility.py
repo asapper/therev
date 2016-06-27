@@ -1,7 +1,9 @@
 import datetime
 
 from django.contrib import messages
-from django.db.models import Avg, Count, ExpressionWrapper, F, DecimalField
+from django.contrib.auth.models import User
+from django.db.models import (Avg, Count, ExpressionWrapper, F,
+                              DecimalField)
 from django.utils import timezone
 
 from .models import Order, Order_Process, Process
@@ -251,3 +253,36 @@ class OrderController():
                         Avg(F('order_process_seconds_paused') / 60.0),
                             output_field=DecimalField())).order_by(
                                 '-min_avg_pause')
+
+    @classmethod
+    def get_workers_processes_finished_and_times(cls):
+        """
+        Return the number of processes finished per User and
+        the average time to finish each of those.
+        """
+        users = User.objects.all().order_by('first_name')  # get all users
+        workers_times = []  # store all data
+        for user in users:
+            # get all finished Processes by this user
+            o_procs = Order_Process.objects.filter(
+                order_process_is_finished=True,
+                order_process_user_finished=user)
+            procs_seen = {}  # keep track of processes seen
+            procs_count = {}  # keep track of number of times
+            for o_proc in o_procs:
+                proc_name = o_proc.get_process_name()
+                duration = o_proc.get_duration() / 60  # minutes
+                quantity = o_proc.get_order_quantity()
+                if proc_name in procs_seen:
+                    procs_seen[proc_name] += (duration / quantity)
+                    procs_count[proc_name] += 1
+                else:
+                    procs_seen[proc_name] = (duration / quantity)
+                    procs_count[proc_name] = 1
+            # store avg time per unit per process for each user
+            for proc_name, time in procs_seen.items():
+                procs_seen[proc_name] = time/procs_count[proc_name]  # avg
+            ordered_procs = list(procs_seen.items())
+            ordered_procs.sort(key=lambda tup: tup[0])  # sort by process name
+            workers_times.append((user.get_full_name(), ordered_procs))
+        return workers_times
