@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.utils import timezone
@@ -10,6 +11,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from .models import Order_Process
 from .tests_order import OrderSetUpClass
+from .utility import OrderController
 
 
 class SeleniumTestsSetUpClass(OrderSetUpClass):
@@ -18,6 +20,11 @@ class SeleniumTestsSetUpClass(OrderSetUpClass):
         super(SeleniumTestsSetUpClass, cls).setUpClass()
         cls.driver = WebDriver()
         cls.TIMEOUT = 2
+        # create user
+        cls.user_password = "00000000"
+        cls.user = User.objects.create_user(
+            username="tmp2",
+            password=cls.user_password)
 
     @classmethod
     def tearDownClass(cls):
@@ -30,8 +37,8 @@ class SeleniumOrderTests(SeleniumTestsSetUpClass, StaticLiveServerTestCase):
     def setUpClass(cls):
         super(SeleniumOrderTests, cls).setUpClass()
         cls.INDEX_ONE = 1
-        cls.START_PROCESS_BTN_ID = "btn-start-process"
-        cls.FINISH_PROCESS_BTN_ID = "btn-finish-process"
+        cls.START_PROCESS_BTN_ID = "popover-start-process"
+        cls.FINISH_PROCESS_BTN_ID = "popover-finish-process"
 
     def setUp(self):
         self.order = self.create_order(
@@ -57,10 +64,21 @@ class SeleniumOrderTests(SeleniumTestsSetUpClass, StaticLiveServerTestCase):
             lambda driver: self.driver.find_element_by_tag_name('body'))
         # assert Start Process 1 button is enabled
         start_proc_btn = self.driver.find_element_by_xpath(
-            '//button[@id="{}-{}"]'.format(
+            '//a[@id="{}-{}"]'.format(
                 self.START_PROCESS_BTN_ID, self.INDEX_ONE))
         # Start Process 1
         start_proc_btn.click()
+        # wait for form to load
+        WebDriverWait(self.driver, self.TIMEOUT).until(
+            lambda driver: self.driver.find_element_by_tag_name('form'))
+        # fill in user credentials
+        username = self.driver.find_element_by_xpath("//input[@name='username']")
+        username.send_keys(self.user.username)
+        password = self.driver.find_element_by_xpath("//input[@name='password']")
+        password.send_keys(self.user_password)
+        # submit form
+        submit_btn = self.driver.find_element_by_xpath("//button[@type='submit']")
+        submit_btn.click()
         # assert redirected to same page
         self.assertEqual(self.driver.current_url, '{}{}'.format(
             self.live_server_url,
@@ -71,51 +89,8 @@ class SeleniumOrderTests(SeleniumTestsSetUpClass, StaticLiveServerTestCase):
             lambda driver: self.driver.find_element_by_tag_name('body'))
         # assert Finish Process 1 button is enabled
         finish_proc_btn = self.driver.find_element_by_xpath(
-            '//button[@id="{}-{}"]'.format(
+            '//a[@id="{}-{}"]'.format(
                 self.FINISH_PROCESS_BTN_ID, self.INDEX_ONE))
-
-    def test_finish_process(self):
-        """
-        Test finishing a process of an order. Verify buttons are
-        displayed correctly.
-        """
-        # access order detail page
-        self.driver.get('{}{}'.format(
-            self.live_server_url,
-            reverse('control_produccion:order_detail',
-                    kwargs={'pk': self.order.id})))
-        # wait for page to load
-        WebDriverWait(self.driver, self.TIMEOUT).until(
-            lambda driver: self.driver.find_element_by_tag_name('body'))
-        # assert Start Process 1 button is enabled
-        start_proc_btn = self.driver.find_element_by_xpath(
-            '//button[@id="{}-{}"]'.format(
-                self.START_PROCESS_BTN_ID, self.INDEX_ONE))
-        # Start Process 1
-        start_proc_btn.click()
-        # assert redirected to same page
-        self.assertEqual(self.driver.current_url, '{}{}'.format(
-            self.live_server_url,
-            reverse('control_produccion:order_detail',
-                    kwargs={'pk': self.order.id})))
-        # wait for page to load
-        WebDriverWait(self.driver, self.TIMEOUT).until(
-            lambda driver: self.driver.find_element_by_tag_name('body'))
-        # assert Finish Process 1 button is enabled
-        finish_proc_btn = self.driver.find_element_by_xpath(
-            '//button[@id="{}-{}"]'.format(
-                self.FINISH_PROCESS_BTN_ID, self.INDEX_ONE))
-        # Finish Process 1
-        finish_proc_btn.click()
-        # assert redirected to same page
-        self.assertEqual(self.driver.current_url, '{}{}'.format(
-            self.live_server_url,
-            reverse('control_produccion:order_detail',
-                    kwargs={'pk': self.order.id})))
-        # wait for page to load
-        WebDriverWait(self.driver, self.TIMEOUT).until(
-            lambda driver: self.driver.find_element_by_tag_name('body'))
-        # assert no buttons are shown
 
 
 class SeleniumAnalyticsStatsTests(

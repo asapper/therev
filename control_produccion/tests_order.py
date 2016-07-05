@@ -11,9 +11,10 @@ class OrderSetUpClass(TestCase):
     @classmethod
     def setUpTestData(cls):
         # user
-        cls.user = User.objects.create(
+        cls.user_password = "00000000"
+        cls.user = User.objects.create_user(
             username='tmp',
-            password='00000000',
+            password=cls.user_password,
             first_name='John',
             last_name='Doe')
         # useful statuses
@@ -39,7 +40,8 @@ class OrderSetUpClass(TestCase):
             order_machine=machine,
             order_quantity=quantity,
             order_total_sheets=sheets,
-            order_due_date=due_date)
+            order_due_date=due_date,
+            order_date_created=timezone.now())
         # create Order_Process
         for process in processes:
             Order_Process.objects.create(
@@ -73,15 +75,14 @@ class OrderViewTests(OrderSetUpClass):
         If no active Orders exist, an appropriate message should be displayed.
         """
         self.order.set_finished()  # finish order
-        response = self.client.get(reverse('control_produccion:active_orders'))
+        response = self.client.get(reverse('control_produccion:active_orders_refresh'))
         self.assertEqual(response.status_code, self.OK_STATUS)
-        self.assertContains(response, "No hay órdenes activas.")
         self.assertQuerysetEqual(
             response.context['latest_active_orders_list'], [])
 
     def test_active_order_view_with_one_order(self):
         """If an active Order exists, it should be displayed."""
-        response = self.client.get(reverse('control_produccion:active_orders'))
+        response = self.client.get(reverse('control_produccion:active_orders_refresh'))
         self.assertEqual(response.status_code, self.OK_STATUS)
         self.assertQuerysetEqual(
             response.context['latest_active_orders_list'],
@@ -120,7 +121,8 @@ class OrderViewTests(OrderSetUpClass):
         """
         response = self.client.post(reverse(
             'control_produccion:order_start_process',
-            kwargs={'pk': self.BAD_INDEX, 'process_id': self.INDEX_ONE}))
+            kwargs={'pk': self.BAD_INDEX, 'process_id': self.INDEX_ONE}),
+            follow=True)  # follow redirection
         self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)
 
     def test_access_start_process_page_of_nonexisting_process(self):
@@ -130,7 +132,9 @@ class OrderViewTests(OrderSetUpClass):
         """
         response = self.client.post(reverse(
             'control_produccion:order_start_process',
-            kwargs={'pk': self.order.id, 'process_id': self.BAD_INDEX}))
+            kwargs={'pk': self.order.id, 'process_id': self.BAD_INDEX}),
+            {'username': self.user.username, 'password': self.user_password},
+            follow=True)  # follow redirection
         self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)
 
     def test_access_start_process_page_of_process_already_started(self):
@@ -145,15 +149,16 @@ class OrderViewTests(OrderSetUpClass):
             order_id=self.order.id,
             process_id=process.id)
         # start process
-        OrderController.start_process(o_proc)
+        OrderController.start_process(o_proc, self.user)
         # acces start process page
         response = self.client.post(reverse(
             'control_produccion:order_start_process',
             kwargs={'pk': self.order.id, 'process_id': process.id}),
+            {'username': self.user.username, 'password': self.user_password},
             follow=True)  # follow redirection
         self.assertEqual(response.status_code, self.OK_STATUS)
         self.assertIn(
-            self.PROCESS_ALREADY_STARTED_MSG,
+            "{} ha sido comenzado anteriormente.".format(process.process_name),
             response.content.decode(self.ENCODING))
 
     def test_cannot_access_finish_process_page(self):
@@ -173,7 +178,8 @@ class OrderViewTests(OrderSetUpClass):
         """
         response = self.client.post(reverse(
             'control_produccion:order_finish_process',
-            kwargs={'pk': self.BAD_INDEX, 'process_id': self.INDEX_ONE}))
+            kwargs={'pk': self.BAD_INDEX, 'process_id': self.INDEX_ONE}),
+            follow=True)  # follow redirection
         self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)
 
     def test_access_finish_process_page_of_nonexisting_process(self):
@@ -183,7 +189,9 @@ class OrderViewTests(OrderSetUpClass):
         """
         response = self.client.post(reverse(
             'control_produccion:order_finish_process',
-            kwargs={'pk': self.order.id, 'process_id': self.BAD_INDEX}))
+            kwargs={'pk': self.order.id, 'process_id': self.BAD_INDEX}),
+            {'username': self.user.username, 'password': self.user_password},
+            follow=True)  # follow redirection
         self.assertEqual(response.status_code, self.NOT_FOUND_STATUS)
 
     def test_access_finish_process_page_of_process_not_started(self):
@@ -197,10 +205,11 @@ class OrderViewTests(OrderSetUpClass):
         response = self.client.post(reverse(
             'control_produccion:order_finish_process',
             kwargs={'pk': self.order.id, 'process_id': process.id}),
+            {'username': self.user.username, 'password': self.user_password},
             follow=True)  # follow redirection
         self.assertEqual(response.status_code, self.OK_STATUS)
         self.assertIn(
-            self.PROCESS_NOT_STARTED_MSG,
+            "Proceso no terminado. {} no ha sido comenzado aún.".format(process.process_name),
             response.content.decode(self.ENCODING))
 
     def test_access_finish_process_page_of_process_already_finished(self):
@@ -222,11 +231,11 @@ class OrderViewTests(OrderSetUpClass):
         response = self.client.post(reverse(
             'control_produccion:order_finish_process',
             kwargs={'pk': self.order.id, 'process_id': process.id}),
-            {'username': self.user.username, 'password': self.user.password},
+            {'username': self.user.username, 'password': self.user_password},
             follow=True)  # follow redirection
         self.assertEqual(response.status_code, self.OK_STATUS)
         self.assertIn(
-            self.PROCESS_ALREADY_FINISHED_MSG,
+            "{} ha sido terminado anteriormente".format(process.process_name),
             response.content.decode(self.ENCODING))
 
 
