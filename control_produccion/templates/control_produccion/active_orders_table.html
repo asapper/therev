@@ -7,6 +7,7 @@
             <th class="cell-rotate"><div>Cliente</div></th>
             <th class="cell-rotate"><div>Trabajo</div></th>
             <th class="cell-rotate"><div>Fecha de Entrega</div></th>
+            <th class="cell-rotate"><div>Máquina</div></th>
             {% for process in process_list %}
             <th class="cell-rotate"><div>{{ process }}</div></th>
             {% endfor %}
@@ -25,6 +26,7 @@
             {% else %}
             <td style="width: 7%;">{{ order.order_due_date|date }}</td>
             {% endif %}
+            <td style="width: 6%;">{{ order.order_machine }}</td>
             {% for process in process_list %}
                 {% get_process_in_order order process as process_in_order %}
                 {% if process_in_order %}

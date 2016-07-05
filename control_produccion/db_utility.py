@@ -141,7 +141,7 @@ QUERY = (
     "max(case when opojeteado.\"CodigoOrdenProduccion\" is not null  then 'X' else '' end) as \"Ojeteado\", "
     "max(case when cop.\"CodigoProceso\"=57 then 'X' else '' end) as \"SensefectTiro\", "
     "max(case when cop.\"CodigoProceso\"=74 then 'X' else '' end) as \"SensefectTiroRetiro\", "
-    "max(case when cop.\"CodigoProceso\" in (66,18,16,72,32,53,58,62,64) then 'X' else '' end) as \"PlasticoTiro\", "
+    "max(case when cop.\"CodigoProceso\" in (12,66,18,16,72,32,53,58,62,64) then 'X' else '' end) as \"PlasticoTiro\", "
     "max(case when cop.\"CodigoProceso\" in (13,67,19,17,73,33,54,59,63,65) then 'X' else '' end) as \"PlasticoTiroRetiro\", "
     "max(case when cop.\"CodigoProceso\" in (16,17,32,33,58,59,72,73) then 'X' else '' end) as \"PlasticoMate\", "
     "max(case when cop.\"CodigoProceso\" in (18,19,12,13,53,54,62,63,64,65,66,67) then 'X' else '' end) as \"PlasticoBrillante\", "
