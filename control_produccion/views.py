@@ -298,3 +298,24 @@ class AnalyticsView(TemplateView):
         per user.
         """
         return OrderController.get_workers_processes_finished_and_times()
+
+    def get_general_sheets_printed(self):
+        """
+        Call utility function to get the total sheets
+        printed per machine.
+        """
+        return OrderController.get_general_printed_sheets_per_machine()
+
+    def get_last_month_sheets_printed(self):
+        """
+        Call utility function to get the total sheets
+        printed last month (30 days back) per machine.
+        """
+        return OrderController.get_last_month_printed_sheets_per_machine()
+
+    def get_last_week_sheets_printed(self):
+        """
+        Call utility function to get the total sheets
+        printed last week (7 days back) per machine.
+        """
+        return OrderController.get_last_week_printed_sheets_per_machine()

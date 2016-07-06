@@ -286,3 +286,32 @@ class OrderController():
             ordered_procs.sort(key=lambda tup: tup[0])  # sort by process name
             workers_times.append((user.get_full_name(), ordered_procs))
         return workers_times
+
+    @classmethod
+    def get_general_printed_sheets_per_machine(cls):
+        """Return the number of printed sheets per machine."""
+        return Order.objects.values(  # group by machine
+            'order_machine').annotate(
+                Count('order_machine'))
+
+    @classmethod
+    def get_last_month_printed_sheets_per_machine(cls):
+        """
+        Return the number of sheets printed in the last 30 days, per machine.
+        """
+        last_month = timezone.now() - datetime.timedelta(days=31)
+        return Order.objects.filter(  # last month's orders
+            order_date_created__gt=last_month).values(  # group by machine
+                'order_machine').annotate(
+                    Count('order_machine'))
+
+    @classmethod
+    def get_last_week_printed_sheets_per_machine(cls):
+        """
+        Return the number of sheets printed in the last 7 days, per machine.
+        """
+        last_week = timezone.now() - datetime.timedelta(days=8)
+        return Order.objects.filter(  # last week's orders
+            order_date_created__gt=last_week).values(  # group by machine
+                'order_machine').annotate(
+                    Count('order_machine'))

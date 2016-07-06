@@ -19,13 +19,15 @@
             <td>{{ order.order_op_number }}</td>
             <td style="width: 20%;">{{ order.order_client }}</td>
             <td style="width: 7%;">{{ order.order_description }}</td>
-            {% if order.is_past_due %}
-            <td class="cell-danger" style="width: 7%;">{{ order.order_due_date|date }}</td>
-            {% elif order.is_due_today %}
-            <td class="cell-info" style="width: 7%;">{{ order.order_due_date|date }}</td>
-            {% else %}
-            <td style="width: 7%;">{{ order.order_due_date|date }}</td>
-            {% endif %}
+            <td class="text-center" style="width: 7%;" data-toggle="tooltip" data-placement="left" title="{{ order.order_due_date|date }}"><h5><span
+                {% if order.is_past_due %}
+                class="label label-danger">Atrasado
+                {% elif order.is_due_today %}
+                class="label label-warning">Hoy
+                {% else %}
+                class="label label-success">Futuro
+                {% endif %}
+                </span></h5></td>
             <td style="width: 6%;">{{ order.order_machine }}</td>
             {% for process in process_list %}
                 {% get_process_in_order order process as process_in_order %}
