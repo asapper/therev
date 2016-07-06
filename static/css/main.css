@@ -104,3 +104,21 @@ body {
     font-size: 2.2rem;
     font-weight: 300;
 }
+
+
+
+/*******************************************************************************
+ * POPOVERS
+ ******************************************************************************/
+.popover-content {
+    background-color: #7f8c8d;
+}
+
+div.popover-input input,
+div.popover-input input:focus {
+    border-color: #000;
+}
+
+div.popover-input label {
+    color: #000;
+}
