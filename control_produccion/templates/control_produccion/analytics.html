@@ -39,7 +39,7 @@
                                         {% for order in view.get_last_week_sheets_printed %}
                                         <tr>
                                             <td>{{ order.order_machine }}</td>
-                                            <td>{{ order.order_machine__count|intcomma }}</td>
+                                            <td>{{ order.order_total_sheets__sum|intcomma }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -60,7 +60,7 @@
                                         {% for order in view.get_last_month_sheets_printed %}
                                         <tr>
                                             <td>{{ order.order_machine }}</td>
-                                            <td>{{ order.order_machine__count|intcomma }}</td>
+                                            <td>{{ order.order_total_sheets__sum|intcomma }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -81,7 +81,7 @@
                                         {% for order in view.get_general_sheets_printed %}
                                         <tr>
                                             <td>{{ order.order_machine }}</td>
-                                            <td>{{ order.order_machine__count|intcomma }}</td>
+                                            <td>{{ order.order_total_sheets__sum|intcomma }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>

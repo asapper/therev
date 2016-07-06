@@ -3,7 +3,7 @@ import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import (Avg, Count, ExpressionWrapper, F,
-                              DecimalField)
+                              DecimalField, Sum)
 from django.utils import timezone
 
 from .models import Order, Order_Process, Process
@@ -292,7 +292,7 @@ class OrderController():
         """Return the number of printed sheets per machine."""
         return Order.objects.values(  # group by machine
             'order_machine').annotate(
-                Count('order_machine'))
+                Sum('order_total_sheets'))
 
     @classmethod
     def get_last_month_printed_sheets_per_machine(cls):
@@ -303,7 +303,7 @@ class OrderController():
         return Order.objects.filter(  # last month's orders
             order_date_created__gt=last_month).values(  # group by machine
                 'order_machine').annotate(
-                    Count('order_machine'))
+                    Sum('order_total_sheets'))
 
     @classmethod
     def get_last_week_printed_sheets_per_machine(cls):
@@ -314,4 +314,4 @@ class OrderController():
         return Order.objects.filter(  # last week's orders
             order_date_created__gt=last_week).values(  # group by machine
                 'order_machine').annotate(
-                    Count('order_machine'))
+                    Sum('order_total_sheets'))
