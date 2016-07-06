@@ -32,7 +32,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="input-group">
-            <input type="text" class="form-control" id="searchBox" placeholder="Buscar por número de orden o nombre de cliente...">
+            <input type="text" class="form-control" id="searchBox" placeholder="Buscar por número de orden o nombre de cliente..." onKeyDown="if(event.keyCode==13) searchInput();">
             <span class="input-group-btn">
                 <button class="btn btn-info btn-fill" type="button" onclick="searchInput()">Buscar</button>
             </span>
