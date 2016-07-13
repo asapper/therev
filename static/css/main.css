@@ -35,7 +35,7 @@ body {
 .table-color thead {
     font-size:1.35rem;
 
-    background-color: #bdc3c7;
+    background-color: #83A7CC;
 }
 
 .table-color tbody {
@@ -48,19 +48,19 @@ body {
 }
 
 .table tbody tr td.cell-success {
-    background-color: #5cb85c;
+    color: #5cb85c;
 }
 
 .table tbody tr td.cell-info {
-    background-color: #5bc0de;
+    color: #5bc0de;
 }
 
 .table tbody tr td.cell-warning {
-    background-color: #f0ad4e;
+    color: #25282B;
 }
 
 .table tbody tr td.cell-danger {
-    background-color: #d9534f;
+    color: #d9534f;
 }
 
 .table thead tr th.cell-rotate {
@@ -76,6 +76,8 @@ body {
 .table thead tr th.cell-rotate div {
     transform: rotate(270deg);
     width: 10px;
+
+    color: #25282B;
 }
 
 .table tbody tr td {
@@ -84,6 +86,31 @@ body {
 
 .table-analytics thead tr th {
     width: 65%;
+}
+
+table.table-active-orders .cell-op-number {
+    width: 5%;
+}
+
+table.table-active-orders .cell-client {
+    width: 20%;
+}
+
+table.table-active-orders .cell-description,
+table.table-active-orders .cell-due-date {
+    width: 7%;
+}
+
+table.table-active-orders .cell-machine {
+    width: 6%;
+}
+
+table.table-active-orders .cell-process {
+    width: 2.2%;
+}
+
+table.table-active-orders tbody tr:nth-of-type(odd) {
+    background-color: #E8F7FC;
 }
 
 

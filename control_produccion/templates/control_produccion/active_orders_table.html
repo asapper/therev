@@ -1,25 +1,25 @@
 {% block active_orders_table %}
 {% load active_orders_tags %}
-<table class="table table-striped table-bordered table-color table-condensed">
+<table class="table table-striped table-bordered table-color table-condensed table-active-orders">
     <thead>
         <tr>
-            <th class="cell-rotate"><div>Orden #</div></th>
-            <th class="cell-rotate"><div>Cliente</div></th>
-            <th class="cell-rotate"><div>Trabajo</div></th>
-            <th class="cell-rotate"><div>Fecha de Entrega</div></th>
-            <th class="cell-rotate"><div>Máquina</div></th>
+            <th class="cell-rotate cell-op-number"><div>Orden #</div></th>
+            <th class="cell-rotate cell-client"><div>Cliente</div></th>
+            <th class="cell-rotate cell-description"><div>Trabajo</div></th>
+            <th class="cell-rotate cell-due-date"><div>Fecha de Entrega</div></th>
+            <th class="cell-rotate cell-machine"><div>Máquina</div></th>
             {% for process in process_list %}
-            <th class="cell-rotate"><div>{{ process }}</div></th>
+            <th class="cell-rotate cell-process"><div>{{ process }}</div></th>
             {% endfor %}
         </tr>
     </thead>
     <tbody>
         {% for order in latest_active_orders_list %}
         <tr>
-            <td>{{ order.order_op_number }}</td>
-            <td style="width: 20%;">{{ order.order_client }}</td>
-            <td style="width: 7%;">{{ order.order_description }}</td>
-            <td class="text-center" style="width: 7%;" data-toggle="tooltip" data-placement="left" title="{{ order.order_due_date|date }}"><h5><span
+            <td class="cell-op-number">{{ order.order_op_number }}</td>
+            <td class="cell-client">{{ order.order_client }}</td>
+            <td class="cell-description">{{ order.order_description }}</td>
+            <td class="text-center cell-due-date" data-toggle="tooltip" data-placement="left" title="{{ order.order_due_date|date }}"><h5><span
                 {% if order.is_past_due %}
                 class="label label-danger">Atrasado
                 {% elif order.is_due_today %}
@@ -28,21 +28,20 @@
                 class="label label-success">Futuro
                 {% endif %}
                 </span></h5></td>
-            <td style="width: 6%;">{{ order.order_machine }}</td>
+            <td class="cell-machine">{{ order.order_machine }}</td>
             {% for process in process_list %}
                 {% get_process_in_order order process as process_in_order %}
                 {% if process_in_order %}
-                    <td
                     {% if not process_in_order.get_is_started %}
-                    class="cell-danger"
+                    <td class="cell-danger cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"><i class="fa fa-times fa-fw" aria-hidden="true"></i></td>
                     {% elif process_in_order.get_is_started and not process_in_order.get_is_finished and not process_in_order.get_is_paused %}
-                    class="cell-warning"
+                    <td class="cell-warning cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"><i class="fa fa-refresh fa-spin fa-fw" aria-hidden="true"></i></td>
                     {% elif process_in_order.get_is_paused %}
-                    class="cell-default"
+                    <td class="cell-default cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"></td>
                     {% elif process_in_order.get_is_finished %}
-                    class="cell-success"
+                    <td class="cell-success cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"><i class="fa fa-check fa-fw" aria-hidden="true"></i></td>
                     {% endif %}
-                    data-toggle="tooltip" data-placement="left" title="{{ process }}"></td>
+                    
                 {% else %}
                 <td></td>
                 {% endif %}
