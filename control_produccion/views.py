@@ -32,7 +32,7 @@ class ActiveOrdersRefreshView(ListView):
     def get_queryset(self):
         """Return all active Orders."""
         return Order.objects.filter(
-            order_is_finished=False).order_by('order_op_number')
+            order_is_finished=False).order_by('-order_op_number')
 
 
 class ActiveOrdersView(TemplateView):

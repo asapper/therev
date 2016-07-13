@@ -81,11 +81,43 @@ body {
 }
 
 .table tbody tr td {
-    padding: 5px
+    padding: 5px;
 }
 
 .table-analytics thead tr th {
     width: 65%;
+}
+
+table.table-active-orders tbody tr:nth-of-type(odd) {
+    background-color: #E8F7FC;
+}
+
+table.table-active-orders {
+    display: table;
+    width: 100%;
+}
+
+table.table-active-orders thead,
+table.table-active-orders tbody {
+    float: left;
+    width: 100%;
+}
+
+table.table-active-orders tbody {
+    overflow: auto;
+    height: 550px;
+    width: 100%;
+}
+table.table-active-orders tr {
+    width: 100%;
+    display: table;
+    text-align: left;
+}
+
+table.table-active-orders td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 10px; /* any value greater than zero works */
 }
 
 table.table-active-orders .cell-op-number {
@@ -106,10 +138,7 @@ table.table-active-orders .cell-machine {
 }
 
 table.table-active-orders .cell-process {
-}
-
-table.table-active-orders tbody tr:nth-of-type(odd) {
-    background-color: #E8F7FC;
+    width: 2.2%;
 }
 
 
