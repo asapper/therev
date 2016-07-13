@@ -95,7 +95,7 @@ class OrdersView(ListView):
 
     def get_queryset(self):
         """Return all the Orders."""
-        return Order.objects.all().order_by('order_op_number')
+        return Order.objects.all().order_by('-order_op_number')
 
     @require_http_methods(["POST"])
     def pause_all_processes(self):
