@@ -37,7 +37,7 @@
                     {% elif process_in_order.get_is_started and not process_in_order.get_is_finished and not process_in_order.get_is_paused %}
                     <td class="cell-warning cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"><i class="fa fa-refresh fa-spin fa-fw" aria-hidden="true"></i></td>
                     {% elif process_in_order.get_is_paused %}
-                    <td class="cell-default cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"></td>
+                    <td class="cell-default cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"><i class="fa fa-pause fa-fw" aria-hidden="true"></i></td>
                     {% elif process_in_order.get_is_finished %}
                     <td class="cell-success cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"><i class="fa fa-check fa-fw" aria-hidden="true"></i></td>
                     {% endif %}

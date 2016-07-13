@@ -44,7 +44,7 @@ body {
 }
 
 .table tbody tr td.cell-default {
-    background-color: #95a5a6;
+    color: #25282B;
 }
 
 .table tbody tr td.cell-success {
@@ -106,7 +106,6 @@ table.table-active-orders .cell-machine {
 }
 
 table.table-active-orders .cell-process {
-    width: 2.2%;
 }
 
 table.table-active-orders tbody tr:nth-of-type(odd) {
