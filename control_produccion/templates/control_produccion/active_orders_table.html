@@ -33,13 +33,13 @@
                 {% get_process_in_order order process as process_in_order %}
                 {% if process_in_order %}
                     {% if not process_in_order.get_is_started %}
-                    <td class="cell-danger cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"><i class="fa fa-times fa-fw" aria-hidden="true"></i></td>
+                    <td class="cell-danger cell-process"><i class="fa fa-times fa-fw" aria-hidden="true"></i></td>
                     {% elif process_in_order.get_is_started and not process_in_order.get_is_finished and not process_in_order.get_is_paused %}
-                    <td class="cell-warning cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"><i class="fa fa-refresh fa-spin fa-fw" aria-hidden="true"></i></td>
+                    <td class="cell-warning cell-process"><i class="fa fa-refresh fa-spin fa-fw" aria-hidden="true"></i></td>
                     {% elif process_in_order.get_is_paused %}
-                    <td class="cell-default cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"><i class="fa fa-pause fa-fw" aria-hidden="true"></i></td>
+                    <td class="cell-default cell-process"><i class="fa fa-pause fa-fw" aria-hidden="true"></i></td>
                     {% elif process_in_order.get_is_finished %}
-                    <td class="cell-success cell-process" data-toggle="tooltip" data-placement="left" title="{{ process }}"><i class="fa fa-check fa-fw" aria-hidden="true"></i></td>
+                    <td class="cell-success cell-process"><i class="fa fa-check fa-fw" aria-hidden="true"></i></td>
                     {% endif %}
                     
                 {% else %}
@@ -54,17 +54,7 @@
 <script>
 // DOM Ready      
 $(function() {
-    var clonedHeaderRow;
-    $(".persist-area").each(function() {
-        clonedHeaderRow = $(".persist-header", this);
-        clonedHeaderRow
-            .before(clonedHeaderRow.clone())
-            .css("width", clonedHeaderRow.width())
-            .addClass("floatingHeader");
-    });
-    $(window)
-        .scroll(UpdateTableHeaders)
-        .trigger("scroll");
+    cloneHeaders();
 });
 </script>
 {% endblock %}

@@ -46,7 +46,7 @@ function refreshActiveOrders() {
 }
 
 // sticky headers
-function UpdateTableHeaders() {
+function updateTableHeaders() {
     $(".persist-area").each(function() {
         var el             = $(this),
             offset         = el.offset(),
@@ -64,6 +64,37 @@ function UpdateTableHeaders() {
     });
 }
 
-$(".main-panel").on("scroll", UpdateTableHeaders);
+// clone header
+function cloneHeaders() {
+    var clonedHeaderRow;
+    $(".persist-area").each(function() {
+        originalHeaderRow = $(".persist-header", this);
+        // clone header
+        clonedHeader = originalHeaderRow.clone();
+        originalHeaderRow
+            .before(clonedHeader)
+            .css("width", originalHeaderRow.width())
+            .addClass("floatingHeader");
+        // store widths
+        var arr = {};
+        clonedHeader.find('th').each(function(index, cell) {
+            arr[index] = $(cell).css('width');
+        });
+        // set width of each cell
+        originalHeaderRow.find('th').each(function(index, cell) {
+            $(cell).css('width', arr[index]);
+        });
+    });
+    $(window).scroll(updateTableHeaders).trigger("scroll");
+}
+
+// remove floating header
+function updateClonedHeader() {
+    $(".floatingHeader").remove();
+    cloneHeaders();
+}
+
+$(".main-panel").on("scroll", updateTableHeaders);
+$(window).resize(updateClonedHeader);
 </script>
 {% endblock %}
