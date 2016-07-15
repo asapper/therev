@@ -40,6 +40,7 @@ body {
  ******************************************************************************/
 .table-color thead tr {
     font-size:1.35rem;
+    z-index: 9999;
 
     background-color: #83A7CC;
 }
