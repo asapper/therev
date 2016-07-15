@@ -27,12 +27,18 @@ body {
     margin-right: 0;
 }
 
+.floatingHeader {
+    position: fixed;
+    top: 0;
+    visibility: hidden;
+}
+
 
 
 /*******************************************************************************
  * TABLES
  ******************************************************************************/
-.table-color thead {
+.table-color thead tr {
     font-size:1.35rem;
 
     background-color: #83A7CC;
@@ -90,28 +96,6 @@ body {
 
 table.table-active-orders tbody tr:nth-of-type(odd) {
     background-color: #E8F7FC;
-}
-
-table.table-active-orders {
-    display: table;
-    width: 100%;
-}
-
-table.table-active-orders thead,
-table.table-active-orders tbody {
-    float: left;
-    width: 100%;
-}
-
-table.table-active-orders tbody {
-    overflow: auto;
-    height: 550px;
-    width: 100%;
-}
-table.table-active-orders tr {
-    width: 100%;
-    display: table;
-    text-align: left;
 }
 
 table.table-active-orders td {
