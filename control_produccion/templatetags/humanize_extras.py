@@ -12,20 +12,27 @@ def humanize_seconds(value):
     minutes, seconds = divmod(remainder, 60)
     finalStr = ""  # store final sentence
     tmpStr = ""  # store singular/plural of hour/minute
-    hasHours = False  # used to format minutes
     # hours in time calculated?
     if hours > 0:
-        hasHours = True  # for use in formatting minutes
-        tmpStr= "horas"
-        if hours == 1:  # singular form
-            tmpStr = "hora"
-        finalStr += "{} {}".format(int(hours), tmpStr)
+        # include days
+        days = int(hours / 24)
+        hours -= days * 24
+        if days > 0:
+            if days == 1:
+                tmpStr = "día"
+            else:
+                tmpStr = "días"
+            finalStr += "{} {}, ".format(days, tmpStr)
+        if hours > 0:
+            # include hours
+            tmpStr= "horas"
+            if hours == 1:  # singular form
+                tmpStr = "hora"
+            finalStr += "{} {}, ".format(int(hours), tmpStr)
     # minutes in time calculated?
     if minutes >= 0:
         if seconds >= 30:  # round minutes
             minutes += 1
-        if hasHours is True:  # format correctly
-            finalStr += ", "
         tmpStr = "minutos"
         if minutes == 1:  # singular form
             tmpStr = "minuto"
