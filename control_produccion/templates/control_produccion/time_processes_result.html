@@ -1,0 +1,15 @@
+{% if messages %}
+    {% for message in messages %}
+    <div{% if message.tag %} class="alert alert-{{ message.tag }}"{% else %} class="alert alert-info"{% endif %} role="alert">{{ message.description }}</div>
+    {% endfor %}
+{% endif %}
+
+<p>Orden: {{ order }}</p>
+<p>Descripción: {{ description }}</p>
+<p>Cliente: {{ client }}</p>
+<p>Proceso: {{ process }}</p>
+<p>Empleado: {{ employee }}</p>
+
+<br>
+<a class="btn btn-primary btn-wd" href="{% url 'control_produccion:time_processes' %}">Ingresar Nuevo Tiempo</a>
+<a class="btn btn-danger btn-fill btn-wd" href="#">Eliminar Tiempo</a>

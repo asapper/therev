@@ -2,9 +2,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from django.db import DatabaseError, IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import SimpleTemplateResponse
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
 from django.views.decorators.http import require_http_methods
@@ -231,6 +233,91 @@ class OrderDetailView(DetailView):
 
 class ProduccionView(TemplateView):
     template_name = 'control_produccion/index.html'
+
+
+class TimeProcessesView(TemplateView):
+    template_name = 'control_produccion/time_processes.html'
+
+
+class TimeProcessesResultView(TemplateView):
+    template_name = 'control_produccion/time_processes_result.html'
+
+    @require_http_methods(["POST"])
+    def process_input(self):
+        INPUT_ORDER_FIELDS = 3
+        messages = []  # store msg
+        # get post data
+        input_order = self.POST['inputOrder']
+        input_employee = self.POST['inputEmployee']
+        # parse order input
+        order_data = input_order.split('-')
+        if len(order_data) != INPUT_ORDER_FIELDS:
+            messages.append({
+                'description': 'Error: faltan datos de orden',
+                'tag': 'warning'})
+        # retrieve data
+        order = '...'
+        description = '...'
+        client = '...'
+        process = '...'
+        employee = '...'
+        try:
+            op_number = "{}-{}".format(order_data[0], order_data[1])
+            order_process = Order_Process.objects.get(
+                order__order_op_number=op_number,
+                process_id=order_data[2])
+            order = order_process.order.order_op_number
+            description = order_process.order.order_description
+            client = order_process.order.order_client
+            process = order_process.process
+        except:
+            if not messages:  # add error msg only if it's first warning
+                messages.append({
+                    'description': 'Error: datos de orden incorrectos',
+                    'tag': 'warning'})
+        # read employee
+        try:
+            employee = User.objects.get(id=input_employee)
+        except:
+            messages.append({
+                'description': 'Error: datos de empleado incorrectos',
+                'tag': 'warning'})
+        # load context
+        context = {
+            'order': order,
+            'description': description,
+            'client': client,
+            'process': process,
+            'employee': employee.get_full_name()}
+        if not messages:  # no errors
+            # if process not started, start it
+            if order_process.get_is_started() is False:
+                OrderController.start_process(
+                    order_process,
+                    employee)
+                messages.append({
+                    'description': '{} ha sido comenzado'.format(
+                        process),
+                    'tag': 'success'})
+            elif (order_process.get_is_started() is True and
+                    order_process.get_is_finished() is False):
+                OrderController.finish_process(
+                    order_process,
+                    employee)
+                messages.append({
+                    'description': '{} ha sido terminado'.format(
+                        process),
+                    'tag': 'success'})
+            else:  # process already finished
+                messages.append({
+                    'description': '{} ya ha sido terminado'.format(
+                        process),
+                    'tag': 'info'})
+        # add messages
+        context['messages'] = messages
+        return SimpleTemplateResponse(
+            template='control_produccion/time_processes_result.html',
+            context=context)
 
 
 class AnalyticsView(TemplateView):

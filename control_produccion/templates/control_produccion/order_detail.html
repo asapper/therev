@@ -5,7 +5,7 @@
 {% block header %}
     {% if messages %}
         {% for message in messages %}
-        <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% else %} class="alert alter-info"{% endif %} role="alert">{{ message }}</div>
+        <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% else %} class="alert alert-info"{% endif %} role="alert">{{ message }}</div>
         {% endfor %}
     {% endif %}
 

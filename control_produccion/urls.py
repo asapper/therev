@@ -22,6 +22,12 @@ urlpatterns = [
     # ex: /control_produccion/orders/5/
     url(r'^orders/(?P<pk>[0-9]+)/$', views.OrderDetailView.as_view(),
         name='order_detail'),
+    # ex: /control_produccion/time_processes
+    url(r'^time_processes/$', views.TimeProcessesView.as_view(),
+        name='time_processes'),
+    # ex: /control_produccion/time_processes_result
+    url(r'^time_processes_result/$', views.TimeProcessesResultView.process_input,
+        name='time_processes_result'),
     # ex: /control_produccion/orders/5/start_process/1/
     url(r'^orders/(?P<pk>[0-9]+)/start_process/(?P<process_id>[0-9]+)/$',
         views.OrderDetailView.start_process, name='order_start_process'),

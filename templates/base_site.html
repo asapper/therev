@@ -33,6 +33,12 @@
                     </div>
                     <ul class="nav">
                         <li>
+                            <a href="{% url 'control_produccion:analytics' %}" class="simple-text">
+                                <i class="pe-7s-graph2"></i>
+                                <p>Analytics</p>
+                            </a>
+                        </li>
+                        <li>
                             <a href="{% url 'control_produccion:orders' %}" class="simple-text">
                                 <i class="pe-7s-note2"></i>
                                 <p>Listado de Órdenes</p>
@@ -45,9 +51,9 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{% url 'control_produccion:analytics' %}" class="simple-text">
-                                <i class="pe-7s-graph2"></i>
-                                <p>Analytics</p>
+                            <a href="{% url 'control_produccion:time_processes' %}" class="simple-text">
+                                <i class="pe-7s-note"></i>
+                                <p>Tiempos</p>
                             </a>
                         </li>
                     </ul>
