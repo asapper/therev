@@ -12,6 +12,6 @@
 
 <br>
 <a class="btn btn-primary btn-wd" href="{% url 'control_produccion:time_processes' %}">Ingresar Nuevo Tiempo</a>
-{% if not order_process.get_is_finished %}
-<a class="btn btn-danger btn-fill btn-wd" href="#">Eliminar Tiempo</a>
+{% if order_process.get_is_started and not order_process.get_is_finished %}
+<button class="btn btn-danger btn-fill btn-wd" onclick="handleRemoveTime()">Eliminar Tiempo</button>
 {% endif %}

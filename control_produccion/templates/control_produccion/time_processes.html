@@ -46,15 +46,20 @@ function handleInputOrder(event) {
 
 function handleInputEmployee(event) {
     if (event.keyCode == 13) {
-        processInput();
+        processInput("{% url 'control_produccion:time_processes_result' %}");
+        document.getElementById('order').select();
     }
 }
 
-function processInput() {
+function handleRemoveTime(event) {
+    processInput("{% url 'control_produccion:time_processes_remove' %}");
+}
+
+function processInput(url) {
     $.ajax({
         async: true,
         type: "POST",
-        url: "{% url 'control_produccion:time_processes_result' %}",
+        url: url,
         data: {
             inputOrder: document.getElementById("order").value,
             inputEmployee: document.getElementById("employee").value,

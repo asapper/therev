@@ -11,6 +11,68 @@ from .models import Order, Order_Process, Process
 
 class OrderController():
     @classmethod
+    def process_input_time_view(cls, request):
+        """
+        Process input from the Time Process view and return
+        the Order Process instance and User instance
+        associated with the given request information.
+        """
+        INPUT_ORDER_FIELDS = 4
+        messages = []  # store msg
+        # get post data
+        input_order = request.POST['inputOrder']
+        input_employee = request.POST['inputEmployee']
+        # parse order input
+        if "\'" in input_order:  # replace ' marks in input
+            input_order = input_order.replace('\'', '-')
+        order_data = input_order.split('-')
+        if len(order_data) != INPUT_ORDER_FIELDS:
+            messages.append({
+                'description': 'Error: faltan datos de orden',
+                'tag': 'warning'})
+        # retrieve data
+        order_process = '...'
+        employee = None
+        # get order process instance
+        order_process = OrderController.get_order_process_from_barcode_input(
+            order_data, INPUT_ORDER_FIELDS)
+        if order_process is None and not messages:  # msg only if first warning
+            messages.append({
+                'description': 'Error: datos de orden incorrectos',
+                'tag': 'warning'})
+        # read employee
+        try:
+            employee = User.objects.get(id=input_employee)
+        except:
+            messages.append({
+                'description': 'Error: datos de empleado incorrectos',
+                'tag': 'warning'})
+        # return data processed
+        return order_process, employee, messages
+
+    @classmethod
+    def remove_start_time(cls, order_process_instance, user):
+        """
+        Remove the start time of the given Order Process
+        instance, if it has not been finished.
+        """
+        if isinstance(order_process_instance, Order_Process):
+            if order_process_instance.get_is_finished() is False:
+                order_process_instance.order_process_is_started = False
+                order_process_instance.order_process_datetime_started = None
+                order_process_instance.order_process_user_started = None
+                order_process_instance.save()
+                return ({
+                    'description': 'Tiempo de {} ha sido eliminado'.format(
+                        order_process_instance.process),
+                    'tag': 'success'})
+        # process already finished
+        return ({
+            'description': 'Tiempo de {} no ha sido eliminado'.format(
+                order_process_instance.process),
+            'tag': 'warning'})
+
+    @classmethod
     def start_process(cls, order_process_instance, user):
         """
         Start the given process by caling the Order_Process'

@@ -243,37 +243,45 @@ class TimeProcessesResultView(TemplateView):
     template_name = 'control_produccion/time_processes_result.html'
 
     @require_http_methods(["POST"])
+    def process_remove_time(self):
+        """
+        Receives the data input in the Time Process view,
+        retrieves the associated Order Process instance, and
+        calls helper function to remove the start time of the
+        retrieved Order Process instance.
+        """
+        # call helper function to process input
+        order_process, employee, messages = (
+            OrderController.process_input_time_view(self))
+        # call helper function to remove time
+        msg = OrderController.remove_start_time(order_process, employee)
+        messages.append(msg)
+        # set employee name
+        if employee is None:
+            employee_name = '...'
+        else:
+            employee_name = employee.get_full_name()
+        # load context
+        context = {
+            'order_process': order_process,
+            'employee': employee_name}
+        # add messages
+        context['messages'] = messages
+        return SimpleTemplateResponse(
+            template='control_produccion/time_processes_result.html',
+            context=context)
+
+    @require_http_methods(["POST"])
     def process_input(self):
-        INPUT_ORDER_FIELDS = 4
-        messages = []  # store msg
-        # get post data
-        input_order = self.POST['inputOrder']
-        input_employee = self.POST['inputEmployee']
-        # parse order input
-        if "\'" in input_order:  # replace ' marks in input
-            input_order = input_order.replace('\'', '-')
-        order_data = input_order.split('-')
-        if len(order_data) != INPUT_ORDER_FIELDS:
-            messages.append({
-                'description': 'Error: faltan datos de orden',
-                'tag': 'warning'})
-        # retrieve data
-        order_process = '...'
-        employee = None
-        # get order process instance
-        order_process = OrderController.get_order_process_from_barcode_input(
-            order_data, INPUT_ORDER_FIELDS)
-        if order_process is None and not messages:  # msg only if first warning
-            messages.append({
-                'description': 'Error: datos de orden incorrectos',
-                'tag': 'warning'})
-        # read employee
-        try:
-            employee = User.objects.get(id=input_employee)
-        except:
-            messages.append({
-                'description': 'Error: datos de empleado incorrectos',
-                'tag': 'warning'})
+        """
+        Receives the data input in the Time Process view,
+        retrieves the associated Order Process instance, and
+        calls helper function to either start or finish the
+        retrieved Order Process instance.
+        """
+        # call helper function to process input
+        order_process, employee, messages = (
+            OrderController.process_input_time_view(self))
         # set employee name
         if employee is None:
             employee_name = '...'
