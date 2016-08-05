@@ -4,14 +4,51 @@
     {% endfor %}
 {% endif %}
 
-<p>Orden: {{ order_process.order.order_op_number }}</p>
-<p>Descripción: {{ order_process.order.order_description }}</p>
+{% if order_process.get_is_finished %}
+<div class="alert alert-warning" role="alert">{{ order_process.process }} ya ha sido terminado</div>
+{% endif %}
+
+<p><strong>Orden #{{ order_process.order.order_op_number }}</strong></p>
 <p>Cliente: {{ order_process.order.order_client }}</p>
+<p>Descripción: {{ order_process.order.order_description }}</p>
 <p>Proceso: {{ order_process.process }}</p>
-<p>Empleado: {{ employee }}</p>
+
+{% if not order_process.get_is_finished %}
+<a tabindex="0" id="popover-time-process" class="btn btn-primary" role="button" data-placement="top" title="Entra tus credenciales">Entrar credenciales</a>
+<div id="popover-time-process-content" class="hide">
+    <div class="form-group popover-input">
+        <label for="username">Usuario</label>
+        <input id="username" type="text" name="username" placeholder="Usuario" class="form-control">
+    </div>
+    <div class="form-group popover-input">
+        <label for="password">Contraseña</label>
+        <input id="password" type="password" name="password" placeholder="Contraseña" class="form-control">
+    </div>
+    {% if not order_process.get_is_started %}
+    <button class="btn btn-success btn-fill" onclick="processUserCredentials('begin')">Comenzar Proceso</button>
+    {% elif order_process.get_is_paused %}
+    <button class="btn btn-info btn-fill" onclick="processUserCredentials('resume')">Resumir Proceso</button>
+    {% elif order_process.get_is_started and not order_process.get_is_finished %}
+    <button class="btn btn-info btn-fill" onclick="processUserCredentials('pause')">Pausar Proceso</button>
+    <button class="btn btn-danger btn-fill" onclick="processUserCredentials('finish')">Terminar Proceso</button>
+    {% elif order_process.get_is_finished %}
+    <button class="btn btn-primary btn-fill disabled" onclick="processUserCredentials('done')">Terminar Proceso</button>
+    {% endif %}
+</div>
+{% endif %}
 
 <br>
-<a class="btn btn-primary btn-wd" href="{% url 'control_produccion:time_processes' %}">Ingresar Nuevo Tiempo</a>
 {% if order_process.get_is_started and not order_process.get_is_finished %}
 <button class="btn btn-danger btn-fill btn-wd" onclick="handleRemoveTime()">Eliminar Tiempo</button>
+{% endif %}
+
+{% if not order_process.get_is_finished %}
+<script>
+    $('#popover-time-process').popover({ 
+        html : true,
+        content: function() {
+            return $("#popover-time-process-content").html();
+        }
+    });
+</script>
 {% endif %}

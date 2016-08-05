@@ -251,20 +251,13 @@ class TimeProcessesResultView(TemplateView):
         retrieved Order Process instance.
         """
         # call helper function to process input
-        order_process, employee, messages = (
+        order_process, messages = (
             OrderController.process_input_time_view(self))
         # call helper function to remove time
-        msg = OrderController.remove_start_time(order_process, employee)
+        msg = OrderController.remove_start_time(order_process)
         messages.append(msg)
-        # set employee name
-        if employee is None:
-            employee_name = '...'
-        else:
-            employee_name = employee.get_full_name()
         # load context
-        context = {
-            'order_process': order_process,
-            'employee': employee_name}
+        context = {'order_process': order_process}
         # add messages
         context['messages'] = messages
         return SimpleTemplateResponse(
@@ -280,37 +273,10 @@ class TimeProcessesResultView(TemplateView):
         retrieved Order Process instance.
         """
         # call helper function to process input
-        order_process, employee, messages = (
+        order_process, messages = (
             OrderController.process_input_time_view(self))
-        # set employee name
-        if employee is None:
-            employee_name = '...'
-        else:
-            employee_name = employee.get_full_name()
         # load context
-        context = {
-            'order_process': order_process,
-            'employee': employee_name}
-        if not messages:  # no errors
-            # if process not started, start it
-            if order_process.get_is_started() is False:
-                OrderController.start_process(order_process, employee)
-                messages.append({
-                    'description': '{} ha sido comenzado'.format(
-                        order_process.process),
-                    'tag': 'success'})
-            elif (order_process.get_is_started() is True and
-                    order_process.get_is_finished() is False):
-                OrderController.finish_process(order_process, employee)
-                messages.append({
-                    'description': '{} ha sido terminado'.format(
-                        order_process.process),
-                    'tag': 'success'})
-            else:  # process already finished
-                messages.append({
-                    'description': '{} ya ha sido terminado'.format(
-                        order_process.process),
-                    'tag': 'info'})
+        context = {'order_process': order_process}
         # add messages
         context['messages'] = messages
         return SimpleTemplateResponse(

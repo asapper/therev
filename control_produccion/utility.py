@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib import messages
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models import (Avg, Count, ExpressionWrapper, F,
                               DecimalField, Sum)
@@ -17,11 +18,21 @@ class OrderController():
         the Order Process instance and User instance
         associated with the given request information.
         """
-        INPUT_ORDER_FIELDS = 4
+        # constants
+        INPUT_ORDER_FIELDS = 4  # op, job, section, process
+        INPUT_ORDER_KEY = 'inputOrder'
+        ACTION_KEY = 'action'
+        USERNAME_KEY = 'username'
+        PASSWORD_KEY = 'password'
+        ACTION_BEGIN_VALUE = 'begin'
+        ACTION_PAUSE_VALUE = 'pause'
+        ACTION_RESUME_VALUE = 'resume'
+        ACTION_FINISH_VALUE = 'finish'
+        ACTION_DONE_VALUE = 'done'
+        # vars
         messages = []  # store msg
         # get post data
-        input_order = request.POST['inputOrder']
-        input_employee = request.POST['inputEmployee']
+        input_order = request.POST[INPUT_ORDER_KEY]
         # parse order input
         if "\'" in input_order:  # replace ' marks in input
             input_order = input_order.replace('\'', '-')
@@ -32,7 +43,6 @@ class OrderController():
                 'tag': 'warning'})
         # retrieve data
         order_process = '...'
-        employee = None
         # get order process instance
         order_process = OrderController.get_order_process_from_barcode_input(
             order_data, INPUT_ORDER_FIELDS)
@@ -40,18 +50,49 @@ class OrderController():
             messages.append({
                 'description': 'Error: datos de orden incorrectos',
                 'tag': 'warning'})
-        # read employee
-        try:
-            employee = User.objects.get(id=input_employee)
-        except:
-            messages.append({
-                'description': 'Error: datos de empleado incorrectos',
-                'tag': 'warning'})
+        if isinstance(order_process, Order_Process):
+            # verify if action given
+            if (ACTION_KEY in request.POST and 
+                    USERNAME_KEY in request.POST and 
+                    PASSWORD_KEY in request.POST):
+                # store keywords
+                action = request.POST[ACTION_KEY]
+                username = request.POST[USERNAME_KEY]
+                password = request.POST[PASSWORD_KEY]
+                level = None
+                msg = None
+                # authenticate user
+                user = authenticate(username=username, password=password)
+                if user is not None:  # user authenticated
+                    # get action
+                    if action == ACTION_BEGIN_VALUE:
+                        level, msg = OrderController.start_process(
+                            order_process, user)
+                    elif action == ACTION_PAUSE_VALUE:
+                        level, msg = OrderController.pause_process(
+                            order_process, user)
+                    elif action == ACTION_RESUME_VALUE:
+                        level, msg = OrderController.resume_process(
+                            order_process, user)
+                    elif action == ACTION_FINISH_VALUE:
+                        level, msg = OrderController.finish_process(
+                            order_process, user)
+                    elif action == ACTION_DONE_VALUE:
+                        level = "warning"
+                        msg = "Proceso terminado. Ninguna acción posible"
+                    else:
+                        level = "danger"
+                        msg = "Error: acción desconocida"
+                else:  # user not authenticated
+                    level = "warning"
+                    msg = "Error: usuario/contraseña incorrectos"
+                # add message
+                messages.append({'description': msg, 'tag': level})
         # return data processed
-        return order_process, employee, messages
+        return order_process, messages
 
     @classmethod
-    def remove_start_time(cls, order_process_instance, user):
+    def remove_start_time(cls, order_process_instance):
         """
         Remove the start time of the given Order Process
         instance, if it has not been finished.
