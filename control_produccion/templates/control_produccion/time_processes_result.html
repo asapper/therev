@@ -4,12 +4,14 @@
     {% endfor %}
 {% endif %}
 
-<p>Orden: {{ order }}</p>
-<p>Descripción: {{ description }}</p>
-<p>Cliente: {{ client }}</p>
-<p>Proceso: {{ process }}</p>
+<p>Orden: {{ order_process.order.order_op_number }}</p>
+<p>Descripción: {{ order_process.order.order_description }}</p>
+<p>Cliente: {{ order_process.order.order_client }}</p>
+<p>Proceso: {{ order_process.process }}</p>
 <p>Empleado: {{ employee }}</p>
 
 <br>
 <a class="btn btn-primary btn-wd" href="{% url 'control_produccion:time_processes' %}">Ingresar Nuevo Tiempo</a>
+{% if not order_process.get_is_finished %}
 <a class="btn btn-danger btn-fill btn-wd" href="#">Eliminar Tiempo</a>
+{% endif %}

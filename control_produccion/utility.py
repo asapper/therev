@@ -145,6 +145,74 @@ class OrderController():
                 "{} no ha sido comenzado aún.").format(
                     process_name)
 
+
+    @classmethod
+    def get_order_process_from_barcode_input(cls, order_data, REQ_FIELDS):
+        """
+        Return the Order Process associated with the given
+        data provided.
+        """
+        if len(order_data) != REQ_FIELDS:
+            return None
+        # constants
+        PROCESS_NAME_INDEX = 0
+        PROCESSES_INDEX = 1
+        INDEX_OP_NUMBER = 0
+        INDEX_JOB_ID = 1
+        INDEX_SECTION_ID = 2
+        INDEX_PROCESS_ID = 3
+        SECTION_OTHER_PROCESSES = '8'
+        # typography indices
+        TYPOGRAPHY_PROCESSES = [
+            ('Troquelado', ['1']),
+            ('Pegado', ['2']),
+            ('Blocado', ['3']),
+            ('Empalmado', ['4']),
+            ('Ojeteado', ['5']),
+        ]
+        # other processes indices
+        OTHER_PROCESSES = [
+            ('Impresión Tiro', ['2','6']),
+            ('Impresión Tiro/Retiro', ['1','7']),
+            ('Barniz Tiro', ['3']),
+            ('Barniz Tiro/Retiro', ['4']),
+            ('Sizado', ['68']),
+            ('Perforado', ['71']),
+            ('Doblado', ['8']),
+            ('Espiral', ['75']),
+            ('Despuntado', ['26','27']),
+            ('Sense Tiro', ['57']),
+            ('Sense Tiro/Retiro', ['74']),
+            ('Plástico Mate Tiro', ['16','32','58','72']),
+            ('Plástico Mate Tiro/Retiro', ['17','33','59','73']),
+            ('Plástico Brillante Tiro', ['12','18','62','64','66']),
+            ('Plástico Brillante Tiro/Retiro', ['13','19','63','65','67']),
+            ('Foil Tiro', ['25','35','37','39','41','43','45','47']),
+            ('Foil Tiro/Retiro', ['34','36','38','40','42','44','46','48']),
+            ('Lomo', ['11']),
+            ('Grapa', ['10']),
+            ('Corte', ['5']),
+        ]
+        # real op number (compound)
+        op_number = "{}-{}".format(
+            order_data[INDEX_OP_NUMBER],
+            order_data[INDEX_JOB_ID])
+        # get process based on section id
+        if order_data[INDEX_SECTION_ID] == SECTION_OTHER_PROCESSES:
+            for process_group in OTHER_PROCESSES:
+                for process_index in process_group[PROCESSES_INDEX]:
+                    if order_data[INDEX_PROCESS_ID] == process_index:
+                        # get order_process
+                        try:
+                            return Order_Process.objects.get(
+                                order__order_op_number=op_number,
+                                process__process_name=process_group[PROCESS_NAME_INDEX])
+                        except:
+                            return None
+        else:
+            return None
+
+
     @classmethod
     def get_avg_process_finish_time(cls):
         """

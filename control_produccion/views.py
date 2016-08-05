@@ -244,37 +244,29 @@ class TimeProcessesResultView(TemplateView):
 
     @require_http_methods(["POST"])
     def process_input(self):
-        INPUT_ORDER_FIELDS = 3
+        INPUT_ORDER_FIELDS = 4
         messages = []  # store msg
         # get post data
         input_order = self.POST['inputOrder']
         input_employee = self.POST['inputEmployee']
         # parse order input
+        if "\'" in input_order:  # replace ' marks in input
+            input_order = input_order.replace('\'', '-')
         order_data = input_order.split('-')
         if len(order_data) != INPUT_ORDER_FIELDS:
             messages.append({
                 'description': 'Error: faltan datos de orden',
                 'tag': 'warning'})
         # retrieve data
-        order = '...'
-        description = '...'
-        client = '...'
-        process = '...'
-        employee = '...'
-        try:
-            op_number = "{}-{}".format(order_data[0], order_data[1])
-            order_process = Order_Process.objects.get(
-                order__order_op_number=op_number,
-                process_id=order_data[2])
-            order = order_process.order.order_op_number
-            description = order_process.order.order_description
-            client = order_process.order.order_client
-            process = order_process.process
-        except:
-            if not messages:  # add error msg only if it's first warning
-                messages.append({
-                    'description': 'Error: datos de orden incorrectos',
-                    'tag': 'warning'})
+        order_process = '...'
+        employee = None
+        # get order process instance
+        order_process = OrderController.get_order_process_from_barcode_input(
+            order_data, INPUT_ORDER_FIELDS)
+        if order_process is None and not messages:  # msg only if first warning
+            messages.append({
+                'description': 'Error: datos de orden incorrectos',
+                'tag': 'warning'})
         # read employee
         try:
             employee = User.objects.get(id=input_employee)
@@ -282,36 +274,34 @@ class TimeProcessesResultView(TemplateView):
             messages.append({
                 'description': 'Error: datos de empleado incorrectos',
                 'tag': 'warning'})
+        # set employee name
+        if employee is None:
+            employee_name = '...'
+        else:
+            employee_name = employee.get_full_name()
         # load context
         context = {
-            'order': order,
-            'description': description,
-            'client': client,
-            'process': process,
-            'employee': employee.get_full_name()}
+            'order_process': order_process,
+            'employee': employee_name}
         if not messages:  # no errors
             # if process not started, start it
             if order_process.get_is_started() is False:
-                OrderController.start_process(
-                    order_process,
-                    employee)
+                OrderController.start_process(order_process, employee)
                 messages.append({
                     'description': '{} ha sido comenzado'.format(
-                        process),
+                        order_process.process),
                     'tag': 'success'})
             elif (order_process.get_is_started() is True and
                     order_process.get_is_finished() is False):
-                OrderController.finish_process(
-                    order_process,
-                    employee)
+                OrderController.finish_process(order_process, employee)
                 messages.append({
                     'description': '{} ha sido terminado'.format(
-                        process),
+                        order_process.process),
                     'tag': 'success'})
             else:  # process already finished
                 messages.append({
                     'description': '{} ya ha sido terminado'.format(
-                        process),
+                        order_process.process),
                     'tag': 'info'})
         # add messages
         context['messages'] = messages
