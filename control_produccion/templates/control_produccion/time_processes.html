@@ -9,16 +9,13 @@
     <div class="col-md-12">
         <div class="card">
             <div class="content">
-                <form method="#" action="#" class="form-horizontal">
-                    <fieldset>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Orden</label>
-                            <div class="col-sm-10">
-                                <input type="text" id="order" class="form-control" placeholder="Información de la Orden de Producción" onKeyPress="handleInputOrder(event)">
-                            </div>
-                        </div>
-                    </fieldset> <!-- order info -->
-                </form> <!-- form -->
+                <div class="form-group">
+                    <label class="col-sm-2 text-right">Orden</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="order" class="form-control" autofocus="autofocus" placeholder="Información de la Orden de Producción" onKeyPress="handleInputOrder(event)">
+                    </div>
+                </div>
+                <br>
                 <hr>
                 <div id="timeProcessesFooter">
                 </div>
@@ -33,11 +30,19 @@
 function handleInputOrder(event) {
     if (event.keyCode == 13) {
         processInput("{% url 'control_produccion:time_processes_result' %}");
+        document.getElementById("order").select();
     }
 }
 
 function handleRemoveTime(event) {
     processInput("{% url 'control_produccion:time_processes_remove' %}");
+}
+
+function handleClearResult() {
+    document.getElementById("timeProcessesFooter").innerHTML = "";
+    var order = document.getElementById("order");
+    order.value = "";
+    order.focus();
 }
 
 function processInput(url) {

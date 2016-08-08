@@ -30,7 +30,13 @@ class OrderController():
         ACTION_FINISH_VALUE = 'finish'
         ACTION_DONE_VALUE = 'done'
         # vars
-        messages = []  # store msg
+        MSG_LEVELS = {
+            messages.INFO: 'info',
+            messages.SUCCESS: 'success',
+            messages.WARNING: 'warning',
+            messages.ERROR: 'danger',
+        }
+        messages_list = []  # store msg
         # get post data
         input_order = request.POST[INPUT_ORDER_KEY]
         # parse order input
@@ -38,7 +44,7 @@ class OrderController():
             input_order = input_order.replace('\'', '-')
         order_data = input_order.split('-')
         if len(order_data) != INPUT_ORDER_FIELDS:
-            messages.append({
+            messages_list.append({
                 'description': 'Error: faltan datos de orden',
                 'tag': 'warning'})
         # retrieve data
@@ -46,8 +52,8 @@ class OrderController():
         # get order process instance
         order_process = OrderController.get_order_process_from_barcode_input(
             order_data, INPUT_ORDER_FIELDS)
-        if order_process is None and not messages:  # msg only if first warning
-            messages.append({
+        if order_process is None and not messages_list:  # msg only if first warning
+            messages_list.append({
                 'description': 'Error: datos de orden incorrectos',
                 'tag': 'warning'})
         if isinstance(order_process, Order_Process):
@@ -68,15 +74,19 @@ class OrderController():
                     if action == ACTION_BEGIN_VALUE:
                         level, msg = OrderController.start_process(
                             order_process, user)
+                        level = MSG_LEVELS[level]  # translate tag
                     elif action == ACTION_PAUSE_VALUE:
                         level, msg = OrderController.pause_process(
                             order_process, user)
+                        level = MSG_LEVELS[level]  # translate tag
                     elif action == ACTION_RESUME_VALUE:
                         level, msg = OrderController.resume_process(
                             order_process, user)
+                        level = MSG_LEVELS[level]  # translate tag
                     elif action == ACTION_FINISH_VALUE:
                         level, msg = OrderController.finish_process(
                             order_process, user)
+                        level = MSG_LEVELS[level]  # translate tag
                     elif action == ACTION_DONE_VALUE:
                         level = "warning"
                         msg = "Proceso terminado. Ninguna acción posible"
@@ -87,9 +97,9 @@ class OrderController():
                     level = "warning"
                     msg = "Error: usuario/contraseña incorrectos"
                 # add message
-                messages.append({'description': msg, 'tag': level})
+                messages_list.append({'description': msg, 'tag': level})
         # return data processed
-        return order_process, messages
+        return order_process, messages_list
 
     @classmethod
     def remove_start_time(cls, order_process_instance):
