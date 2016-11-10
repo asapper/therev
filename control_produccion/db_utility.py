@@ -150,7 +150,7 @@ QUERY = (
     "max(case when cop.\"CodigoProceso\"=11 then 'X' else '' end) as \"Lomo\", "
     "max(case when cop.\"CodigoProceso\"=10 then 'X' else '' end) as \"Grapa\", "
     "max(case when cop.\"CodigoProceso\"=5 then 'X' else '' end) as \"Corte\", "
-    "op.\"FechaRequerida\", "
+    "op.\"FechaValidada\", "
     "op.\"FechaCreacion\" "
     "from \"Produccion\".\"OrdenesProduccion\" op "
     "inner join \"Produccion\".\"OrdenesProduccionProductos\" opp on "
