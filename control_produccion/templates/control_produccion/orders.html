@@ -32,9 +32,9 @@
 <div class="row">
     <div class="col-md-12">
         <div class="input-group">
-            <input type="text" class="form-control" id="searchBox" placeholder="Buscar por número de orden o nombre de cliente..." onKeyUp="searchInput();">
+            <input type="text" class="form-control" id="searchBox" placeholder="Buscar por número de orden o nombre de cliente...">
             <span class="input-group-btn">
-                <button class="btn btn-info btn-fill" type="button" onclick="searchInput()">Buscar</button>
+                <button id="searchBtn" class="btn btn-info btn-fill" type="button">Buscar</button>
             </span>
         </div><!-- /input-group -->
     </div><!-- /.col-lg-6 -->
@@ -65,7 +65,7 @@
                 <td>{{ order.order_total_sheets }}</td>
             </tr>
             {% endfor %}
-        <tbody>
+        </tbody>
     </table>
 </div>
 {% else %}
@@ -75,6 +75,9 @@
 
 {% block jsfiles %}
 <script>
+    $('#searchBox').on("keyup", searchInput);
+    $('#searchBtn').on("click", searchInput);
+
     $('#popover-pause-all-processes').popover({ 
         html : true,
         content: function() {
@@ -83,22 +86,16 @@
     });
 
     function searchInput() {
-        var input = document.getElementById('searchBox').value;
-        var rows = document.getElementsByClassName('opRow');
-        var clients = document.getElementsByClassName('opClientCell');
-        var orders = document.getElementsByClassName('opNumberCell');
-        for (var i = 0; i < orders.length; i++) {
-            if (orders[i].innerHTML.indexOf(input) > -1) {
-                rows[i].className = "opRow";
-            } else if (clients[i].innerHTML.toLowerCase().indexOf(input.toLowerCase()) > -1) {
-                rows[i].className = "opRow";
+        var value = document.getElementById('searchBox').value;
+        $('table tr').each(function (index) {
+            if (!index) return;
+            var op = $(this).find("td").first().text();
+            if (op.indexOf(value) > -1) {
+                $(this).show();
             } else {
-                if (!rows[i].classList.contains("hide") || !clients[i].classList.contains("hide")) {
-                    rows[i].className += " hide";
-                }
+                $(this).hide();
             }
-        }
-
+        });
     }
 </script>
 {% endblock %}
