@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -5,6 +7,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db import DatabaseError, IntegrityError
 from django.http import HttpResponse
+from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import SimpleTemplateResponse
 from django.views.generic import DetailView, ListView
@@ -98,6 +101,18 @@ class OrdersView(ListView):
     def get_queryset(self):
         """Return all the Orders."""
         return Order.objects.all().order_by('-order_op_number')
+
+    def get_context_data(self, **kwargs):
+        """
+        Add number of recent (< 30 days back) orders
+        to context and return context data.
+        """
+        context = super(OrdersView, self).get_context_data(
+            **kwargs)
+        last_month = timezone.now() - datetime.timedelta(days=31)
+        recent_orders = Order.objects.filter(order_due_date__gt=last_month).count()
+        context['recent_orders'] = recent_orders
+        return context
 
     @require_http_methods(["POST"])
     def pause_all_processes(self):
