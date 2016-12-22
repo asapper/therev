@@ -34,7 +34,7 @@
         <div class="input-group">
             <input type="text" class="form-control" id="searchBox" placeholder="Buscar por número de orden o nombre de cliente...">
             <span class="input-group-btn">
-                <button id="searchBtn" class="btn btn-info btn-fill" type="button">Buscar</button>
+                <button id="searchBtn" class="btn btn-info btn-fill" type="button">Buscar todas las órdenes</button>
             </span>
         </div><!-- /input-group -->
     </div><!-- /.col-lg-6 -->
@@ -75,8 +75,12 @@
 
 {% block jsfiles %}
 <script>
-    $('#searchBox').on("keyup", searchInput);
-    $('#searchBtn').on("click", searchInput);
+    $('#searchBox').on("keyup", function() {
+        searchInput(true); // limit rows to search
+    });
+    $('#searchBtn').on("click", function() {
+        searchInput(false); // don't limit rows, search all
+    });
 
     $('#popover-pause-all-processes').popover({ 
         html : true,
@@ -85,17 +89,30 @@
         }
     });
 
-    function searchInput() {
-        var value = document.getElementById('searchBox').value;
-        $('table tr').each(function (index) {
-            if (!index) return;
-            var op = $(this).find("td").first().text();
-            if (op.indexOf(value) > -1) {
-                $(this).show();
-            } else {
-                $(this).hide();
+    function searchInput(searchAll) {
+        var value = document.getElementById('searchBox').value.toLowerCase();
+        if (value == null || value == "") {
+            $('table tr').show();
+        } else {
+            var LIMIT_ROWS = {{ recent_orders }};
+            if (searchAll === false) {
+                // change value of LIMIT_ROWS if list of orders is not empty
+                {% if latest_order_list %}
+                LIMIT_ROWS = {{ latest_order_list|length }};
+                {% endif %}
             }
-        });
+            $('table tr:gt(' + LIMIT_ROWS + ')').hide();
+            $('table tr:lt(' + (LIMIT_ROWS+1) + ')').each(function (index) {
+                if (!index) return;
+                var op = $(this).find("td").first().text();
+                var client = $(this).find("td:nth-child(2)").text().toLowerCase();
+                if (op.indexOf(value) > -1 || client.indexOf(value) > -1) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
     }
 </script>
 {% endblock %}
