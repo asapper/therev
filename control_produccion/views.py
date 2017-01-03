@@ -65,6 +65,15 @@ class ActiveOrdersView(TemplateView):
                     order_date_created=item[VALUE_DATE_CREATED])
             except IntegrityError:
                 duplicate = True
+                # get duplicate order
+                old_order = Order.objects.get(
+                    order_op_number=item[VALUE_OP_NUMBER])
+                # verify due date
+                if old_order.order_due_date != item[VALUE_DUE_DATE]:
+                    # if different, update due date
+                    old_order.order_due_date = item[VALUE_DUE_DATE]
+                    old_order.save()
+                # else, no change ought to be made
             if duplicate is False:
                 # create Order_Process objects for each process
                 for process_name in item[VALUE_PROCESSES]:
@@ -110,7 +119,8 @@ class OrdersView(ListView):
         context = super(OrdersView, self).get_context_data(
             **kwargs)
         last_month = timezone.now() - datetime.timedelta(days=31)
-        recent_orders = Order.objects.filter(order_due_date__gt=last_month).count()
+        recent_orders = Order.objects.filter(
+            order_due_date__gt=last_month).count()
         context['recent_orders'] = recent_orders
         return context
 
@@ -314,21 +324,24 @@ class AnalyticsView(TemplateView):
         Call utility function to get the top 5 process
         most often seen in all the Orders.
         """
-        return OrderController.get_general_top_five_most_often_present_processes()
+        return OrderController.(
+            get_general_top_five_most_often_present_processes())
 
     def get_last_week_top_most_present_processes(self):
         """
         Call utility function to get the top 5 process
         most often seen in Orders created last week.
         """
-        return OrderController.get_last_week_top_five_most_often_present_processes()
+        return OrderController.(
+            get_last_week_top_five_most_often_present_processes())
 
     def get_last_month_top_most_present_processes(self):
         """
         Call utility function to get the top 5 process
         most often seen in Orders created last month.
         """
-        return OrderController.get_last_month_top_five_most_often_present_processes()
+        return OrderController.(
+            get_last_month_top_five_most_often_present_processes())
 
     def get_general_top_most_frequent_clients(self):
         """
@@ -336,7 +349,7 @@ class AnalyticsView(TemplateView):
         frequent clients in all orders.
         """
         return OrderController.get_general_top_five_most_frequent_clients()
-    
+
     def get_last_week_top_most_frequent_clients(self):
         """
         Call utility function to get the top 5 most
