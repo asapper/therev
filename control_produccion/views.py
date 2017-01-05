@@ -71,8 +71,7 @@ class ActiveOrdersView(TemplateView):
                 # verify due date
                 if old_order.order_due_date != item[VALUE_DUE_DATE]:
                     # if different, update due date
-                    old_order.order_due_date = item[VALUE_DUE_DATE]
-                    old_order.save()
+                    old_order.set_due_date(item[VALUE_DUE_DATE])
                 # else, no change ought to be made
             if duplicate is False:
                 # create Order_Process objects for each process

@@ -62,6 +62,11 @@ class Order(models.Model):
         self.order_is_finished = True
         self.save()
 
+    def set_due_date(self, new_due_date):
+        """Assign this Order's due date to the one given."""
+        self.order_due_date = new_due_date
+        self.save()
+
     def get_quantity(self):
         """Returns this Order's quantity."""
         return self.order_quantity
