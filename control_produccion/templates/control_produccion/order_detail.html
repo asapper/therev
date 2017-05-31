@@ -14,7 +14,15 @@
         <li role="presentation" class="active"><a href="#orderProcesses" aria-controls="orderProcesses" role="tab" data-toggle="tab">Procesos</a></li>
         <li role="presentation"><a href="#orderAnalytics" aria-controls="orderAnalytics" role="tab" data-toggle="tab">Analytics</a></li>
     </ul>
-    <h1>Orden #{{ order.order_op_number }} <small> {{ order.order_description }}</small></h1>
+    <h4 style="margin:0">
+    {% if not order.order_is_finished %}
+    <span class="label label-success">Activa</span>
+    {% else %}
+    <span class="label label-danger">Terminada</span>
+    {% endif %}
+    </h4>
+    <h1 style="display:inline-block">Orden #{{ order.order_op_number }} <small> {{ order.order_description }}</small></h1>
+
 {% endblock %}
 
 {% block content %}
@@ -123,7 +131,12 @@
                     <div class="header">
                         {{ order_process.process }}
                         <p class="category">
-                            {% if not order_process.get_is_started and not order_process.get_is_finished %}
+                            {% if order.get_is_finished %}
+                            Orden ha sido terminada
+                            <hr>
+                            <!-- Start process button -->
+                            <a class="btn btn-default disabled" role="button">Proceso no modificable</a>
+                            {% elif not order_process.get_is_started and not order_process.get_is_finished %}
                             Proceso no comenzado aún
                             <hr>
                             <!-- Start process button -->
