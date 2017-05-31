@@ -1,4 +1,9 @@
-*.pyc
+**/*.pyc
+*/*.pyc
 db.sqlite3
 .DS_Store
 */.DS_Store
+bin/
+include/
+lib/
+pip-selfcheck.json

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -37,7 +38,7 @@ class ActiveOrdersRefreshView(ListView):
     def get_queryset(self):
         """Return all active Orders."""
         return Order.objects.filter(
-            order_is_finished=False).order_by('order_op_number')
+            order_is_finished=False).order_by('order_due_date')
 
 
 class ActiveOrdersView(TemplateView):
@@ -323,24 +324,21 @@ class AnalyticsView(TemplateView):
         Call utility function to get the top 5 process
         most often seen in all the Orders.
         """
-        return OrderController.(
-            get_general_top_five_most_often_present_processes())
+        return OrderController.get_general_top_five_most_often_present_processes()
 
     def get_last_week_top_most_present_processes(self):
         """
         Call utility function to get the top 5 process
         most often seen in Orders created last week.
         """
-        return OrderController.(
-            get_last_week_top_five_most_often_present_processes())
+        return OrderController.get_last_week_top_five_most_often_present_processes()
 
     def get_last_month_top_most_present_processes(self):
         """
         Call utility function to get the top 5 process
         most often seen in Orders created last month.
         """
-        return OrderController.(
-            get_last_month_top_five_most_often_present_processes())
+        return OrderController.get_last_month_top_five_most_often_present_processes()
 
     def get_general_top_most_frequent_clients(self):
         """
