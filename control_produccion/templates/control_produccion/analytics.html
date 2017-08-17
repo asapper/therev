@@ -7,7 +7,6 @@
     <li role="presentation" class="active"><a href="#processesAnalytics" aria-controls="processesAnalytics" role="tab" data-toggle="tab">Procesos</a></li>
     <li role="presentation"><a href="#machinesAnalytics" aria-controls="machinesAnalytics" role="tab" data-toggle="tab">Máquinas</a></li>
     <li role="presentation"><a href="#clientsAnalytics" aria-controls="clientsAnalytics" role="tab" data-toggle="tab">Clientes</a></li>
-    <li role="presentation"><a href="#workersAnalytics" aria-controls="workersAnalytics" role="tab" data-toggle="tab">Trabajadores</a></li>
 </ul>
 <h1>Analytics</h1>
 {% endblock %}
@@ -163,41 +162,6 @@
                                 </table>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Workers Analytics -->
-        <div role="tabpanel" class="row tab-pane fade" id="workersAnalytics">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="header">
-                        Trabajadores
-                    </div>
-                    <div class="content">
-                        {% for worker_proc in view.get_workers_times %}
-                        <div class="row">
-                            <h6>{{ worker_proc.0 }}</h6>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 50%;">Proceso</th>
-                                            <th style="width: 50%;">Minutos por unidad</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for proc, time_per_unit in worker_proc.1 %}
-                                        <tr>
-                                            <td>{{ proc }}</td>
-                                            <td>{{ time_per_unit|floatformat:2 }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div><!-- /.row -->
-                        {% endfor %}
                     </div>
                 </div>
             </div>

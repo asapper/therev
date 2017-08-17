@@ -124,11 +124,10 @@ class OrderController():
             'tag': 'warning'})
 
     @classmethod
-    def start_process(cls, order_process_instance, user):
+    def start_process(cls, order_process_instance):
         """
         Start the given process by caling the Order_Process'
-        set_started function, and assign the given user
-        to have started the given Order_Process.
+        set_started function.
         """
         # get process name
         process_name = order_process_instance.get_process_name()
@@ -136,8 +135,6 @@ class OrderController():
         if order_process_instance.get_is_started() is False:
             # function handles assignment
             order_process_instance.set_started()
-            # function handle user assignment
-            order_process_instance.set_user_who_started_process(user)
             return messages.SUCCESS, "{} ha sido comenzado!".format(
                 process_name)
         else:
@@ -165,7 +162,7 @@ class OrderController():
                 "procesos").format(user)
 
     @classmethod
-    def pause_process(cls, order_process_instance, user):
+    def pause_process(cls, order_process_instance):
         """
         Pause the given process by calling the Order_Process'
         set_paused method.
@@ -176,17 +173,10 @@ class OrderController():
         if order_process_instance.get_is_started() is True:
             # verify order process is not finished
             if order_process_instance.get_is_finished() is False:
-                # check user who finishes is same as user who started
-                user_started = order_process_instance.get_user_who_started_process()
-                if user == user_started or user.is_superuser:
-                    # function handles assignment
-                    order_process_instance.set_paused()
-                    return messages.SUCCESS, "{} ha sido pausado!".format(
-                        process_name)
-                else:  # users do not match
-                    return messages.WARNING, ("{} no ha sido pausado! "
-                        "Usuario {} no comenzó este proceso.").format(
-                            process_name, user)
+                # function handles assignment
+                order_process_instance.set_paused()
+                return messages.SUCCESS, "{} ha sido pausado!".format(
+                    process_name)
             else:  # order process is finished
                 return messages.WARNING, ("{} no se puede pausar! "
                     "Proceso ya ha sido terminado.").format(
@@ -197,7 +187,7 @@ class OrderController():
                     process_name)
 
     @classmethod
-    def resume_process(cls, order_process_instance, user):
+    def resume_process(cls, order_process_instance):
         """
         Resume the given process, if paused, by calling the
         Order_Process' set_resumed method.
@@ -206,49 +196,30 @@ class OrderController():
         process_name = order_process_instance.get_process_name()
         # verify order process is started
         if order_process_instance.get_is_paused() is True:
-            # check user who finishes is same as user who started
-            user_started = order_process_instance.get_user_who_started_process()
-            if user == user_started or user.is_superuser:
-                # function handles assignment
-                order_process_instance.set_resumed()
-                return messages.SUCCESS, "{} ha sido resumido!".format(
-                    process_name)
-            else:  # users do not match
-                return messages.WARNING, ("{} no ha sido resumido! "
-                    "Usuario {} no comenzó este proceso").format(
-                    process_name, user)
+            # function handles assignment
+            order_process_instance.set_resumed()
+            return messages.SUCCESS, "{} ha sido resumido!".format(
+                process_name)
         else:  # process is not paused
             return messages.WARNING, ("{} no ha sido resumido! "
                 "Proceso no ha sido pausado.").format(
                 process_name)
 
     @classmethod
-    def finish_process(cls, order_process_instance, user):
+    def finish_process(cls, order_process_instance):
         """
         Finish the given process by calling the Order_Process'
-        set_finished method, and assign the given user
-        to have finished the given Order_Process.
+        set_finished method.
         """
         # get process name
         process_name = order_process_instance.get_process_name()
         # verify order process is started and not finished
         if order_process_instance.get_is_started() is True:
             if order_process_instance.get_is_finished() is False:
-                # check user who finishes is same as user who started
-                user_started = order_process_instance.get_user_who_started_process()
-                if user == user_started or user.is_superuser:
-                    # function handles assignment
-                    order_process_instance.set_finished()
-                    if user.is_superuser:  # superuser finishing a process
-                        user = user_started  # assign to user who started it
-                    # function handles user assignment
-                    order_process_instance.set_user_who_finished_process(user)
-                    return messages.SUCCESS, "{} ha sido terminado!".format(
-                        process_name)
-                else:  # users do not match
-                    return messages.WARNING, ("{} no ha sido terminado! "
-                        "Usuario {} no comenzó este proceso.").format(
-                            process_name, user)
+                # function handles assignment
+                order_process_instance.set_finished()
+                return messages.SUCCESS, "{} ha sido terminado!".format(
+                    process_name)
             else:  # order process already finished
                 return messages.WARNING, ("{} ha sido terminado "
                     "anteriormente.").format(

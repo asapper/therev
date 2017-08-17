@@ -162,21 +162,13 @@ class OrderDetailView(DetailView):
         order id and given process id, and call helper function
         to start that Process.
         """
-        username = self.POST.get('username')
-        password = self.POST.get('password')
-        user = authenticate(username=username, password=password)
-        if user is not None:  # if user is authenticated
-            # get order process
-            order_process_instance = get_object_or_404(
-                Order_Process,
-                order_id=pk,
-                process_id=process_id)
-            level, msg = OrderController.start_process(
-                order_process_instance, user)
-            messages.add_message(self, level, msg)  # send returned messages
-        else:  # user authentication failed
-            messages.warning(
-                self, "Proceso no comenzado! Usuario/contraseña incorrecta.")
+        # get order process
+        order_process_instance = get_object_or_404(
+            Order_Process,
+            order_id=pk,
+            process_id=process_id)
+        level, msg = OrderController.start_process(order_process_instance)
+        messages.add_message(self, level, msg)  # send returned messages
         return redirect(reverse(
             'control_produccion:order_detail', kwargs={'pk': pk}))
 
@@ -187,21 +179,13 @@ class OrderDetailView(DetailView):
         or raise a 404, and call helper function
         to finish that Process.
         """
-        username = self.POST.get('username')
-        password = self.POST.get('password')
-        user = authenticate(username=username, password=password)
-        if user is not None:  # if user is authenticated
-            # get order process
-            order_process_instance = get_object_or_404(
-                Order_Process,
-                order_id=pk,
-                process_id=process_id)
-            level, msg = OrderController.finish_process(
-                order_process_instance, user)
-            messages.add_message(self, level, msg)  # send returned messages
-        else:  # user authentication failed
-            messages.warning(
-                self, "Proceso no terminado! Usuario/contraseña incorrecta.")
+        # get order process
+        order_process_instance = get_object_or_404(
+            Order_Process,
+            order_id=pk,
+            process_id=process_id)
+        level, msg = OrderController.finish_process(order_process_instance)
+        messages.add_message(self, level, msg)  # send returned messages
         return redirect(reverse(
             'control_produccion:order_detail', kwargs={'pk': pk}))
 
@@ -212,21 +196,13 @@ class OrderDetailView(DetailView):
         or raise a 404, and call helper function
         to pause that Process.
         """
-        username = self.POST.get('username')
-        password = self.POST.get('password')
-        user = authenticate(username=username, password=password)
-        if user is not None:  # if user is authenticated
-            # get order process
-            order_process_instance = get_object_or_404(
-                Order_Process,
-                order_id=pk,
-                process_id=process_id)
-            level, msg = OrderController.pause_process(
-                order_process_instance, user)
-            messages.add_message(self, level, msg)  # send returned messages
-        else:  # user authentication failed
-            messages.warning(
-                self, "Proceso no terminado! Usuario/contraseña incorrecta.")
+        # get order process
+        order_process_instance = get_object_or_404(
+            Order_Process,
+            order_id=pk,
+            process_id=process_id)
+        level, msg = OrderController.pause_process(order_process_instance)
+        messages.add_message(self, level, msg)  # send returned messages
         return redirect(reverse(
             'control_produccion:order_detail', kwargs={'pk': pk}))
 
@@ -237,21 +213,13 @@ class OrderDetailView(DetailView):
         or raise a 404, and call helper function
         to resume that Process.
         """
-        username = self.POST.get('username')
-        password = self.POST.get('password')
-        user = authenticate(username=username, password=password)
-        if user is not None:  # if user is authenticated
-            # get order process
-            order_process_instance = get_object_or_404(
-                Order_Process,
-                order_id=pk,
-                process_id=process_id)
-            level, msg = OrderController.resume_process(
-                order_process_instance, user)
-            messages.add_message(self, level, msg)  # send returned messages
-        else:  # user authentication failed
-            messages.warning(
-                self, "Proceso no terminado! Usuario/contraseña incorrecta.")
+        # get order process
+        order_process_instance = get_object_or_404(
+            Order_Process,
+            order_id=pk,
+            process_id=process_id)
+        level, msg = OrderController.resume_process(order_process_instance)
+        messages.add_message(self, level, msg)  # send returned messages
         return redirect(reverse(
             'control_produccion:order_detail', kwargs={'pk': pk}))
 
