@@ -85,23 +85,25 @@ class Order(models.Model):
 
 class Order_Process(models.Model):
     # order reference
-    order = models.ForeignKey(Order)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
     # process reference
-    process = models.ForeignKey(Process)
+    process = models.ForeignKey(Process, on_delete=models.CASCADE)
     # is started?
     order_process_is_started = models.BooleanField(default=False)
     # datetime started
     order_process_datetime_started = models.DateTimeField(null=True)
     # user that started this Order_Process
     order_process_user_started = models.ForeignKey(
-        User, related_name='order_processes_started', null=True)
+        User, related_name='order_processes_started', null=True,
+        on_delete=models.CASCADE)
     # is finished?
     order_process_is_finished = models.BooleanField(default=False)
     # datetime finished
     order_process_datetime_finished = models.DateTimeField(null=True)
     # user that finished this Order_Process
     order_process_user_finished = models.ForeignKey(
-        User, related_name='order_processes_finished', null=True)
+        User, related_name='order_processes_finished', null=True,
+        on_delete=models.CASCADE)
     # datetime process was paused
     order_process_datetime_pause_start = models.DateTimeField(null=True)
     # is paused?

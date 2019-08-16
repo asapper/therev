@@ -2,7 +2,7 @@
 import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User

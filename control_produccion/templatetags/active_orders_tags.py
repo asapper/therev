@@ -7,7 +7,7 @@ from ..models import Order_Process
 register = template.Library()
 
 
-@register.assignment_tag
+@register.simple_tag
 def get_process_in_order(order, process):
     """Returns True if Process is associated to Order."""
     try:
