@@ -1,8 +1,20 @@
 # Control de Producción
 This Django project was developed for a printing company in Guatemala City, Guatemala called [Digital House GT](http://digitalhousegt.com). This project integrates itself with the company's database to obtain relevant information about the orders being processed. Along with that information, this module allows users to keep control over the state of the order from start to finish.
 
+## Table of Contents
+- [Motivation](#motivation)
+- [Problem it solved](#problem-it-solved)
+- [Views](#views)
+    + [List of Orders](#list-of-orders)
+    + [Order Detail](#order-detail)
+    + [Analytics](#analytics)
+    + [Active Orders](#active-orders)
+- [Tests](#tests)
+- [Future changes](#future-changes)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
 
-## Motivation
+### Motivation
 I was given the task to make it easy to visualize the processes completed and left to complete for each order. My initial idea was to develop a Java application to solve this problem. However, I opted not to use Java because a JVM installation would be required, and also because I needed an easy way to develop a user-friendly Graphical Interface, which is not something Java is known for.
 
 My second idea was to develop a Django web application to solve this proble. This idea was clearly the best one for this problem because I could easily create Graphical Interfaces using HTML and CSS. Nevertheless, I was still required to download a Python interpreter to run the program locally, but Django was still a much better option.
@@ -10,21 +22,21 @@ My second idea was to develop a Django web application to solve this proble. Thi
 This is why I was motivated to use Django to solve the problem the client described.
 
 
-## Problem it solved
+### Problem it solved
 This module targets a huge problem Digital House GT encountered: not knowing exactly what orders are being processed, and how much more time an order would require before it is fulfilled (in terms of processes left).
 
 This problem was solved by allowing the employees to change the state of an order, while this change of state is displayed in a table for the manager to see (examples below).
 
 
-## Views
+### Views
 This Django app has four main views. Each one has a specific functionality that allows the user to do different things.
 
-#### List of Orders
+##### List of Orders
 This view allows for the user to see a list of all the orders stored. Through this page, the user can access the detail page of a specific order.
 
 ![List of Orders page](https://drive.google.com/uc?id=0Bx5ecVUu5VhJUVpub0pmOWlLaWM)
 
-#### Order Detail
+##### Order Detail
 This view allows for the user to see all the processes this order must go through. It counts with two subviews:
 
 - Processes
@@ -39,7 +51,7 @@ This view allows for the user to see all the processes this order must go throug
 
 ![Analytics subview in Order Detail page](https://drive.google.com/uc?id=0Bx5ecVUu5VhJUE44bG5HdGl1MDg)
 
-#### Analytics
+##### Analytics
 The Analytics page displays some valuable stats, completion times, and much more. It counts with several subviews:
 
 - Processes
@@ -66,7 +78,7 @@ The Analytics page displays some valuable stats, completion times, and much more
 
 ![Workers subview in Analytics page](https://drive.google.com/uc?id=0Bx5ecVUu5VhJU3FYOHpxajlHdlk)
 
-#### Active Orders
+##### Active Orders
 This view displays the state of each order that has not been finished. This view *solves the client's problem* of not being able to visualize what orders are being processed, and how close to being done each order is.
 
 ![Active Orders page](https://drive.google.com/uc?id=0Bx5ecVUu5VhJbmxZa1ExYThRWGc)
@@ -74,7 +86,7 @@ This view displays the state of each order that has not been finished. This view
 The table displayed refreshes every minute (with the use of JavaScript) in order to accurately display the state of each order.
 
 
-## Tests
+### Tests
 This project was thoroughly tested with the use of many testing tools:
 
 - _Unit testing_:
@@ -87,14 +99,14 @@ This testing tool allowed for better testing of the Graphical Interface. Through
 This tool allowed for a more robust and complete testing. It revealed "else" cases and views that were not being tested (mainly views that were accesed through a POST request).
 
 
-## Future changes
+### Future changes
 Tasks in the backlog:
 - Add user login
 - Add more metrics in the Analytics page
 - Host this app in the web (potentially with Heroku)
 
 
-## License
+### License
 MIT License
 
 Copyright (c) 2016 Andy Sapper
@@ -117,5 +129,5 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Acknowledgements
+### Acknowledgements
 This project was possible thanks to the input of all the workers at Digital House GT, as well as all the great support from the Django community by providing modules and answers for common problems encountered by developers.
